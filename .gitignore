@@ -2,3 +2,5 @@ node_modules/
 *.tsbuildinfo
 # machine-global gitignore excludes .mcp.json; this repo needs it tracked
 !.mcp.json
+# SDD scratch (review packages, ledgers) — never publish
+.superpowers/
