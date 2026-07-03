@@ -25214,7 +25214,7 @@ function makeHandlers(fetchImpl = fetch) {
 
 // src/index.ts
 var server = new Server(
-  { name: "scieng-mcp", version: "0.1.0" },
+  { name: "scieng-mcp", version: "0.1.1" },
   { capabilities: { tools: {} } }
 );
 var HANDLERS = makeHandlers();

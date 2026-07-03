@@ -5,7 +5,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { TOOLS, makeHandlers, dispatchTool } from "./tools.ts";
 
 const server = new Server(
-  { name: "scieng-mcp", version: "0.1.0" },
+  { name: "scieng-mcp", version: "0.1.1" },
   { capabilities: { tools: {} } },
 );
 const HANDLERS = makeHandlers();

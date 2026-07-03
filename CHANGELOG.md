@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1] - 2026-07-02
+
+### Fixed
+- Tool dispatch guarded with `Object.hasOwn` (prototype names like `toString` no longer bypass the unknown-tool error); unknown-tool errors now use the same JSON envelope as handler throws.
+- `httpText` non-2xx errors name the remote service host.
+- Nested `blocks[]`/`replacements[]` schemas reject unknown keys, matching the declared JSON Schema.
+- SKILL.md Quick Reference now routes to PAPERS.md and the HTML-playground background doc.
+
 ## [0.1.0] - 2026-07-02
 
 ### Added
