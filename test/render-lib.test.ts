@@ -33,8 +33,16 @@ test("httpText returns body on 200", async () => {
 test("httpText fails fast on 4xx (no retry)", async () => {
   let calls = 0;
   const fake: typeof fetch = async () => { calls++; return new Response("bad", { status: 400 }); };
-  await assert.rejects(() => httpText("https://x", { fetchImpl: fake, retries: 3 }), /HTTP 400/);
+  await assert.rejects(() => httpText("https://x", { fetchImpl: fake, retries: 3 }), /HTTP 400 from x: bad/);
   assert.equal(calls, 1);
+});
+
+test("httpText error message names the service (host)", async () => {
+  const fake: typeof fetch = async () => new Response("nope", { status: 404 });
+  await assert.rejects(
+    () => httpText("https://codecogs.example.com/render", { fetchImpl: fake, retries: 0 }),
+    /HTTP 404 from codecogs\.example\.com: nope/,
+  );
 });
 
 test("httpText retries transient 503 then succeeds", async () => {

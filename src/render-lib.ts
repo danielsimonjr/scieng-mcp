@@ -36,7 +36,7 @@ export async function httpText(url: string, opts: HttpOptions = {}): Promise<str
     if (res.ok) return text;
     // Non-2xx: fail fast on non-transient statuses (no retry); only retry transient ones.
     if (!TRANSIENT.has(res.status) || attempt === retries) {
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 500)}`);
+      throw new Error(`HTTP ${res.status} from ${new URL(url).host}: ${text.slice(0, 500)}`);
     }
     const raHeader = res.headers.get("retry-after");
     const ra = raHeader === null ? NaN : Number(raHeader);

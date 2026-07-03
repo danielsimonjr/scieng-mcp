@@ -24781,7 +24781,7 @@ async function httpText(url2, opts = {}) {
     clearTimeout(timer);
     if (res.ok) return text;
     if (!TRANSIENT.has(res.status) || attempt === retries) {
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 500)}`);
+      throw new Error(`HTTP ${res.status} from ${new URL(url2).host}: ${text.slice(0, 500)}`);
     }
     const raHeader = res.headers.get("retry-after");
     const ra = raHeader === null ? NaN : Number(raHeader);
@@ -25056,6 +25056,20 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
 }
 
 // src/tools.ts
+async function dispatchTool(handlers, name, args) {
+  if (!Object.hasOwn(handlers, name)) {
+    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: `unknown tool '${name}'` }) }], isError: true };
+  }
+  try {
+    const text = await handlers[name](args ?? {});
+    return { content: [{ type: "text", text }] };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}
+`);
+    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+  }
+}
 var SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";
 var INPUT_DESC = "Path to a source file. Provide exactly one of source / input_path.";
 var OUTPUT_DESC = "Output file path. Required with inline source; defaults to the input path with the extension swapped when input_path is used.";
@@ -25161,13 +25175,13 @@ var HtmlArgs = external_exports.object({
     type: external_exports.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
     source: external_exports.string(),
     title: external_exports.string().optional()
-  })).min(1),
+  }).strict()).min(1),
   title: external_exports.string().optional(),
   output_path: external_exports.string()
 }).strict();
 var OoxmlArgs = external_exports.object({
   document_xml_path: external_exports.string(),
-  replacements: external_exports.array(external_exports.object({ find: external_exports.string(), replace: external_exports.string() })).min(1),
+  replacements: external_exports.array(external_exports.object({ find: external_exports.string(), replace: external_exports.string() }).strict()).min(1),
   preserve_space: external_exports.boolean().optional()
 }).strict();
 function makeHandlers(fetchImpl = fetch) {
@@ -25207,19 +25221,7 @@ var HANDLERS = makeHandlers();
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
-  const handler = HANDLERS[name];
-  if (!handler) {
-    return { content: [{ type: "text", text: `Error: unknown tool '${name}'` }], isError: true };
-  }
-  try {
-    const text = await handler(args ?? {});
-    return { content: [{ type: "text", text }] };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}
-`);
-    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
-  }
+  return dispatchTool(HANDLERS, name, args);
 });
 async function main() {
   await server.connect(new StdioServerTransport());

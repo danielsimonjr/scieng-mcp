@@ -20,6 +20,8 @@ Unified reference for writing correct diagram/math/document markup and rendering
 | Sci/eng docs: circuits, Bode plots, WaveDrom, SI units | <SCIENG.md> | MathJax + Plotly + WaveDrom + SVG |
 | Engineering Word docs: part numbers, revision/approval, ATP/ESS, MIL-STD | <ENGINEERING-DOCX.md> | document-skills:docx |
 | Data charts, scientific plots, 3D, code highlighting | <RENDERERS.md> | Chart.js / Plotly / D3 / Three.js / Highlight.js |
+| Structuring/writing CS & scientific papers | <PAPERS.md> | — |
+| Playground pattern background & rationale | <Claude Code HTML Playground.md> | — |
 
 ## When NOT to Use
 

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { TOOLS, makeHandlers } from "../src/tools.ts";
+import { TOOLS, makeHandlers, dispatchTool, type ToolHandler } from "../src/tools.ts";
 
 test("exactly the five spec tools are defined", () => {
   assert.deepEqual(TOOLS.map((t) => t.name).sort(),
@@ -56,6 +56,47 @@ test("render_html builds a playground from blocks", async () => {
   }));
   assert.equal(res.path, out);
   assert.match(readFileSync(out, "utf-8"), /mermaid@11/);
+});
+
+test("dispatchTool rejects prototype-inherited names not present as own properties", async () => {
+  const handlers: Record<string, ToolHandler> = { real_tool: async () => "ok" };
+  const res = await dispatchTool(handlers, "toString", {});
+  assert.equal(res.isError, true);
+  const body = JSON.parse(res.content[0].text);
+  assert.deepEqual(body, { status: "error", error: "unknown tool 'toString'" });
+});
+
+test("dispatchTool rejects an unknown tool name", async () => {
+  const handlers: Record<string, ToolHandler> = { real_tool: async () => "ok" };
+  const res = await dispatchTool(handlers, "no_such_tool", {});
+  assert.equal(res.isError, true);
+  const body = JSON.parse(res.content[0].text);
+  assert.deepEqual(body, { status: "error", error: "unknown tool 'no_such_tool'" });
+});
+
+test("dispatchTool wraps a throwing handler as an isError JSON envelope", async () => {
+  const handlers: Record<string, ToolHandler> = {
+    boom: async () => { throw new Error("boom"); },
+  };
+  const res = await dispatchTool(handlers, "boom", {});
+  assert.equal(res.isError, true);
+  const body = JSON.parse(res.content[0].text);
+  assert.deepEqual(body, { status: "error", error: "boom" });
+});
+
+test("dispatchTool happy path returns handler text with no isError", async () => {
+  const handlers: Record<string, ToolHandler> = { stub: async () => "ok" };
+  const res = await dispatchTool(handlers, "stub", {});
+  assert.equal(res.isError, undefined);
+  assert.equal(res.content[0].text, "ok");
+});
+
+test("render_html rejects a block with an extra unknown key (nested strict schema)", async () => {
+  const h = makeHandlers();
+  await assert.rejects(() => h.render_html({
+    output_path: "out.html",
+    blocks: [{ type: "mermaid", source: "g", bogus: 1 }],
+  }));
 });
 
 test("ooxml_replace end-to-end", async () => {

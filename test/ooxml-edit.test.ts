@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { replaceInRuns, assertNoDoctype, applyEdits } from "../src/ooxml-edit.ts";
-import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -41,6 +41,25 @@ test("applyEdits edits document.xml in place and reports counts", () => {
   assert.deepEqual(r.results, [{ find: "P/N 779068-01", replaced: true }, { find: "absent", replaced: false }]);
   assert.equal(r.written, true);
   assert.match(readFileSync(p, "utf-8"), /779630-01/);
+});
+
+test("applyEdits all-miss path leaves file byte-identical and reports no writes", () => {
+  const dir = mkdtempSync(join(tmpdir(), "oox3-"));
+  const p = join(dir, "document.xml");
+  const original = `<w:document><w:r><w:rPr/><w:t>P/N 779068-01</w:t></w:r></w:document>`;
+  writeFileSync(p, original);
+  const before = readFileSync(p);
+  const beforeMtime = statSync(p).mtimeMs;
+  const r = applyEdits(p, [{ find: "absent-1", replace: "x" }, { find: "absent-2", replace: "y" }]);
+  assert.equal(r.written, false);
+  assert.equal(r.replaced_count, 0);
+  assert.deepEqual(r.results, [
+    { find: "absent-1", replaced: false },
+    { find: "absent-2", replaced: false },
+  ]);
+  const after = readFileSync(p);
+  assert.ok(before.equals(after), "file content must be byte-identical after an all-miss applyEdits call");
+  assert.equal(statSync(p).mtimeMs, beforeMtime, "file mtime must be unchanged after an all-miss applyEdits call");
 });
 
 test("applyEdits refuses a file without a w:document root", () => {

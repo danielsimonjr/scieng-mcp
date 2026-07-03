@@ -9,6 +9,30 @@ import { applyEdits } from "./ooxml-edit.ts";
 
 export type ToolHandler = (raw: unknown) => Promise<string>;
 
+export interface ToolResult {
+  [x: string]: unknown;
+  content: { type: "text"; text: string }[];
+  isError?: boolean;
+}
+
+export async function dispatchTool(
+  handlers: Record<string, ToolHandler>,
+  name: string,
+  args: unknown,
+): Promise<ToolResult> {
+  if (!Object.hasOwn(handlers, name)) {
+    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: `unknown tool '${name}'` }) }], isError: true };
+  }
+  try {
+    const text = await handlers[name](args ?? {});
+    return { content: [{ type: "text", text }] };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}\n`);
+    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+  }
+}
+
 const SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";
 const INPUT_DESC = "Path to a source file. Provide exactly one of source / input_path.";
 const OUTPUT_DESC = "Output file path. Required with inline source; defaults to the input path with the extension swapped when input_path is used.";
@@ -119,14 +143,14 @@ const HtmlArgs = z.object({
     type: z.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
     source: z.string(),
     title: z.string().optional(),
-  })).min(1),
+  }).strict()).min(1),
   title: z.string().optional(),
   output_path: z.string(),
 }).strict();
 
 const OoxmlArgs = z.object({
   document_xml_path: z.string(),
-  replacements: z.array(z.object({ find: z.string(), replace: z.string() })).min(1),
+  replacements: z.array(z.object({ find: z.string(), replace: z.string() }).strict()).min(1),
   preserve_space: z.boolean().optional(),
 }).strict();
 
