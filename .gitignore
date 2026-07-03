@@ -1,0 +1,4 @@
+node_modules/
+*.tsbuildinfo
+# machine-global gitignore excludes .mcp.json; this repo needs it tracked
+!.mcp.json
