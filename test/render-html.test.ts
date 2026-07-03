@@ -77,3 +77,19 @@ test("raw-html passes through verbatim; titles become h2 sections", () => {
 test("empty blocks throws", () => {
   assert.throws(() => buildHtml([]), /at least one block/i);
 });
+
+test("script-context sources cannot break out of their tags", () => {
+  const html = buildHtml([
+    { type: "dot", source: 'digraph { a [label="</script><img src=x>"] }' },
+    { type: "plotly", source: '{"data":[],"layout":{"title":"</script><img src=x>"}}' },
+  ]);
+  assert.doesNotMatch(html, /<\/script><img/);
+  assert.match(html, /\\u003c\/script/);
+});
+
+test("wavedrom source containing </script is rejected", () => {
+  assert.throws(
+    () => buildHtml([{ type: "wavedrom", source: '{"signal":[{"name":"</script>"}]}' }]),
+    /must not contain/,
+  );
+});

@@ -1,8 +1,16 @@
 export type BlockType = "mermaid" | "dot" | "latex" | "plotly" | "wavedrom" | "raw-html";
+
+// Trust model per block type: mermaid/latex sources are HTML-escaped; dot and
+// plotly are JSON-embedded with "<" escaped; wavedrom is verbatim behind a
+// "</script" guard; raw-html is verbatim and fully caller-trusted.
 export interface HtmlBlock { type: BlockType; source: string; title?: string }
 
 const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// JSON-encode a value for embedding inside an inline <script>: escape "<" so
+// a value containing "</script>" cannot close the surrounding tag early.
+const jsEmbed = (v: unknown): string => JSON.stringify(v).replace(/</g, "\\u003c");
 
 // Exact-pinned CDN assets with Subresource Integrity (sha384 of each pinned
 // file, computed 2026-07-02). A pin and its hash always change together.
@@ -42,7 +50,7 @@ function renderBlock(b: HtmlBlock, i: number): string {
     case "mermaid":
       return `<pre class="mermaid">${esc(b.source)}</pre>`;
     case "dot":
-      return `<div id="dot-${i}"></div>\n<script>Viz.instance().then(v => document.getElementById("dot-${i}").appendChild(v.renderSVGElement(${JSON.stringify(b.source)})));</script>`;
+      return `<div id="dot-${i}"></div>\n<script>Viz.instance().then(v => document.getElementById("dot-${i}").appendChild(v.renderSVGElement(${jsEmbed(b.source)})));</script>`;
     case "latex": {
       const tex = hasOwnDelimiters(b.source) ? b.source : `\\[${b.source}\\]`;
       return `<div class="latex-block">${esc(tex)}</div>`;
@@ -51,11 +59,17 @@ function renderBlock(b: HtmlBlock, i: number): string {
       let spec: { data?: unknown; layout?: unknown };
       try { spec = JSON.parse(b.source) as typeof spec; }
       catch { throw new Error(`plotly block ${i}: source must be valid JSON ({"data": [...], "layout": {...}})`); }
-      return `<div id="plotly-${i}"></div>\n<script>Plotly.newPlot("plotly-${i}", ${JSON.stringify(spec.data ?? [])}, ${JSON.stringify(spec.layout ?? {})});</script>`;
+      return `<div id="plotly-${i}"></div>\n<script>Plotly.newPlot("plotly-${i}", ${jsEmbed(spec.data ?? [])}, ${jsEmbed(spec.layout ?? {})});</script>`;
     }
     case "wavedrom":
+      // WaveDrom reads this tag's text verbatim; legitimate WaveJSON never
+      // contains "</script", so refuse rather than risk tag breakout.
+      if (/<\/script/i.test(b.source)) {
+        throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
+      }
       return `<script type="WaveDrom">${b.source}</script>`;
     case "raw-html":
+      // Embedded verbatim BY DESIGN — the caller owns this content's safety.
       return b.source;
   }
 }
