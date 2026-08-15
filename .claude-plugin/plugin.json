@@ -1,5 +1,5 @@
 {
   "name": "scieng-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Science/engineering authoring tools: Mermaid/DOT/LaTeX to SVG, HTML playgrounds, OOXML edits + the scieng skill"
 }

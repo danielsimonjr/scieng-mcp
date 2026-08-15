@@ -4,8 +4,11 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { TOOLS, makeHandlers, dispatchTool } from "./tools.ts";
 
+declare const __PKG_VERSION__: string;
+const VERSION = typeof __PKG_VERSION__ !== "undefined" ? __PKG_VERSION__ : "0.0.0-dev";
+
 const server = new Server(
-  { name: "scieng-mcp", version: "0.1.1" },
+  { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } },
 );
 const HANDLERS = makeHandlers();
