@@ -1,6 +1,6 @@
 {
   "name": "scieng-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for science/engineering authoring: Mermaid/DOT/LaTeX to SVG, self-contained HTML playgrounds, OOXML run-preserving edits",
   "type": "module",
   "main": "bundle/index.mjs",
@@ -19,5 +19,7 @@
     "esbuild": "^0.28.2",
     "typescript": "^7.0"
   },
-  "engines": { "node": ">=24" }
+  "engines": {
+    "node": ">=24"
+  }
 }
