@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.0] - 2026-09-05 - MCP SDK v2 (dependency major; wire protocol unchanged)
+
+- **Runtime moved from `@modelcontextprotocol/sdk@1.x` to `@modelcontextprotocol/{server,core}@2.x`**
+  (23063bd), and the dead `sdk@1.x` entry that the port left behind in the manifest was dropped
+  (38802ca). Until that second commit the manifest declared BOTH generations, so a fleet scan read
+  this repo as MIXED even though nothing imported v1.
+- **Breaking for anything resolving alongside this package, so a major bump in 0.x terms.**
+  0.1.3 -> **0.2.0**, not 2.0.0: under semver a breaking change while below 1.0.0 moves the MINOR.
+  Jumping to 2.0.0 would invent a 1.0.0 that never existed and claim an API stability this package
+  has never declared.
+- **The wire protocol is UNCHANGED at `2025-11-25`.** Verified by a live stdio round trip against
+  the rebuilt `bundle/index.mjs` -- the exact file `.mcp.json` launches -- which reports version
+  0.2.0, negotiates 2025-11-25, lists all 5 tools, and returns -32601 for a bogus method so the
+  probe is known failure-capable. The v2 package major and the protocol era are separate facts.
+- **Tag history note:** the previous tag is `v0.1.1` while `package.json` had reached `0.1.3`, and
+  this repo had NO GitHub releases at all. Versions 0.1.2 and 0.1.3 were never tagged or released,
+  so the tag sequence skips them. Recorded rather than back-filled: inventing tags after the fact
+  would misrepresent when those versions actually shipped.
+
+
 ## 2026-09-03 - CI now exercises the NODE runtime, not just Bun
 
 - Every CI step ran through `bun run` while `setup-node` was installed and never invoked,
