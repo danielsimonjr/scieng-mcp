@@ -15,6 +15,25 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Ported to the MCP 2.0 SDK** — `@modelcontextprotocol/sdk@1.x` replaced by
+  `@modelcontextprotocol/server` + `core` @2.0.0. Three non-obvious differences, recorded because
+  they are not import swaps:
+  - **Handlers register by SPEC METHOD NAME, not by schema object.** `setRequestHandler("tools/list", fn)`
+    and `setRequestHandler("tools/call", fn)`. The v1 form `setRequestHandler(CallToolRequestSchema, fn)`
+    throws at runtime: *"is not a spec request method; pass schemas as the second argument"*.
+  - **`serveStdio()` replaces `connect(new StdioServerTransport())`** and owns the transport
+    lifecycle, including legacy-era clients via `legacy: "serve"`.
+  - **The `Tool` type moved to `@modelcontextprotocol/server`** (type-only). It is NOT in `core`,
+    and v2 types `inputSchema.properties` as recursive JSON values rather than `object`, so leaving
+    the v1 `Tool` import in place fails typecheck with a deeply nested and misleading error.
+
+  Verified against the BUILT bundle over real stdio, not just a passing build: a live `initialize`
+  negotiates `2025-11-25` (the SDK's actual latest) and `tools/list` returns all 5 tools.
+  Note this is a DEPENDENCY-generation change; the wire protocol is 2025-11-25 before and after.
+
+
 ### Security (2026-08-04)
 
 Lock-only via `npm update`; no manifest changed. Transitive dependencies of the

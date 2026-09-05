@@ -1,4 +1,4 @@
-import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
 import { renderMermaidSource } from "./render-mermaid.ts";

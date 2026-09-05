@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { Server } from "@modelcontextprotocol/server";
+import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { TOOLS, makeHandlers, dispatchTool } from "./tools.ts";
 
 declare const __PKG_VERSION__: string;
@@ -13,19 +12,23 @@ const server = new Server(
 );
 const HANDLERS = makeHandlers();
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
+// MCP 2.0 registers by SPEC METHOD NAME, not by a schema object. The v1 form
+// `setRequestHandler(CallToolRequestSchema, fn)` throws here: "is not a spec request
+// method; pass schemas as the second argument to setRequestHandler()".
+server.setRequestHandler("tools/list", async () => ({ tools: TOOLS }));
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler("tools/call", async (request) => {
   const { name, arguments: args } = request.params;
   return dispatchTool(HANDLERS, name, args);
 });
 
-async function main(): Promise<void> {
-  await server.connect(new StdioServerTransport());
-  process.stderr.write("scieng-mcp: connected on stdio\n");
-}
-
-main().catch((err) => {
-  process.stderr.write(`scieng-mcp: fatal: ${err instanceof Error ? err.message : String(err)}\n`);
-  process.exit(1);
+// `serveStdio` replaces the v1 connect(new StdioServerTransport()) dance and owns the
+// transport lifecycle, including legacy-era clients.
+serveStdio(() => server, {
+  legacy: "serve",
+  onerror: (e) =>
+    process.stderr.write(
+      `scieng-mcp: ${e instanceof Error ? e.message : String(e)}` + String.fromCharCode(10),
+    ),
 });
+process.stderr.write("scieng-mcp: connected on stdio" + String.fromCharCode(10));
