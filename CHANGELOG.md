@@ -17,6 +17,12 @@
 
 ### Changed
 
+- **Removed the now-dead `@modelcontextprotocol/sdk@1.x` dependency.** The port left it in
+  `package.json` though nothing imported it any more, which made a fleet scan classify this repo
+  as MIXED-generation -- the manifest claimed both SDKs and could not say which was live. A
+  dependency nothing imports is not harmless: it is a second source of truth about what this
+  server runs on.
+
 - **Ported to the MCP 2.0 SDK** — `@modelcontextprotocol/sdk@1.x` replaced by
   `@modelcontextprotocol/server` + `core` @2.0.0. Three non-obvious differences, recorded because
   they are not import swaps:
