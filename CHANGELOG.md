@@ -1,8 +1,36 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.0] - 2026-09-17
 
 ### Changed
+
+- **The plugin now installs from `plugin/`, so Claude Code no longer installs the dev
+  toolchain into the plugin cache.** The marketplace entry installed the repo root, which
+  holds `package.json`, `bun.lock` and `package-lock.json`. Claude Code's plugin installer
+  runs `bun install --frozen-lockfile --ignore-scripts` when it finds a manifest plus a
+  lockfile at the plugin root, and it has no omit-dev option, so `typescript`, `esbuild`
+  and `@types/node` were installed into the cache. The 0.2.0 cache measured **59 MB of
+  `node_modules` out of 60 MB total**, for a server that needs none of it at runtime.
+
+  `plugin/` now holds `.claude-plugin/plugin.json`, `.mcp.json`, `bundle/` and `skills/`
+  only - no `package.json` and no lockfile, so the installer finds nothing to install. The
+  repo root keeps its manifests for development, and `scripts/bundle.mjs` writes to
+  `plugin/bundle/index.mjs`. `.gitignore` keeps the `.mcp.json` negation, now pointed at
+  `plugin/.mcp.json`. The marketplace entry must become `git-subdir` with
+  `path: "plugin"`.
+
+  **The renderers need no runtime packages and no external binaries.** `render_mermaid`,
+  `render_dot` and `render_latex` call remote HTTP services with the global `fetch`
+  (`mermaid.ink`, `quickchart.io/graphviz`, `upmath`); `render_html` writes CDN `<script>`
+  tags into the output page. `bundle/index.mjs` imports only `node:` builtins.
+
+  Verified from a copy of `plugin/` that carries no `node_modules`: `initialize` and
+  `tools/list` both succeed over stdio and report 5 tools. Repeated with a preload that
+  throws on any non-builtin `require`/`import`: same result. The guard is failure-capable -
+  a deliberate `import "typescript"` under the same preload is denied.
+
+  The version bump is required, not cosmetic: the plugin cache is keyed by version, so
+  without it a marketplace refresh reuses the existing clone.
 
 - **TypeScript range tightened to `^7.0.2` and Bun pinned to 1.4.2.** The range was
   `^7.0`, which installs 7.0.2+ today but declares a floor of 7.0.0 -- a declaration is

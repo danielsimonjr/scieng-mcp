@@ -18,10 +18,10 @@ await build({
   target: "node20",
   format: "esm",
   banner: { js: banner },
-  outfile: "bundle/index.mjs",
+  outfile: "plugin/bundle/index.mjs",
   // Compile-time version: serverInfo was a hardcoded literal, so it reported a stale
   // number no matter what the manifests said - the one version a client can see, lying.
   define: { __PKG_VERSION__: JSON.stringify(__pkg.version) },
   logLevel: "warning",
 });
-console.log("bundled -> bundle/index.mjs");
+console.log("bundled -> plugin/bundle/index.mjs");

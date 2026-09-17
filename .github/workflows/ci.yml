@@ -51,7 +51,7 @@ jobs:
       - name: Node runtime smoke (the shipped artifact must load under Node)
         run: |
           node --input-type=module -e '
-            const entry = "./bundle/index.mjs";
+            const entry = "./plugin/bundle/index.mjs";
             const t = setTimeout(() => {
               console.log("PASS: self-started under Node, no crash within 5s");
               process.exit(0);

@@ -1,6 +1,6 @@
 node_modules/
 *.tsbuildinfo
-# machine-global gitignore excludes .mcp.json; this repo needs it tracked
-!.mcp.json
+# machine-global gitignore excludes .mcp.json; the plugin launch config must be tracked
+!plugin/.mcp.json
 # SDD scratch (review packages, ledgers) — never publish
 .superpowers/

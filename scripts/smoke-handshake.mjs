@@ -5,7 +5,7 @@ const INIT = JSON.stringify({
   params: { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "smoke", version: "0" } },
 }) + "\n";
 
-const p = spawn("node", ["bundle/index.mjs"], { stdio: ["pipe", "pipe", "inherit"] });
+const p = spawn("node", ["plugin/bundle/index.mjs"], { stdio: ["pipe", "pipe", "inherit"] });
 let out = "";
 const timer = setTimeout(() => { p.kill(); console.error("SMOKE FAIL: no handshake in 15s"); process.exit(1); }, 15000);
 p.stdout.on("data", (d) => {

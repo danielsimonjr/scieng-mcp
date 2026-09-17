@@ -21,11 +21,11 @@ the Model Context Protocol.
 ```bash
 npm test          # run the unit + smoke test suite
 npm run typecheck # tsc --noEmit
-npm run bundle    # esbuild src/index.ts -> bundle/index.mjs
+npm run bundle    # esbuild src/index.ts -> plugin/bundle/index.mjs
 npm run smoke     # spawn the bundle, send an MCP initialize handshake, expect serverInfo
 ```
 
-The committed `bundle/index.mjs` is what the plugin actually launches — after
+The committed `plugin/bundle/index.mjs` is what the plugin actually launches — after
 changing anything under `src/`, re-run `npm run bundle` and commit the
 regenerated bundle alongside the source change.
 
