@@ -447,7 +447,7 @@ Define symbols once in `<defs>`, instantiate with `<use>`. All symbols sit on a 
 
 ### Wiring Pattern
 
-Draw wires as `<line>` or `<polyline>` elements connecting symbol terminal coordinates. Use `stroke-linejoin="round"` for clean bends. Place `<use href="#sym-junction"/>` at every T-junction or crossing where wires connect.
+Draw wires as `<line>` or `<polyline>` elements connecting symbol terminal coordinates. Never draw a wire across a part. A wire touches a symbol only at a terminal. Route the wire around the symbol. Use `stroke-linejoin="round"` for clean bends. Place `<use href="#sym-junction"/>` at every T-junction or crossing where wires connect.
 
 ```html
 <!-- Horizontal wire from R1 output to C1 input -->

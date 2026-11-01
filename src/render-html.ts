@@ -30,6 +30,12 @@ const HEAD_IMPORTS: Record<Exclude<BlockType, "raw-html">, string> = {
   ].join("\n  "),
 };
 
+// A latex block that holds its own environment is not wrapped (see hasOwnDelimiters), so
+// auto-render must list each environment, or the block stays as literal text.
+const LATEX_ENVS = ["equation", "equation*", "align", "align*", "gather", "gather*"];
+const envDelimiters = LATEX_ENVS
+  .map((e) => `\n      { left: "\\\\begin{${e}}", right: "\\\\end{${e}}", display: true },`).join("");
+
 const INIT_SCRIPTS: Partial<Record<BlockType, string>> = {
   mermaid: `mermaid.initialize({ startOnLoad: true, theme: "dark" });`,
   wavedrom: `window.addEventListener("load", () => WaveDrom.ProcessAll());`,
@@ -37,9 +43,14 @@ const INIT_SCRIPTS: Partial<Record<BlockType, string>> = {
     renderMathInElement(document.body, { delimiters: [
       { left: "\\\\[", right: "\\\\]", display: true },
       { left: "$$", right: "$$", display: true },
-      { left: "\\\\(", right: "\\\\)", display: false },
+      { left: "\\\\(", right: "\\\\)", display: false },${envDelimiters}
     ]});
   });`,
+};
+
+// Page styles that only some block types need, added only when such a block is present.
+const BLOCK_STYLES: Partial<Record<BlockType, string>> = {
+  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; }`,
 };
 
 const hasOwnDelimiters = (tex: string): boolean =>
@@ -67,7 +78,8 @@ function renderBlock(b: HtmlBlock, i: number): string {
       if (/<\/script/i.test(b.source)) {
         throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
       }
-      return `<script type="WaveDrom">${b.source}</script>`;
+      // The default skin draws black lines and text, so the block gets a light panel.
+      return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;
     case "raw-html":
       // Embedded verbatim BY DESIGN — the caller owns this content's safety.
       return b.source;
@@ -81,6 +93,8 @@ export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): str
     .filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = (Object.keys(INIT_SCRIPTS) as BlockType[])
     .filter((t) => types.has(t)).map((t) => INIT_SCRIPTS[t]!);
+  const styles = (Object.keys(BLOCK_STYLES) as BlockType[])
+    .filter((t) => types.has(t)).map((t) => `\n    ${BLOCK_STYLES[t]!}`).join("");
   const body = blocks.map((b, i) => {
     const inner = renderBlock(b, i);
     return b.title ? `<section>\n<h2>${esc(b.title)}</h2>\n${inner}\n</section>` : inner;
@@ -99,7 +113,7 @@ export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): str
     section { margin: 2rem 0; }
     h2 { color: var(--accent); margin-bottom: 1rem; }
     .mermaid { background: transparent; }
-    .latex-block { margin: 1.5rem 0; }
+    .latex-block { margin: 1.5rem 0; }${styles}
   </style>
 </head>
 <body>

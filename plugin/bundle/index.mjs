@@ -29332,6 +29332,9 @@ var HEAD_IMPORTS = {
     `<script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.1.0/wavedrom.min.js" integrity="sha384-ZxcO4Va8vGMKlVz1cdMB+9lv/IdAUuNTigvTrcrJOBz4cbucyxkIzfBIaSMdSOmI" crossorigin="anonymous"></script>`
   ].join("\n  ")
 };
+var LATEX_ENVS = ["equation", "equation*", "align", "align*", "gather", "gather*"];
+var envDelimiters = LATEX_ENVS.map((e) => `
+      { left: "\\\\begin{${e}}", right: "\\\\end{${e}}", display: true },`).join("");
 var INIT_SCRIPTS = {
   mermaid: `mermaid.initialize({ startOnLoad: true, theme: "dark" });`,
   wavedrom: `window.addEventListener("load", () => WaveDrom.ProcessAll());`,
@@ -29339,9 +29342,12 @@ var INIT_SCRIPTS = {
     renderMathInElement(document.body, { delimiters: [
       { left: "\\\\[", right: "\\\\]", display: true },
       { left: "$$", right: "$$", display: true },
-      { left: "\\\\(", right: "\\\\)", display: false },
+      { left: "\\\\(", right: "\\\\)", display: false },${envDelimiters}
     ]});
   });`
+};
+var BLOCK_STYLES = {
+  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; }`
 };
 var hasOwnDelimiters = (tex) => tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
 function renderBlock(b, i) {
@@ -29369,7 +29375,7 @@ function renderBlock(b, i) {
       if (/<\/script/i.test(b.source)) {
         throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
       }
-      return `<script type="WaveDrom">${b.source}</script>`;
+      return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;
     case "raw-html":
       return b.source;
   }
@@ -29379,6 +29385,8 @@ function buildHtml(blocks, title = "scieng playground") {
   const types = new Set(blocks.map((b) => b.type));
   const imports = Object.keys(HEAD_IMPORTS).filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = Object.keys(INIT_SCRIPTS).filter((t) => types.has(t)).map((t) => INIT_SCRIPTS[t]);
+  const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
+    ${BLOCK_STYLES[t]}`).join("");
   const body = blocks.map((b, i) => {
     const inner = renderBlock(b, i);
     return b.title ? `<section>
@@ -29400,7 +29408,7 @@ ${inner}
     section { margin: 2rem 0; }
     h2 { color: var(--accent); margin-bottom: 1rem; }
     .mermaid { background: transparent; }
-    .latex-block { margin: 1.5rem 0; }
+    .latex-block { margin: 1.5rem 0; }${styles}
   </style>
 </head>
 <body>
@@ -29619,7 +29627,7 @@ function makeHandlers(fetchImpl = fetch) {
 }
 
 // src/index.ts
-var VERSION = true ? "0.4.0" : "0.0.0-dev";
+var VERSION = true ? "0.4.1" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

@@ -53,6 +53,16 @@ test("latex block with its own delimiters is not double-wrapped", () => {
   assert.equal((html.match(/\\\[/g) ?? []).length, 1 + 1); // one in content, one in the delimiter config
 });
 
+test("latex auto-render lists the environments that a block may hold, so they do not stay literal", () => {
+  const html = buildHtml([{ type: "latex", source: "\\begin{align} a &= b \\end{align}" }]);
+  for (const env of ["equation", "equation*", "align", "align*", "gather", "gather*"]) {
+    assert.ok(
+      html.includes(`{ left: "\\\\begin{${env}}", right: "\\\\end{${env}}", display: true }`),
+      `no auto-render delimiter for ${env}`,
+    );
+  }
+});
+
 test("plotly block requires valid JSON and inlines the spec", () => {
   assert.throws(() => buildHtml([{ type: "plotly", source: "not json" }]), /plotly.*JSON/i);
   const html = buildHtml([{ type: "plotly", source: '{"data":[{"x":[1],"y":[2]}],"layout":{"title":"t"}}' }]);
@@ -65,6 +75,12 @@ test("wavedrom block emits WaveDrom script tag + ProcessAll", () => {
   assert.match(html, /wavedrom\/3\.1\.0\/wavedrom\.min\.js/);
   assert.match(html, /type="WaveDrom"/);
   assert.match(html, /ProcessAll/);
+});
+
+test("wavedrom block sits on a light panel, so the black default skin reads on the dark page", () => {
+  const html = buildHtml([{ type: "wavedrom", source: '{ "signal": [{ "name": "clk", "wave": "p..." }] }' }]);
+  assert.match(html, /<div class="wavedrom-block"><script type="WaveDrom">[^<]*<\/script><\/div>/);
+  assert.match(html, /\.wavedrom-block \{[^}]*background: #fff/);
 });
 
 test("raw-html passes through verbatim; titles become h2 sections", () => {
