@@ -30,6 +30,12 @@ const HEAD_IMPORTS: Record<Exclude<BlockType, "raw-html">, string> = {
   ].join("\n  "),
 };
 
+// A latex block that holds its own environment is not wrapped (see hasOwnDelimiters), so
+// auto-render must list each environment, or the block stays as literal text.
+const LATEX_ENVS = ["equation", "equation*", "align", "align*", "gather", "gather*"];
+const envDelimiters = LATEX_ENVS
+  .map((e) => `\n      { left: "\\\\begin{${e}}", right: "\\\\end{${e}}", display: true },`).join("");
+
 const INIT_SCRIPTS: Partial<Record<BlockType, string>> = {
   mermaid: `mermaid.initialize({ startOnLoad: true, theme: "dark" });`,
   wavedrom: `window.addEventListener("load", () => WaveDrom.ProcessAll());`,
@@ -37,7 +43,7 @@ const INIT_SCRIPTS: Partial<Record<BlockType, string>> = {
     renderMathInElement(document.body, { delimiters: [
       { left: "\\\\[", right: "\\\\]", display: true },
       { left: "$$", right: "$$", display: true },
-      { left: "\\\\(", right: "\\\\)", display: false },
+      { left: "\\\\(", right: "\\\\)", display: false },${envDelimiters}
     ]});
   });`,
 };

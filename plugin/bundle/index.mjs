@@ -29332,6 +29332,9 @@ var HEAD_IMPORTS = {
     `<script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/3.1.0/wavedrom.min.js" integrity="sha384-ZxcO4Va8vGMKlVz1cdMB+9lv/IdAUuNTigvTrcrJOBz4cbucyxkIzfBIaSMdSOmI" crossorigin="anonymous"></script>`
   ].join("\n  ")
 };
+var LATEX_ENVS = ["equation", "equation*", "align", "align*", "gather", "gather*"];
+var envDelimiters = LATEX_ENVS.map((e) => `
+      { left: "\\\\begin{${e}}", right: "\\\\end{${e}}", display: true },`).join("");
 var INIT_SCRIPTS = {
   mermaid: `mermaid.initialize({ startOnLoad: true, theme: "dark" });`,
   wavedrom: `window.addEventListener("load", () => WaveDrom.ProcessAll());`,
@@ -29339,7 +29342,7 @@ var INIT_SCRIPTS = {
     renderMathInElement(document.body, { delimiters: [
       { left: "\\\\[", right: "\\\\]", display: true },
       { left: "$$", right: "$$", display: true },
-      { left: "\\\\(", right: "\\\\)", display: false },
+      { left: "\\\\(", right: "\\\\)", display: false },${envDelimiters}
     ]});
   });`
 };

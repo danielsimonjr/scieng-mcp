@@ -10,6 +10,7 @@
 - `MERMAID.md`, `GRAPHVIZ.md` and `LATEX.md` named render scripts that do not exist (`render-*-to-svg.ts`). Each section now names the matching tool (`render_mermaid`, `render_dot`, `render_latex`) and the service that receives the source.
 - `ENGINEERING-DOCX.md` named an `ooxml-edit-template.ts` helper that does not exist. The section now names the `ooxml_replace` tool.
 - The circuit command and `SCIENG.md` forbid a wire that crosses a part.
+- A `render_html` LaTeX block that held an `equation`, `align` or `gather` environment (or a starred form) showed as literal text. The block is not wrapped in display delimiters. The KaTeX auto-render call did not list the environments. The call now lists the environments. `LATEX.md` tells how to keep a LaTeX source private with `render_html`. The Copilot review found the defect.
 - `test/plugin-content.test.ts` checks that each script that a reference file places "in this skill directory" exists, and that the circuit rule is present.
 
 ### Added

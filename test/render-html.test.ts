@@ -53,6 +53,16 @@ test("latex block with its own delimiters is not double-wrapped", () => {
   assert.equal((html.match(/\\\[/g) ?? []).length, 1 + 1); // one in content, one in the delimiter config
 });
 
+test("latex auto-render lists the environments that a block may hold, so they do not stay literal", () => {
+  const html = buildHtml([{ type: "latex", source: "\\begin{align} a &= b \\end{align}" }]);
+  for (const env of ["equation", "equation*", "align", "align*", "gather", "gather*"]) {
+    assert.ok(
+      html.includes(`{ left: "\\\\begin{${env}}", right: "\\\\end{${env}}", display: true }`),
+      `no auto-render delimiter for ${env}`,
+    );
+  }
+});
+
 test("plotly block requires valid JSON and inlines the spec", () => {
   assert.throws(() => buildHtml([{ type: "plotly", source: "not json" }]), /plotly.*JSON/i);
   const html = buildHtml([{ type: "plotly", source: '{"data":[{"x":[1],"y":[2]}],"layout":{"title":"t"}}' }]);

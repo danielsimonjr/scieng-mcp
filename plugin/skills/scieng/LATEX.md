@@ -218,7 +218,7 @@ Call the `render_latex` tool of the scieng-mcp server. Set `input_path` to the `
 - The tool renders bare math, or the `equation`, `align` and display blocks of a full document.
 - The `dpi` argument sets the resolution. The default is 200.
 - The result lists each block that did not compile in `failures`.
-- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
+- For a source that must stay private, use `render_html`. `render_html` does not extract equations from a full document. Put each equation in its own `latex` block, without the preamble. The block can hold an `equation`, `align` or `gather` environment. KaTeX renders the blocks in the browser. The source stays on the machine. KaTeX does not support every package. For `\newcommand` across blocks, `\ce{}` or `\qty{}`, use the MathJax setup of `SCIENG.md`.
 
 ## Format Conversion: Markdown ↔ LaTeX ↔ DOCX ↔ PDF
 
@@ -226,7 +226,7 @@ Academic papers often need multiple output formats from a single source. This se
 
 ### The `$$...$$` Math Convention
 
-Some projects use `$$...$$` for ALL math (both inline and display), diverging from LaTeX's standard `$...$` (inline) and `$$...$$` (display). This causes problems with tools that distinguish the two:
+Some projects use `$$...$$` for ALL math (both inline and display), diverging from LaTeX's standard `$...$` (inline) and `$$...$$` (display). The mixed use causes problems with tools that distinguish the two:
 
 | Tool | `$...$` | `$$...$$` |
 |------|---------|-----------|
@@ -278,7 +278,7 @@ pandoc input.md -f markdown -t docx \
 ```
 
 Key flags:
-- `--mathml` — produces native Word math equations (editable, not images). This is critical for academic papers.
+- `--mathml` — produces native Word math equations (editable, not images). Editable equations are critical for academic papers.
 - `--toc` — auto-generates table of contents
 - `--number-sections` — adds section numbering
 - `-f markdown-yaml_metadata_block` — use if YAML front matter causes parse errors
