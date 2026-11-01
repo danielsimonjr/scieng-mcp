@@ -17,7 +17,6 @@
  * CREATED: February 2026
  * UPDATED: February 2026 - Added TOC, table/figure captions, cross-references, images
  * UPDATED: July 2026 - Converted to type-checked TypeScript reference (local docx.d.ts stub)
- * AUTHOR: Claude (for Daniel Simon Jr.)
  *
  * USAGE:
  *   Reference file - copy relevant functions into your document script.

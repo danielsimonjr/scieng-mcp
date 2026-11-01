@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Windows is the PRODUCTION platform for this MCP server (Daniel runs it
+        # Windows is the PRODUCTION platform for this MCP server (the user runs it
         # locally on Windows), but CI was Linux-only — i.e. it never tested the OS
         # the server actually ships on.
         os: [ubuntu-latest, windows-latest]
