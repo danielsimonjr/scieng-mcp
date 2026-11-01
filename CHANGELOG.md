@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-01
+
+### Security
+
+- `@modelcontextprotocol/server` and `@modelcontextprotocol/core` go from 2.0.0 to 2.4.0, and `zod` from 4.4.3 to 4.6.7. The bundle holds both packages, so the old versions shipped in the plugin. The update clears five Dependabot alerts. Four are for the server package: three high and one medium, all fixed by 2.3.0. One high alert is for `zod`, fixed in 4.6.6. `bun.lock` and `package-lock.json` hold the same versions. `npm audit --omit=dev` finds 0 vulnerabilities.
+- The bundle grows from 1,160,960 to 1,409,956 bytes. The time from start to the first tool result does not increase. Ten runs of each bundle gave 0.7 to 1.1 s for the new bundle and 0.7 to 2.3 s for the old bundle.
+
 ## [0.4.1] - 2026-11-01
 
 ### Fixed
