@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `TODO.md`: a pointer to `sciengjs` (https://github.com/danielsimonjr/sciengjs), the local rendering engine that the adapter moves onto, and three defects that the command test pass found.
+
 ## [0.4.0] - 2026-10-31
 
 ### Added
