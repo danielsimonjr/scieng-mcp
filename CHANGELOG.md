@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-01
+
+### Fixed
+
+- `render_html` puts each WaveDrom block on a light panel. The default WaveDrom skin draws black lines and text. The lines and text did not show on the dark page. The panel style goes into the page only when the page has a WaveDrom block.
+- `MERMAID.md`, `GRAPHVIZ.md` and `LATEX.md` named render scripts that do not exist (`render-*-to-svg.ts`). Each section now names the matching tool (`render_mermaid`, `render_dot`, `render_latex`) and the service that receives the source.
+- `ENGINEERING-DOCX.md` named an `ooxml-edit-template.ts` helper that does not exist. The section now names the `ooxml_replace` tool.
+- The circuit command and `SCIENG.md` forbid a wire that crosses a part.
+- `test/plugin-content.test.ts` checks that each script that a reference file places "in this skill directory" exists, and that the circuit rule is present.
+
 ### Added
 
 - `TODO.md`: a pointer to `sciengjs` (https://github.com/danielsimonjr/sciengjs), the local rendering engine that the adapter moves onto, and three defects that the command test pass found.

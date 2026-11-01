@@ -29343,6 +29343,9 @@ var INIT_SCRIPTS = {
     ]});
   });`
 };
+var BLOCK_STYLES = {
+  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; }`
+};
 var hasOwnDelimiters = (tex) => tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
 function renderBlock(b, i) {
   switch (b.type) {
@@ -29369,7 +29372,7 @@ function renderBlock(b, i) {
       if (/<\/script/i.test(b.source)) {
         throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
       }
-      return `<script type="WaveDrom">${b.source}</script>`;
+      return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;
     case "raw-html":
       return b.source;
   }
@@ -29379,6 +29382,8 @@ function buildHtml(blocks, title = "scieng playground") {
   const types = new Set(blocks.map((b) => b.type));
   const imports = Object.keys(HEAD_IMPORTS).filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = Object.keys(INIT_SCRIPTS).filter((t) => types.has(t)).map((t) => INIT_SCRIPTS[t]);
+  const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
+    ${BLOCK_STYLES[t]}`).join("");
   const body = blocks.map((b, i) => {
     const inner = renderBlock(b, i);
     return b.title ? `<section>
@@ -29400,7 +29405,7 @@ ${inner}
     section { margin: 2rem 0; }
     h2 { color: var(--accent); margin-bottom: 1rem; }
     .mermaid { background: transparent; }
-    .latex-block { margin: 1.5rem 0; }
+    .latex-block { margin: 1.5rem 0; }${styles}
   </style>
 </head>
 <body>
@@ -29619,7 +29624,7 @@ function makeHandlers(fetchImpl = fetch) {
 }
 
 // src/index.ts
-var VERSION = true ? "0.4.0" : "0.0.0-dev";
+var VERSION = true ? "0.4.1" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

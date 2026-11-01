@@ -77,3 +77,19 @@ test("the skill keeps its name and its trigger stays inside the frontmatter limi
   assert.ok(!/[<>]/.test(d), "description holds < or >");
   for (const cmd of EXPECTED) assert.ok(body.includes(`/scieng-mcp:${cmd}`), `the skill does not list /scieng-mcp:${cmd}`);
 });
+
+test("each script that the skill says is in this skill directory exists there", () => {
+  const files = readdirSync(SKILL_DIR).filter((f) => f.endsWith(".md"));
+  for (const f of files) {
+    const text = readFileSync(join(SKILL_DIR, f), "utf-8");
+    for (const m of text.matchAll(/`([\w.-]+\.(?:ts|mjs|js|py))`[^\n]*?in this skill directory/g)) {
+      assert.ok(existsSync(join(SKILL_DIR, m[1]!)), `${f}: names ${m[1]} in this skill directory, which does not exist`);
+    }
+  }
+});
+
+test("the circuit command and SCIENG.md forbid a wire that crosses a part", () => {
+  const rule = /never draw a wire across a part/i;
+  assert.match(parse(join(COMMANDS, "circuit.md")).body, rule, "circuit.md");
+  assert.match(readFileSync(join(SKILL_DIR, "SCIENG.md"), "utf-8"), rule, "SCIENG.md");
+});

@@ -289,7 +289,7 @@ The current `document-skills:docx` skill edits the unpacked XML **directly with 
 
 **Tracked changes / comments**: the docx skill ships helpers — `python scripts/comment.py unpacked/ 0 "comment text"` adds a comment; `python scripts/accept_changes.py in.docx out.docx` flattens tracked changes. See the docx skill's SKILL.md for the `<w:ins>`/`<w:del>` XML patterns.
 
-> If you must script a large batch of repetitive replacements, `ooxml-edit-template.ts` in this skill directory (run via `node ooxml-edit-template.ts`) is a **self-contained, zero-dependency** helper that does run-level find/replace while preserving each run's `<w:rPr>` — no docx-skill import and no hardcoded paths.
+> For a large batch of replacements, call the `ooxml_replace` tool of the scieng-mcp server. The tool makes run-level find-and-replace edits in an unpacked `word/document.xml` and keeps the `<w:rPr>` of each run.
 
 ### Common Engineering Document Edits
 

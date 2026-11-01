@@ -192,15 +192,10 @@ mindmap
 
 ## Rendering to SVG
 
-Use `render-mermaid-to-svg.ts` (in this skill directory) to convert `.mmd` files to SVG:
+Call the `render_mermaid` tool of the scieng-mcp server. Set `input_path` to the `.mmd` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
 
-```bash
-node render-mermaid-to-svg.ts <input.mmd> [output.svg]
-```
-
-- Uses the mermaid.ink API (no local install needed)
-- Output defaults to `<input>.svg` if omitted
-- Encodes diagram as pako-deflated base64url JSON
+- The tool sends the source to mermaid.ink. No local install is necessary.
+- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
 
 ## Validation Checklist
 

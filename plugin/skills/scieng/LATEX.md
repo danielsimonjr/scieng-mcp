@@ -212,17 +212,13 @@ def train(model, data):
 
 ## Rendering to SVG
 
-Use `render-latex-to-svg.ts` (in this skill directory) to render LaTeX math to SVG:
+Call the `render_latex` tool of the scieng-mcp server. Set `input_path` to the `.tex` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
 
-```bash
-node render-latex-to-svg.ts <input.tex> [output.svg] [--dpi=N]
-```
-
-- Uses the latex.codecogs.com API (no local LaTeX install needed)
-- Extracts math blocks (`$...$`, `\begin{align}`, etc.) from `.tex` files
-- Raw LaTeX math files render as-is
-- Multiple blocks are combined into a stacked SVG
-- Default DPI is 200
+- The tool sends the source to latex.codecogs.com. No local install is necessary.
+- The tool renders bare math, or the `equation`, `align` and display blocks of a full document.
+- The `dpi` argument sets the resolution. The default is 200.
+- The result lists each block that did not compile in `failures`.
+- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
 
 ## Format Conversion: Markdown ↔ LaTeX ↔ DOCX ↔ PDF
 

@@ -135,15 +135,11 @@ digraph {
 
 ## Rendering to SVG
 
-Use `render-dot-to-svg.ts` (in this skill directory) to convert `.dot` files to SVG:
+Call the `render_dot` tool of the scieng-mcp server. Set `input_path` to the `.dot` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
 
-```bash
-node render-dot-to-svg.ts <input.dot> [output.svg]
-```
-
-- Uses the quickchart.io/graphviz API (no local Graphviz install needed)
-- Output defaults to `<input>.svg` if omitted
-- Sends DOT source as JSON POST request
+- The tool sends the source to quickchart.io. No local install is necessary.
+- Do not send a source with a `URL`, `href` or `image` attribute. The remote service can fetch that address.
+- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
 
 ## Validation Checklist
 

@@ -67,6 +67,12 @@ test("wavedrom block emits WaveDrom script tag + ProcessAll", () => {
   assert.match(html, /ProcessAll/);
 });
 
+test("wavedrom block sits on a light panel, so the black default skin reads on the dark page", () => {
+  const html = buildHtml([{ type: "wavedrom", source: '{ "signal": [{ "name": "clk", "wave": "p..." }] }' }]);
+  assert.match(html, /<div class="wavedrom-block"><script type="WaveDrom">[^<]*<\/script><\/div>/);
+  assert.match(html, /\.wavedrom-block \{[^}]*background: #fff/);
+});
+
 test("raw-html passes through verbatim; titles become h2 sections", () => {
   const html = buildHtml([{ type: "raw-html", source: "<blink>hi</blink>", title: "Custom & Bit" }], "My Page");
   assert.match(html, /<blink>hi<\/blink>/);
