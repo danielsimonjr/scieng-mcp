@@ -1,124 +1,76 @@
 ---
 name: scieng
-description: "Science & engineering authoring: create, edit, debug, and render technical diagrams, scientific/CS papers, and engineering Word documents. Diagrams — Mermaid (flowchart, sequence, class, state, ER, gantt, mindmap, timeline), Graphviz DOT (record nodes, HTML labels, clusters, state machines), WaveDrom timing, Bode plots, SVG circuits — rendered to self-contained HTML. LaTeX for CS/engineering papers: algorithms, pseudocode, theorems, proofs, complexity notation, BibTeX, conference classes (ACM, IEEE, NeurIPS), and format conversion (markdown to DOCX/PDF/LaTeX). Engineering Word docs (invoke document-skills:docx first): part numbers (83-xxxxx), revision history, approval/signature blocks, requirements traceability, test procedures (ATP/ESS), MIL-STD warning/caution blocks, SI-unit formatting. Use when creating or fixing diagrams, when Mermaid/DOT syntax or LaTeX compilation errors occur, or for technical document layout."
+description: "Write, fix and render science and engineering diagrams and documents. Diagrams: Mermaid (flowchart, sequence, class, state, ER, gantt, mindmap, timeline), Graphviz DOT, LaTeX math, WaveDrom timing, Plotly charts (Bode, step response, pole-zero, FFT) and SVG circuit schematics, as SVG files or self-contained HTML pages. Also LaTeX papers (algorithms, theorems, BibTeX, ACM, IEEE and NeurIPS classes, conversion to DOCX or PDF) and engineering Word documents (part numbers, revision and approval blocks, ATP and ESS procedures, MIL-STD warnings, SI units). Use when someone asks for a diagram, chart, timing diagram, schematic or equation image, when Mermaid, DOT or LaTeX gives a syntax or compile error, or when a technical paper or Word document needs its layout. The commands /scieng-mcp:mermaid, dot, latex, wavedrom, plot, circuit and playground run one diagram type each."
 ---
 
-# Science & Engineering Skill
+# Science and engineering authoring
 
-## Overview
+This skill writes correct diagram, math and document markup and renders it with the scieng-mcp tools. The tools render what you write. The tools do not correct the syntax. Read the syntax reference before you write the source.
 
-Unified reference for writing correct diagram/math/document markup and rendering it as self-contained HTML playgrounds opened in the user's browser. Covers syntax rules, rendering libraries, and scientific/engineering document authoring. Also covers engineering Word/OOXML document authoring (via `document-skills:docx`).
+`SKILL_DIR` below is the folder of this file.
 
-## Quick Reference
+## Commands
 
-| Need | Reference | Renderer |
-|------|-----------|----------|
-| Flowcharts, sequence, ER, state, gantt, etc. | <MERMAID.md> | Mermaid.js |
-| Directed/undirected graphs (DOT language) | <GRAPHVIZ.md> | Viz.js (@viz-js/viz) |
-| CS/eng paper LaTeX, algorithms, theorems, format conversion | <LATEX.md> | KaTeX/MathJax |
-| CDN imports, version pins, all renderers | <RENDERERS.md> | — |
-| Sci/eng docs: circuits, Bode plots, WaveDrom, SI units | <SCIENG.md> | MathJax + Plotly + WaveDrom + SVG |
-| Engineering Word docs: part numbers, revision/approval, ATP/ESS, MIL-STD | <ENGINEERING-DOCX.md> | document-skills:docx |
-| Data charts, scientific plots, 3D, code highlighting | <RENDERERS.md> | Chart.js / Plotly / D3 / Three.js / Highlight.js |
-| Structuring/writing CS & scientific papers | <PAPERS.md> | — |
-| Playground pattern background & rationale | <Claude Code HTML Playground.md> | — |
+Each command makes one type of diagram from a description or from a source file.
 
-## When NOT to Use
+| Command | Makes | Default output | Renderer |
+|---|---|---|---|
+| `/scieng-mcp:mermaid` | flowchart, sequence, class, state, ER, gantt, mindmap, timeline | SVG file through `render_mermaid` | mermaid.ink (remote) |
+| `/scieng-mcp:dot` | Graphviz graphs: clusters, record nodes, state machines | SVG file through `render_dot` | quickchart.io (remote) |
+| `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | latex.codecogs.com (remote) |
+| `/scieng-mcp:wavedrom` | digital timing diagrams | HTML page through `render_html` | WaveDrom in the browser |
+| `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html` | Plotly in the browser |
+| `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
+| `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 
-- Pure terminal text output with no visualization needed
-- User already has a rendering pipeline (e.g., local LaTeX install, Mermaid CLI)
-- Simple inline code block -- just use markdown fenced blocks
+`--local` on mermaid, dot and latex makes an HTML page that renders in the browser.
 
-## Core Workflow
+## Privacy
 
-1. Identify what the user needs: a static SVG artifact, an interactive HTML
-   playground, a LaTeX paper, or an engineering Word document.
-2. Consult the syntax reference first (<MERMAID.md>, <GRAPHVIZ.md>, <LATEX.md>) —
-   the MCP tools render what you write; they don't fix syntax errors.
-3. Render with the scieng-mcp tools:
-   - Mermaid/DOT/LaTeX → static SVG file: `render_mermaid` / `render_dot` /
-     `render_latex` (inline `source` or `input_path`; returns the saved path).
-   - Interactive playground (common case): `render_html` with typed blocks
-     (mermaid | dot | latex | plotly | wavedrom | raw-html). Only the needed
-     CDN imports are emitted.
-   - Complex/custom pages (bespoke JS, Three.js, D3, custom layout):
-     hand-author the HTML per <RENDERERS.md> — the tool covers the common
-     case only.
-   - Batch OOXML edits on an unpacked Word doc: `ooxml_replace`. One-off
-     edits: use the Edit tool on word/document.xml directly
-     (see <ENGINEERING-DOCX.md>).
-4. Open HTML results in the browser: `start <file>.html` (Windows),
-   `open` (macOS), `xdg-open` (Linux).
+- `render_mermaid`, `render_dot` and `render_latex` send the source to a third-party web service. The service sees all of the source.
+- Use `--local` when the source holds private, internal or personal content. Stop and use `--local` when the source holds a password, a key, a token or a personal detail.
+- An HTML page from `render_html` loads its renderer from a CDN, with a pinned version and a Subresource Integrity hash. The page sends no diagram source. The browser renders it.
+- Do not send untrusted DOT to `render_dot`. A `URL`, `href` or `image` attribute can make the remote service fetch that address.
 
-## Renderer Content Patterns
+## Output
 
-### Mermaid
+- The output folder is the `--out` path of the command, else the `SCIENG_OUT_DIR` environment variable, else `./diagrams` in the current folder. Create the folder when it does not exist.
+- Name the output from the subject in kebab case, for example `login-sequence.svg`. Keep the source next to it, with the same name and the source extension (`.mmd`, `.dot`, `.tex`, `.json`).
+- Never overwrite a file. When the name exists, add `-2`, `-3` and so on.
+- After each render, read the tool result. A result with `"status":"error"` is a failure. Check that the file exists, that its size is more than 0, and that an SVG file starts with `<svg` or `<?xml`. For `render_latex`, an item in `failures` is a block that did not compile.
+- Open an HTML page in the browser: `start <file>` on Windows, `open` on macOS, `xdg-open` on Linux. Give the full path of each file in the answer.
 
-Wrap diagrams in `<pre class="mermaid">` blocks. See <MERMAID.md> for syntax rules.
+## References
 
-```html
-<pre class="mermaid">
-graph TD
-  A[Start] --> B{Decision}
-  B -->|Yes| C[Action]
-  B -->|No| D[Other Action]
-</pre>
-```
+Read the reference for the type before you write the source.
 
-### KaTeX
+| Need | Reference |
+|---|---|
+| Mermaid syntax and the errors that it gives | `MERMAID.md` |
+| DOT syntax, layout engines and HTML labels | `GRAPHVIZ.md` |
+| LaTeX for papers: algorithms, theorems, BibTeX, classes, conversion | `LATEX.md` |
+| CDN imports, version pins, Chart.js, D3, Three.js, Highlight.js | `RENDERERS.md` |
+| WaveDrom, Bode and other plots, SVG circuits, SI units, MathJax engineering setup | `SCIENG.md` |
+| Engineering Word documents (invoke `document-skills:docx` first) | `ENGINEERING-DOCX.md` |
+| The structure of CS and scientific papers | `PAPERS.md` |
+| The reason for the HTML playground pattern | `Claude Code HTML Playground.md` |
 
-Use `$$ ... $$` (display) and `\( ... \)` (inline). See <LATEX.md> for syntax.
+## Other tools
 
-```html
-<p>The quadratic formula is $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$</p>
-```
+- `render_html` takes typed blocks: `mermaid`, `dot`, `latex`, `plotly`, `wavedrom` and `raw-html`. The tool adds only the CDN imports that the blocks need. A `plotly` block is JSON `{"data": [...], "layout": {...}}`. A `raw-html` block goes into the page as it is, so put only content that you wrote into it.
+- For a page that needs custom JavaScript, Three.js or D3, write the HTML yourself from `RENDERERS.md`.
+- `ooxml_replace` makes many find-and-replace edits in an unpacked `word/document.xml` and keeps the run formatting. For one edit, change the XML with the Edit tool. See `ENGINEERING-DOCX.md`.
 
-Switch to MathJax when the user needs `\newcommand` across blocks, `\begin{align}`, `\ce{}` chemistry, or `\qty{}` physics. See <RENDERERS.md> for MathJax config, or <SCIENG.md> for a complete engineering setup.
+## Rules
 
-### Graphviz
+- Compute every number of a plot with code (a short script), not by hand. A Bode plot needs the real transfer function.
+- A Mermaid diagram that is added to a page after load needs `mermaid.run({ querySelector: '.mermaid' })`, not `startOnLoad`.
+- `Viz.instance()` is asynchronous. Use `.then()` or `await`.
+- Use `\(...\)` for inline math when the text holds a dollar amount.
+- Three.js r128 has no `CapsuleGeometry` and no `OrbitControls`.
 
-Render DOT strings via Viz.js. See <GRAPHVIZ.md> for DOT syntax rules, <RENDERERS.md> for layout engines.
+## When not to use
 
-```html
-<div id="graph"></div>
-<script>
-  Viz.instance().then(viz => {
-    document.getElementById('graph').appendChild(
-      viz.renderSVGElement('digraph { rankdir=LR; A -> B -> C; }')
-    );
-  });
-</script>
-```
-
-### SVG
-
-Embed directly. No library needed. For circuit schematics with `<defs>`/`<use>` symbol libraries, see <SCIENG.md>.
-
-## Rendering to SVG (Standalone)
-
-Three scieng-mcp tools render markup to SVG files, no local installs needed:
-
-| Tool | Input | API Used |
-|------|-------|----------|
-| `render_latex` | inline `source` or `input_path` (`.tex`) | latex.codecogs.com |
-| `render_dot` | inline `source` or `input_path` (`.dot`) | quickchart.io/graphviz |
-| `render_mermaid` | inline `source` or `input_path` (`.mmd`) | mermaid.ink |
-
-Each call returns `{path, bytes}` for the saved SVG (`render_latex` also returns a
-`failures` array for any block that didn't compile, without throwing).
-
-**Privacy:** the tools send your input's contents to third-party web APIs (quickchart.io,
-codecogs.com, mermaid.ink). A `.dot` file with `URL="…"` edges may cause the remote service to
-fetch that URL (SSRF) — don't render untrusted DOT.
-
-## Common Pitfalls
-
-- **KaTeX `renderMathInElement` undefined**: Forgetting `defer` on scripts or no `DOMContentLoaded` listener.
-- **Mermaid not rendering dynamic content**: Use `mermaid.run({ querySelector: '.mermaid' })` instead of `startOnLoad` for injected diagrams.
-- **Viz.js synchronous call**: `Viz.instance()` is async. Always use `.then()` or `await`.
-- **Dollar sign conflicts**: Prefer `\(...\)` for inline math if the document has currency `$` amounts.
-- **Three.js r128 limits**: No `CapsuleGeometry`, no `OrbitControls`. Use `CylinderGeometry`/`SphereGeometry` and manual camera controls.
-
-## Dependencies
-
-All libraries load from CDN at runtime. No installation required. For the library size/compatibility matrix, see <RENDERERS.md>.
+- The answer is plain text and needs no picture.
+- The user has a local pipeline (a LaTeX install, the Mermaid CLI) and wants to use it.
+- A fenced code block in the answer is enough.

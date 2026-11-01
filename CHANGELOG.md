@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0] - 2026-10-31
+
+### Added
+
+- **One slash command per diagram type**, in `plugin/commands/`: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit` and `playground`. Each command reads the syntax reference of its type, saves the source next to the output, never overwrites a file, and checks the output file.
+- `mermaid`, `dot` and `latex` make an SVG file through the remote render tools, and name the service that receives the source. `--local` makes an HTML page that renders in the browser, so the source stays on the machine. `dot` refuses to send a source with a `URL`, `href` or `image` attribute.
+- `plot` computes every point with a script that it saves next to the chart. `circuit` writes a netlist first and never invents a part value.
+- `AGENTS.md` (with a `CLAUDE.md` loader) for agents that work on the repository, and `plugin/README.md`, a short usage guide.
+- `test/plugin-content.test.ts`: the seven commands exist, each has a description and an argument hint, each tool and reference file that a command or the skill names exists, and the remote commands name their service and offer `--local`.
+
+### Changed
+
+- `plugin/skills/scieng/SKILL.md` is rewritten in Simplified Technical English. It lists the commands, states the privacy rules, and gives one output rule (the `--out` folder, else `SCIENG_OUT_DIR`, else `./diagrams`). The reference files do not change.
+
 ## 2026-10-01
 
 - **Removed the dead root `bun` Dependabot entry.** No dependency-update ecosystem works on a
