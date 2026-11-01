@@ -205,7 +205,7 @@ createIntegrationEffortTable([
 ### Title Page Conventions
 - **Test Sets**: Include test set P/N in program title (e.g., "MCU ATP/ESS TEST SET: 83-96899")
 - **Trade Studies**: Use descriptive title without P/N if document is informational
-- **Author Format**: "Last, First" for formal documents (e.g., "Simon Jr, Daniel")
+- **Author Format**: "Last, First" for formal documents (e.g., "Doe, Jane")
 - **Initial Revision**: Use "-" (dash) for draft, "A0" for first release
 
 ### Risk Assessment Table

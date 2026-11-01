@@ -16,6 +16,10 @@ the Model Context Protocol.
 | `render_html` | `blocks` (typed `mermaid`/`dot`/`latex`/`plotly`/`wavedrom`/`raw-html`), `title`, `output_path` | Assembles a self-contained HTML playground from the given blocks, emitting only the CDN imports the present block types require. `plotly` source must be JSON `{data, layout}`; `raw-html` passes through verbatim. Returns `{path, bytes}`. |
 | `ooxml_replace` | `document_xml_path`, `replacements`, `preserve_space` | Run-preserving batch find/replace on an unpacked Word document's `word/document.xml`, leaving `<w:rPr>` formatting untouched. Replaces the first matching run per pair. Returns per-pair results and `replaced_count`. |
 
+## Commands
+
+The plugin adds one slash command per diagram type: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit` and `playground`. `plugin/README.md` gives the arguments and tells where each command sends its source.
+
 ## Development
 
 ```bash
