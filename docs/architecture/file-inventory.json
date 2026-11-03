@@ -103,7 +103,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 105
+      "loc": 173
     },
     {
       "file": "src/render-lib.ts",
@@ -173,7 +173,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 96
+      "loc": 210
     },
     {
       "file": "test/render-lib.test.ts",

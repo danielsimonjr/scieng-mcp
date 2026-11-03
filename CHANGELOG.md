@@ -10,11 +10,16 @@
 ### Changed
 
 - Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Twenty-five doc comments were added. Three doc comments were reworded, and the file header of `src/ooxml-edit.ts` changed. One blank line was removed from `src/tools.ts`. No code changed. The plugin bundle is byte-identical to the committed bundle.
-- Four doc comments in `src/` state how the code behaves. The comments cover the retry of a failed body read in `httpText`, the single-quote rule of `combineSvgs` and the whole-run replacement of `replaceInRuns`. The fourth comment is the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. No code changed.
+- Three doc comments in `src/` state how the code behaves. The comments cover the retry of a failed body read in `httpText` and the whole-run replacement of `replaceInRuns`. The third comment is the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. No code changed.
 - `plugin/README.md` and the architecture documents state the limit of a request line as measured. At 10,485,760 bytes or more, the server stops answering requests. The process stays alive until the client closes standard input.
 
 ### Fixed
 
+- `render_latex` stacks blocks without overlap. `combineSvgs` reads the width and the height in double quotes or single quotes.
+- `combineSvgs` works in one unit, the user unit of the outer svg. A unitless value and a px value keep their number. `combineSvgs` multiplies a pt value by 4/3.
+- `combineSvgs` writes the resolved width and height on each nested svg. The outer svg has no unit suffix.
+- For an ex value, an em value or a missing value, `combineSvgs` uses the matching viewBox width or height.
+- `render_latex` lists the failed blocks in input order, not in the order in which the requests finish.
 - `ooxml_replace` replaces only the matched text of a run. The tool keeps the text before and after the match. The tool keeps the run formatting.
 - `ooxml_replace` refuses an empty `find`. The tool returns the error `[EMPTY_FIND]`. The tool does not change the file.
 - `ooxml_replace` escapes `&`, `<` and `>` in `replace`. The written `word/document.xml` stays well-formed.
