@@ -52,7 +52,7 @@ Add the marketplace and enable the plugin, as in Quick Start. The plugin also sh
 
 ## License
 
-scieng-mcp is licensed under the MIT License. See [LICENSE](LICENSE).
+The MIT License applies to scieng-mcp. See [LICENSE](LICENSE).
 
 The bundled engine assets keep the licence of their own projects. The Third-party assets table in `plugin/README.md` lists each asset and its licence.
 
