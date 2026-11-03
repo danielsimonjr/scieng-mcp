@@ -47,3 +47,23 @@ test("every CDN URL in the scieng skill references names the exact version that 
   }
   assert.deepEqual(problems, []);
 });
+
+test("every script src and link href to a CDN in the scieng skill references has an integrity hash", () => {
+  const tag = /<(script|link)\b[^>]*>/g;
+  const attr = /\b(?:src|href)="(https:\/\/[^"]+)"/;
+  const problems: string[] = [];
+  let count = 0;
+  for (const file of readdirSync(SKILL_DIR).filter((f) => f.endsWith(".md"))) {
+    const text = readFileSync(join(SKILL_DIR, file), "utf-8");
+    for (const m of text.matchAll(tag)) {
+      const url = attr.exec(m[0])?.[1];
+      if (!url || !/^https:\/\/(?:cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com|cdn\.plot\.ly)\//.test(url)) continue;
+      count++;
+      if (!/\sintegrity="sha384-[A-Za-z0-9+/=]+"/.test(m[0]) || !/\scrossorigin="anonymous"/.test(m[0])) {
+        problems.push(`${file}: ${url} has no integrity and crossorigin="anonymous"`);
+      }
+    }
+  }
+  assert.ok(count > 0, "no CDN script or link tag was found");
+  assert.deepEqual(problems, []);
+});
