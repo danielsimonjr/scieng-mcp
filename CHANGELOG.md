@@ -16,8 +16,9 @@
 
 - The `capabilities` tool lists the render pairs of the engine (type and format, with the stage of each pair and whether the pair is ready). The tool is read-only and takes no input.
 - CI checks that the committed `plugin/bundle/` equals a fresh build.
-- `.gitattributes` stores the bundle's text files with LF line endings, and its font and WASM files as binary.
+- `.gitattributes` stores the bundle's `.mjs` files with LF line endings, and the bundle's font and WASM files as binary. Git stores the engine assets without line-ending conversion, so each asset is a byte-exact copy of the engine package.
 - `plugin/bundle/assets/index_bg.wasm`, the WASM file of the raster stage. `test/bundle-gate.test.ts` runs the built bundle in a fresh folder with no `node_modules`. The test renders SVG and PNG. The test checks that the bundle sends no network request.
+- The bundle gate checks that each engine asset is a byte-exact copy of the engine package file. On systems other than Windows, the bundle gate checks that each bundle file has mode 0644. `scripts/bundle.mjs` sets that mode on each file the build writes.
 
 ## [0.4.2] - 2026-11-01
 

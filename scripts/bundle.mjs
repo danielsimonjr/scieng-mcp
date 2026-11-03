@@ -1,7 +1,7 @@
 // Builds the plugin bundle into plugin/bundle/: the MCP server as index.mjs, the engine worker and its
 // two backends beside it, and the engine assets in assets/. Run from the repository root.
 import { build } from "esbuild";
-import { cpSync, readFileSync, rmSync } from "node:fs";
+import { chmodSync, cpSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -51,4 +51,9 @@ await build({
 
 // The engine assets: the bundled font, the licence texts and the WASM file of the raster stage.
 cpSync(join(engineRoot, "assets"), join(OUT, "assets"), { recursive: true });
+
+// Git stores each bundle file with mode 0644. This loop sets that mode on every file that the build writes.
+for (const rel of readdirSync(OUT, { recursive: true })) {
+  if (statSync(join(OUT, rel)).isFile()) chmodSync(join(OUT, rel), 0o644);
+}
 console.log("bundled -> plugin/bundle/");

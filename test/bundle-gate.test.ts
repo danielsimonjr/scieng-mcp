@@ -2,10 +2,12 @@
 // with every network request refused. It must render DOT to SVG and PNG through the engine.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -14,6 +16,7 @@ const PRELOAD = join(REPO, "scripts", "block-network.mjs");
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
 const TEST_TIMEOUT_MS = 120_000;
 const REQUEST_TIMEOUT_MS = 60_000;
+const PACKAGE_ASSETS = join(dirname(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json")), "assets");
 
 /** The JavaScript files of a folder, relative to the folder. */
 const modulesOf = (folder: string): string[] =>
@@ -140,4 +143,39 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
 
   const log = existsSync(netLog) ? readFileSync(netLog, "utf-8") : "";
   assert.equal(log, "", "the bundle attempted a network request");
+});
+
+/** The files under a folder, as paths relative to the folder with forward slashes, sorted. */
+const filesUnder = (folder: string): string[] =>
+  (readdirSync(folder, { recursive: true }) as string[])
+    .filter((f) => statSync(join(folder, f)).isFile())
+    .map((f) => f.split(sep).join("/"))
+    .sort();
+
+const sha256 = (bytes: Buffer): string => createHash("sha256").update(bytes).digest("hex");
+
+/** The bytes that the index holds for a path. A checkout has the bytes of the commit in its index. */
+const indexedBytes = (path: string): Buffer =>
+  execFileSync("git", ["-C", REPO, "cat-file", "blob", `:${path}`], { encoding: "buffer", maxBuffer: 64 * 1024 * 1024 });
+
+test("each committed engine asset is a byte-exact copy of the engine package", () => {
+  const packaged = filesUnder(PACKAGE_ASSETS);
+  const committed = execFileSync("git", ["-C", REPO, "ls-files", "--", "plugin/bundle/assets"], { encoding: "utf-8" })
+    .split("\n")
+    .filter((p) => p !== "")
+    .map((p) => p.slice("plugin/bundle/assets/".length))
+    .sort();
+  assert.deepEqual(committed, packaged, "plugin/bundle/assets does not hold the files of the engine package");
+  const differing = packaged.filter(
+    (rel) => sha256(indexedBytes(`plugin/bundle/assets/${rel}`)) !== sha256(readFileSync(join(PACKAGE_ASSETS, rel))),
+  );
+  assert.deepEqual(differing, [], "these committed assets differ from the engine package");
+});
+
+test("each file of the bundle has mode 0644 on systems other than Windows", { skip: process.platform === "win32" && "Windows keeps no file mode" }, () => {
+  const wrong = filesUnder(BUNDLE)
+    .map((f) => ({ f, mode: statSync(join(BUNDLE, f)).mode & 0o777 }))
+    .filter(({ mode }) => mode !== 0o644)
+    .map(({ f, mode }) => `${f}: ${mode.toString(8)}`);
+  assert.deepEqual(wrong, [], "these bundle files are not mode 0644");
 });
