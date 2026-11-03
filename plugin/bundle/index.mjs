@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
+  loadConfig
+} from "./chunk-AU2OYEUG.mjs";
+import {
   RenderError
-} from "./chunk-4ZYQGQSB.mjs";
+} from "./chunk-JFFRTQ6A.mjs";
 import {
   __export
 } from "./chunk-Y7HUHYVH.mjs";
@@ -881,10 +884,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path2) {
-  if (!path2)
+function getElementAtPath(obj, path) {
+  if (!path)
     return obj;
-  return path2.reduce((acc, key) => acc?.[key], obj);
+  return path.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -1224,11 +1227,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path2, issues) {
+function prefixIssues(path, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path2);
+    iss.path.unshift(path);
     return iss;
   });
 }
@@ -1690,16 +1693,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path2 = []) => {
+  const processError = (error63, path = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
       } else {
-        const fullpath = [...path2, ...issue2.path];
+        const fullpath = [...path, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -1738,17 +1741,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result2 = { errors: [] };
-  const processError = (error63, path2 = []) => {
+  const processError = (error63, path = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path2, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path2, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
       } else {
-        const fullpath = [...path2, ...issue2.path];
+        const fullpath = [...path, ...issue2.path];
         if (fullpath.length === 0) {
           result2.errors.push(mapper(issue2));
           continue;
@@ -1787,8 +1790,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path2 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path2) {
+  const path = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -18926,13 +18929,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path2 = ref.slice(1).split("/").filter(Boolean);
-  if (path2.length === 0) {
+  const path = ref.slice(1).split("/").filter(Boolean);
+  if (path.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path2[0] === defsKey) {
-    const key = path2[1] === void 0 ? void 0 : decodeJSONPointerSegment(path2[1]);
+  if (path[0] === defsKey) {
+    const key = path[1] === void 0 ? void 0 : decodeJSONPointerSegment(path[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -23360,9 +23363,9 @@ var rev2026Codec = {
     });
     const parsed = buildSchemas2026().RequestMetaEnvelopeSchema.safeParse(meta3);
     if (!parsed.success) for (const issue2 of parsed.error.issues) {
-      const path2 = issue2.path.map(String);
-      const key = path2.length > 0 ? path2.join(".") : "_meta";
-      if (path2.length === 1 && issues.some((existing) => existing.key === key && existing.problem === "missing")) continue;
+      const path = issue2.path.map(String);
+      const key = path.length > 0 ? path.join(".") : "_meta";
+      if (path.length === 1 && issues.some((existing) => existing.key === key && existing.problem === "missing")) continue;
       issues.push({
         key,
         problem: issue2.message
@@ -23689,17 +23692,17 @@ function scanXMcpHeaderDeclarations(inputSchema) {
   const declarations = [];
   const seenLower = /* @__PURE__ */ new Map();
   let numberFault;
-  const visit2 = (node2, path2, reachable) => {
+  const visit2 = (node2, path, reachable) => {
     if (node2 === null || typeof node2 !== "object") return void 0;
     const schema = node2;
     if (X_MCP_HEADER_KEY in schema) {
-      if (!reachable || path2.length === 0) return `${pathName(path2)}: x-mcp-header is only permitted on properties statically reachable via a chain of 'properties' keys (not under items, additionalProperties, oneOf/anyOf/allOf/not, if/then/else, or $ref)`;
+      if (!reachable || path.length === 0) return `${pathName(path)}: x-mcp-header is only permitted on properties statically reachable via a chain of 'properties' keys (not under items, additionalProperties, oneOf/anyOf/allOf/not, if/then/else, or $ref)`;
       const raw = schema[X_MCP_HEADER_KEY];
-      if (typeof raw !== "string" || raw.length === 0) return `${pathName(path2)}: x-mcp-header MUST be a non-empty string`;
-      if (!RFC9110_TOKEN.test(raw)) return `${pathName(path2)}: x-mcp-header '${raw}' is not a valid RFC 9110 token (no spaces, control characters or HTTP delimiters)`;
+      if (typeof raw !== "string" || raw.length === 0) return `${pathName(path)}: x-mcp-header MUST be a non-empty string`;
+      if (!RFC9110_TOKEN.test(raw)) return `${pathName(path)}: x-mcp-header '${raw}' is not a valid RFC 9110 token (no spaces, control characters or HTTP delimiters)`;
       const type = typeof schema.type === "string" ? schema.type : void 0;
       if (type === void 0 || !PERMITTED_X_MCP_HEADER_TYPES.has(type)) {
-        const fault$1 = `${pathName(path2)}: x-mcp-header is only permitted on primitive-typed properties (string, integer, boolean); got ${type ?? "<none>"}`;
+        const fault$1 = `${pathName(path)}: x-mcp-header is only permitted on primitive-typed properties (string, integer, boolean); got ${type ?? "<none>"}`;
         if (type !== "number") return fault$1;
         numberFault ??= fault$1;
       }
@@ -23708,14 +23711,14 @@ function scanXMcpHeaderDeclarations(inputSchema) {
       if (prior !== void 0) return `x-mcp-header '${raw}' is not case-insensitively unique (also declared as '${prior}')`;
       seenLower.set(lower, raw);
       declarations.push({
-        path: path2,
+        path,
         headerName: raw,
         type
       });
     }
     const properties = schema.properties;
     if (properties !== null && typeof properties === "object") for (const [key, child] of Object.entries(properties)) {
-      const fault$1 = visit2(child, [...path2, key], reachable);
+      const fault$1 = visit2(child, [...path, key], reachable);
       if (fault$1 !== void 0) return fault$1;
     }
     for (const k of NON_REACHABLE_SUBSCHEMA_KEYWORDS) {
@@ -23723,7 +23726,7 @@ function scanXMcpHeaderDeclarations(inputSchema) {
       if (sub === void 0) continue;
       const branches = Array.isArray(sub) ? sub : sub !== null && typeof sub === "object" && OBJECT_VALUED_SUBSCHEMA_KEYWORDS.has(k) ? Object.values(sub) : [sub];
       for (const branch of branches) {
-        const fault$1 = visit2(branch, [...path2, `<${k}>`], false);
+        const fault$1 = visit2(branch, [...path, `<${k}>`], false);
         if (fault$1 !== void 0) return fault$1;
       }
     }
@@ -23768,8 +23771,8 @@ var OBJECT_VALUED_SUBSCHEMA_KEYWORDS = /* @__PURE__ */ new Set([
   "$defs",
   "definitions"
 ]);
-function pathName(path2) {
-  return path2.length === 0 ? "<root>" : path2.join(".");
+function pathName(path) {
+  return path.length === 0 ? "<root>" : path.join(".");
 }
 var HEADER_MISMATCH_ERROR_CODE = -32020;
 var INBOUND_VALIDATION_LADDER = [
@@ -24061,7 +24064,7 @@ var PROPERTY_KEYS_BY_TYPE = {
   array: shapeKeys([UntitledMultiSelectEnumSchemaSchema, TitledMultiSelectEnumSchemaSchema])
 };
 var SUPPORTED_STRING_FORMATS = new Set(StringSchemaSchema.shape.format.unwrap().options);
-function walkProperty(node2, path2, vendor, unsupported) {
+function walkProperty(node2, path, vendor, unsupported) {
   if (!isJsonObject(node2)) return node2;
   const allowedKeys = typeof node2.type === "string" && Object.hasOwn(PROPERTY_KEYS_BY_TYPE, node2.type) ? PROPERTY_KEYS_BY_TYPE[node2.type] : void 0;
   if (allowedKeys === void 0) return node2;
@@ -24069,8 +24072,8 @@ function walkProperty(node2, path2, vendor, unsupported) {
   for (const [key, value] of Object.entries(node2)) if (allowedKeys.has(key) || isAnnotationOnlyJsonSchemaKeyword(key)) pruned[key] = value;
   else if (key === "pattern" && node2.type === "string" && typeof node2.format === "string") {
     if (!SUPPORTED_STRING_FORMATS.has(node2.format)) pruned[key] = value;
-    else if (typeof value !== "string" || !isLibraryFormatPattern(node2.format, value, vendor)) unsupported.push(`${path2}.${key}`);
-  } else unsupported.push(`${path2}.${key}`);
+    else if (typeof value !== "string" || !isLibraryFormatPattern(node2.format, value, vendor)) unsupported.push(`${path}.${key}`);
+  } else unsupported.push(`${path}.${key}`);
   return pruned;
 }
 function walkRequestedSchema(converted, vendor) {
@@ -24087,11 +24090,11 @@ function describeUnsupportedProperties(pruned, fallback) {
   const offenders = Object.entries(pruned.properties).filter(([, node2]) => !parseSchema(PrimitiveSchemaDefinitionSchema, node2).success).map(([name]) => `properties.${name}`);
   return offenders.length > 0 ? offenders.join(", ") : fallback;
 }
-function findDroppedConstraintPaths(original, parsed, path2 = "") {
-  if (Array.isArray(original) && Array.isArray(parsed)) return original.flatMap((item, index) => findDroppedConstraintPaths(item, parsed[index], `${path2}[${index}]`));
+function findDroppedConstraintPaths(original, parsed, path = "") {
+  if (Array.isArray(original) && Array.isArray(parsed)) return original.flatMap((item, index) => findDroppedConstraintPaths(item, parsed[index], `${path}[${index}]`));
   if (!isJsonObject(original) || !isJsonObject(parsed)) return [];
   return Object.entries(original).flatMap(([key, value]) => {
-    const childPath = path2 ? `${path2}.${key}` : key;
+    const childPath = path ? `${path}.${key}` : key;
     if (!Object.prototype.hasOwnProperty.call(parsed, key)) return isAnnotationOnlyJsonSchemaKeyword(key) ? [] : [childPath];
     return findDroppedConstraintPaths(value, parsed[key], childPath);
   });
@@ -28232,8 +28235,8 @@ var require_utils = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     for (let i = 0; i < str.length; i++) if (str[i] === token) ind++;
     return ind;
   }
-  function removeDotSegments(path2) {
-    let input2 = path2;
+  function removeDotSegments(path) {
+    let input2 = path;
     const output2 = [];
     let nextSlash = -1;
     let len = 0;
@@ -28571,8 +28574,8 @@ var require_schemes = /* @__PURE__ */ __commonJSMin(((exports, module) => {
     }
     if (wsComponent.resourceName) {
       const queryIndex = wsComponent.resourceName.indexOf("?");
-      const path2 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-      wsComponent.path = path2 && path2 !== "/" ? path2 : void 0;
+      const path = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+      wsComponent.path = path && path !== "/" ? path : void 0;
       wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
       wsComponent.resourceName = void 0;
     }
@@ -35113,178 +35116,6 @@ function toError(value) {
   return value instanceof Error ? value : new Error(String(value));
 }
 
-// node_modules/@danielsimonjr/sciengjs/dist/config.js
-import { homedir as osHomedir } from "node:os";
-import { readFile as fsReadFile } from "node:fs/promises";
-import path from "node:path";
-var ENV = {
-  configFile: "SCIENG_CONFIG",
-  browser: "SCIENG_BROWSER",
-  cacheDir: "SCIENG_CACHE_DIR",
-  texBundleUrl: "SCIENG_TEX_BUNDLE_URL",
-  timeoutMs: "SCIENG_TIMEOUT_MS",
-  maxSourceBytes: "SCIENG_MAX_SOURCE_BYTES",
-  maxMemoryMb: "SCIENG_MAX_MEMORY_MB",
-  allowNetwork: "SCIENG_ALLOW_NETWORK",
-  rasterFont: "SCIENG_RASTER_FONT"
-};
-var RELEASE_URL_BASE = "https://github.com/danielsimonjr/sciengjs/releases/download";
-var NETWORK_POLICIES = ["none", "tex-bundles", "tex-bundles,images"];
-var CONFIG_FILE_NAME = "config.json";
-var APP_FOLDER = "scieng";
-async function readEngineVersion() {
-  const text = await fsReadFile(new URL("../package.json", import.meta.url), "utf8");
-  const version2 = JSON.parse(text).version;
-  if (typeof version2 !== "string") {
-    throw new RenderError("E_CONFIG", "package.json has no version string");
-  }
-  return version2;
-}
-function configBaseDir(d) {
-  if (d.platform === "win32")
-    return requireVar(d.env, "APPDATA", "Windows");
-  if (d.platform === "darwin")
-    return path.posix.join(d.homedir, "Library", "Application Support");
-  return nonEmpty(d.env.XDG_CONFIG_HOME) ?? path.posix.join(d.homedir, ".config");
-}
-function cacheBaseDir(d) {
-  if (d.platform === "win32")
-    return requireVar(d.env, "LOCALAPPDATA", "Windows");
-  if (d.platform === "darwin")
-    return path.posix.join(d.homedir, "Library", "Caches");
-  return nonEmpty(d.env.XDG_CACHE_HOME) ?? path.posix.join(d.homedir, ".cache");
-}
-function requireVar(env, name, platform) {
-  const value = nonEmpty(env[name]);
-  if (value === void 0) {
-    throw new RenderError("E_CONFIG", `${name} is not set; ${platform} needs it for the default folders`);
-  }
-  return value;
-}
-function nonEmpty(value) {
-  return value === void 0 || value === "" ? void 0 : value;
-}
-function defaults(engineVersion) {
-  return {
-    texBundleUrl: `${RELEASE_URL_BASE}/v${engineVersion}/`,
-    timeoutMs: 6e4,
-    maxSourceBytes: 10485760,
-    maxMemoryMb: 2048,
-    allowNetwork: "tex-bundles"
-  };
-}
-function defaultConfigPath(d) {
-  const p = d.platform === "win32" ? path.win32 : path.posix;
-  return p.join(configBaseDir(d), APP_FOLDER, CONFIG_FILE_NAME);
-}
-function checkValue(key, value, source) {
-  const fail = (why) => {
-    throw new RenderError("E_CONFIG", `${source}: ${key} ${why}`);
-  };
-  switch (key) {
-    case "browser":
-    case "cacheDir":
-    case "texBundleUrl":
-    case "rasterFont":
-      if (typeof value !== "string" || value === "")
-        return fail("must be a non-empty string");
-      return value;
-    case "timeoutMs":
-    case "maxSourceBytes":
-    case "maxMemoryMb":
-      if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-        return fail("must be a positive integer");
-      }
-      return value;
-    case "allowNetwork":
-      if (typeof value !== "string" || !NETWORK_POLICIES.includes(value)) {
-        return fail(`must be one of ${NETWORK_POLICIES.join(", ")}`);
-      }
-      return value;
-  }
-}
-function fromEnvText(key, text, envName) {
-  if (key === "timeoutMs" || key === "maxSourceBytes" || key === "maxMemoryMb") {
-    if (!/^\d+$/.test(text)) {
-      throw new RenderError("E_CONFIG", `${envName} must be a whole number, got "${text}"`);
-    }
-    return checkValue(key, Number(text), envName);
-  }
-  return checkValue(key, text, envName);
-}
-var ENV_KEYS = {
-  browser: ENV.browser,
-  cacheDir: ENV.cacheDir,
-  texBundleUrl: ENV.texBundleUrl,
-  timeoutMs: ENV.timeoutMs,
-  maxSourceBytes: ENV.maxSourceBytes,
-  maxMemoryMb: ENV.maxMemoryMb,
-  allowNetwork: ENV.allowNetwork,
-  rasterFont: ENV.rasterFont
-};
-async function readConfigFile(filePath, explicit, d) {
-  let text;
-  try {
-    text = await d.readFile(filePath);
-  } catch (err) {
-    const code = err.code;
-    if (code === "ENOENT" && !explicit)
-      return {};
-    throw new RenderError("E_CONFIG", `cannot read config file ${filePath}: ${err.message}`);
-  }
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch (err) {
-    throw new RenderError("E_CONFIG", `config file ${filePath} is not valid JSON: ${err.message}`);
-  }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new RenderError("E_CONFIG", `config file ${filePath} must hold a JSON object`);
-  }
-  const known = new Set(Object.keys(ENV_KEYS));
-  for (const key of Object.keys(parsed)) {
-    if (!known.has(key))
-      throw new RenderError("E_CONFIG", `config file ${filePath} has an unknown key: ${key}`);
-  }
-  return parsed;
-}
-async function loadConfig(options = {}, deps = {}) {
-  const d = {
-    env: process.env,
-    platform: process.platform,
-    homedir: osHomedir(),
-    readFile: (p) => fsReadFile(p, "utf8"),
-    engineVersion: await readEngineVersion(),
-    ...deps
-  };
-  const explicitPath = nonEmpty(d.env[ENV.configFile]);
-  const filePath = explicitPath ?? defaultConfigPath(d);
-  const fromFile = await readConfigFile(filePath, explicitPath !== void 0, d);
-  const base = defaults(d.engineVersion);
-  const resolved = { ...base };
-  for (const key of Object.keys(ENV_KEYS)) {
-    const fileValue = fromFile[key];
-    if (fileValue !== void 0)
-      resolved[key] = checkValue(key, fileValue, filePath);
-  }
-  for (const key of Object.keys(ENV_KEYS)) {
-    const envName = ENV_KEYS[key];
-    const text = nonEmpty(d.env[envName]);
-    if (text !== void 0)
-      resolved[key] = fromEnvText(key, text, envName);
-  }
-  for (const key of Object.keys(options)) {
-    const value = options[key];
-    if (value !== void 0)
-      resolved[key] = checkValue(key, value, "call option");
-  }
-  if (resolved.cacheDir === void 0) {
-    const p = d.platform === "win32" ? path.win32 : path.posix;
-    resolved.cacheDir = p.join(cacheBaseDir(d), APP_FOLDER);
-  }
-  return resolved;
-}
-
 // node_modules/@danielsimonjr/sciengjs/dist/pairs.js
 var PAIRS = [
   { type: "dot", format: "svg", stage: "graph" },
@@ -35481,7 +35312,7 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
       format: req.format,
       source: req.source,
       options: req.options ?? {},
-      settings: { maxMemoryMb: cfg.maxMemoryMb, rasterFont: cfg.rasterFont }
+      settings: { maxMemoryMb: cfg.maxMemoryMb, rasterFont: cfg.rasterFont, assetsUrl: cfg.assetsUrl }
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
   return {
@@ -35547,8 +35378,8 @@ async function httpText(url2, opts = {}) {
   }
   throw lastErr instanceof Error ? lastErr : new Error(`request failed: ${url2}`);
 }
-function readInput(path2, maxBytes = 512 * 1024) {
-  const buf = readFileSync(path2);
+function readInput(path, maxBytes = 512 * 1024) {
+  const buf = readFileSync(path);
   if (buf.byteLength > maxBytes) {
     throw new Error(`input too large: ${buf.byteLength} bytes (max ${maxBytes})`);
   }
@@ -35557,10 +35388,10 @@ function readInput(path2, maxBytes = 512 * 1024) {
 function deriveOutputPath(input2, ext = ".svg") {
   return join(dirname(input2), basename(input2, extname3(input2)) + ext);
 }
-function writeOutput(path2, content) {
-  const tmp = path2 + ".tmp";
+function writeOutput(path, content) {
+  const tmp = path + ".tmp";
   writeFileSync(tmp, content, "utf-8");
-  renameSync(tmp, path2);
+  renameSync(tmp, path);
 }
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
@@ -35590,9 +35421,20 @@ async function renderMermaidSource(code, output2, fetchImpl) {
   return svg;
 }
 
+// src/engine-config.ts
+function bundledEngineConfig(moduleUrl) {
+  return { assetsUrl: new URL("./assets/", moduleUrl).href };
+}
+function engineConfig() {
+  if (true) {
+    return bundledEngineConfig(import.meta.url);
+  }
+  return {};
+}
+
 // src/render-dot.ts
 async function renderDotSource(source, output2, format) {
-  const result2 = await render({ type: "dot", format, source });
+  const result2 = await render({ type: "dot", format, source }, engineConfig());
   writeOutput(output2, result2.bytes);
   return { bytes: result2.bytes.byteLength, warnings: result2.warnings };
 }
@@ -35939,7 +35781,7 @@ function resolveRenderIo(raw, extra, ext = ".svg") {
   }
   return { code: readInput(a.input_path), out: a.output_path ?? deriveOutputPath(a.input_path, ext), args: a };
 }
-var result = (path2, content, extra = {}) => JSON.stringify({ path: path2, bytes: Buffer.byteLength(content, "utf-8"), ...extra });
+var result = (path, content, extra = {}) => JSON.stringify({ path, bytes: Buffer.byteLength(content, "utf-8"), ...extra });
 var HtmlArgs = external_exports.object({
   blocks: external_exports.array(external_exports.object({
     type: external_exports.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
@@ -35966,7 +35808,7 @@ function makeHandlers(fetchImpl = fetch) {
       const res = await renderDotSource(code, out, format);
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
-    capabilities: async () => JSON.stringify({ capabilities: await capabilities() }),
+    capabilities: async () => JSON.stringify({ capabilities: await capabilities(engineConfig()) }),
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: external_exports.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi, fetchImpl });

@@ -1,7 +1,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   RenderError
-} from "./chunk-4ZYQGQSB.mjs";
+} from "./chunk-JFFRTQ6A.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/graph/image.js
 var EXTERNAL_KEYS = ["image", "stylesheet"];

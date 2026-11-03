@@ -1,8 +1,9 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   RENDER_ERROR_CODES,
-  RenderError
-} from "./chunk-4ZYQGQSB.mjs";
+  RenderError,
+  isRenderError
+} from "./chunk-JFFRTQ6A.mjs";
 import "./chunk-Y7HUHYVH.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/worker/entry.js
@@ -24,7 +25,7 @@ async function run(job2) {
     const out = await mod.render(job2.request);
     return { ok: true, bytes: out.bytes, warnings: out.warnings ?? [] };
   } catch (err) {
-    if (err instanceof RenderError) {
+    if (isRenderError(err)) {
       return { ok: false, code: err.code, message: err.message, line: err.line, column: err.column };
     }
     const message2 = err instanceof Error ? err.message : String(err);

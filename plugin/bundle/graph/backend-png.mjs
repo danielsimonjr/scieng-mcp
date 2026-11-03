@@ -1,16 +1,21 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
+  DEFAULT_ASSETS_URL,
+  RESVG_WASM_FILE,
+  bundledFontPathIn,
+  readAsset
+} from "../chunk-AU2OYEUG.mjs";
+import {
   dotSourceText,
   dotToSvg
-} from "../chunk-V5MGKJMT.mjs";
+} from "../chunk-4KI3PA2R.mjs";
 import {
   RenderError
-} from "../chunk-4ZYQGQSB.mjs";
+} from "../chunk-JFFRTQ6A.mjs";
 import "../chunk-Y7HUHYVH.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/graph/backend-png.js
-import { readFileSync as readFileSync2 } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 
 // node_modules/@resvg/resvg-wasm/index.mjs
 var wasm;
@@ -592,17 +597,18 @@ function isCustomFontsOptions(value) {
 }
 
 // node_modules/@danielsimonjr/sciengjs/dist/raster/index.js
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 var MAX_PNG_PIXEL_MB = 1024;
 var wasmPromise;
-function defaultReadWasm() {
-  return readFileSync(createRequire(import.meta.url).resolve("@resvg/resvg-wasm/index_bg.wasm"));
-}
 function ensureWasm(readWasm) {
   if (wasmPromise === void 0) {
     const started = (async () => {
-      await initWasm(readWasm());
+      const bytes = readWasm();
+      try {
+        await initWasm(bytes);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new RenderError("E_STAGE_MISSING", RESVG_WASM_FILE + " is not a usable WebAssembly module: " + message);
+      }
     })();
     wasmPromise = started;
     started.catch(() => {
@@ -614,7 +620,8 @@ function ensureWasm(readWasm) {
   return wasmPromise;
 }
 async function svgToPng(svg, options) {
-  await ensureWasm(options.readWasm ?? defaultReadWasm);
+  const assetsUrl = options.assetsUrl ?? DEFAULT_ASSETS_URL;
+  await ensureWasm(options.readWasm ?? (() => readAsset(assetsUrl, RESVG_WASM_FILE)));
   let resvg;
   try {
     resvg = new Resvg2(svg, {
@@ -821,11 +828,10 @@ function rasterWarnings(svg, font) {
 }
 
 // node_modules/@danielsimonjr/sciengjs/dist/graph/backend-png.js
-var BUNDLED_FONT_PATH = fileURLToPath(new URL("../../assets/fonts/LiberationSerif-Regular.ttf", import.meta.url));
 function readFont(path, bundled) {
   let bytes;
   try {
-    bytes = readFileSync2(path);
+    bytes = readFileSync(path);
   } catch {
     throw bundled ? new RenderError("E_STAGE_MISSING", "the bundled raster font is missing: " + path) : new RenderError("E_CONFIG", "rasterFont cannot be read: " + path);
   }
@@ -834,8 +840,8 @@ function readFont(path, bundled) {
   }
   return bytes;
 }
-function render(request) {
-  return renderPng(request, BUNDLED_FONT_PATH);
+async function render(request) {
+  return renderPng(request, bundledFontPathIn(request.settings.assetsUrl));
 }
 async function renderPng(request, bundledFontPath) {
   const options = request.options;
@@ -859,7 +865,8 @@ async function renderPng(request, bundledFontPath) {
   const bytes = await svgToPng(dot.svg, {
     scale,
     maxMemoryMb: request.settings.maxMemoryMb,
-    font
+    font,
+    assetsUrl: request.settings.assetsUrl
   });
   return { bytes, warnings: [...dot.warnings, ...rasterWarnings(dot.svg, font)] };
 }

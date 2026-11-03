@@ -4,6 +4,7 @@ import { capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
 import { renderMermaidSource } from "./render-mermaid.ts";
 import { renderDotSource } from "./render-dot.ts";
+import { engineConfig } from "./engine-config.ts";
 import { renderLatexSource } from "./render-latex.ts";
 import { buildHtml, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
@@ -179,7 +180,7 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       const res = await renderDotSource(code, out, format);
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
-    capabilities: async () => JSON.stringify({ capabilities: await engineCapabilities() }),
+    capabilities: async () => JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) }),
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });

@@ -23,8 +23,19 @@ var RenderError = class extends Error {
     this.column = position.column;
   }
 };
+function isRenderError(value) {
+  if (!(value instanceof Error) || value.name !== "RenderError") {
+    return false;
+  }
+  const code = value.code;
+  if (typeof code !== "string") {
+    return false;
+  }
+  return RENDER_ERROR_CODES.includes(code);
+}
 
 export {
   RENDER_ERROR_CODES,
-  RenderError
+  RenderError,
+  isRenderError
 };

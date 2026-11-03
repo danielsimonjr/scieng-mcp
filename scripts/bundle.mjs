@@ -44,7 +44,8 @@ await build({
   banner: { js: banner },
   // Compile-time version: serverInfo was a hardcoded literal, so it reported a stale
   // number no matter what the manifests said - the one version a client can see, lying.
-  define: { __PKG_VERSION__: JSON.stringify(pkg.version) },
+  // __SCIENG_BUNDLED__ makes src/engine-config.ts send the assets folder beside index.mjs.
+  define: { __PKG_VERSION__: JSON.stringify(pkg.version), __SCIENG_BUNDLED__: "true" },
   logLevel: "warning",
 });
 

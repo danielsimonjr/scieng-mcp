@@ -10,12 +10,14 @@
 - `render_dot` takes a `format` argument: `svg` (the default) or `png`.
 - The engine removes each `image` and `stylesheet` attribute from a DOT source. The result holds a warning for each attribute that the engine removes.
 - The `dot` command, the `scieng` skill, `GRAPHVIZ.md`, `plugin/README.md` and the README describe the local render.
+- The sciengjs dependency changes from `^0.1.0` to `^0.1.1`. The server gives the engine the `assets/` folder beside the bundle. The bundle needs no `node_modules`.
 
 ### Added
 
 - The `capabilities` tool lists the render pairs of the engine (type and format, with the stage of each pair and whether the pair is ready). The tool is read-only and takes no input.
 - CI checks that the committed `plugin/bundle/` equals a fresh build.
 - `.gitattributes` stores the bundle's text files with LF line endings, and its font and WASM files as binary.
+- `plugin/bundle/assets/index_bg.wasm`, the WASM file of the raster stage. `test/bundle-gate.test.ts` runs the built bundle in a fresh folder with no `node_modules`. The test renders SVG and PNG. The test checks that the bundle sends no network request.
 
 ## [0.4.2] - 2026-11-01
 

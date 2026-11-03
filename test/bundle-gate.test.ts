@@ -77,8 +77,7 @@ test("the bundle holds the worker entry, the two backends and the assets beside 
     assert.ok(existsSync(join(BUNDLE, f)), `plugin/bundle/${f} is missing`);
   }
   assert.ok(existsSync(join(BUNDLE, "assets", "fonts", "LiberationSerif-Regular.ttf")), "the bundled font is missing");
-  const wasm = (readdirSync(join(BUNDLE, "assets"), { recursive: true }) as string[]).filter((f) => f.endsWith(".wasm"));
-  assert.ok(wasm.length > 0, "plugin/bundle/assets holds no .wasm file");
+  assert.ok(existsSync(join(BUNDLE, "assets", "index_bg.wasm")), "plugin/bundle/assets/index_bg.wasm is missing");
 });
 
 test("every import of the bundle, static or dynamic, names a builtin or a file of the bundle", () => {
