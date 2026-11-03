@@ -5,8 +5,8 @@
 ### Added
 
 - `LICENSE` at the repository root holds the MIT licence. `package.json` declares `"license": "MIT"`.
-- `README.md` has a Quick Start section, with the marketplace command and one example command. It has a License section that links `LICENSE` and the Third-party assets table of `plugin/README.md`.
-- The scieng skill references name the exact CDN versions that `render_html` pins: `mermaid@11.16.0` (was `mermaid@11` or unversioned), `katex@0.16.21` (was `0.16.9` in one reference) and `@viz-js/viz@3.28.0` (was unversioned). `test/skill-cdn.test.ts` fails when a skill reference names another version of a pinned library.
+- `README.md` has a Quick Start section, with the marketplace command and one example command. The README also has a License section that links `LICENSE` and the Third-party assets table of `plugin/README.md`.
+- The scieng skill references name the exact CDN pins of `render_html`. The pins are `mermaid@11.16.0` (was `mermaid@11` or unversioned), `katex@0.16.21` (was `0.16.9` in one reference) and `@viz-js/viz@3.28.0` (was unversioned). `test/skill-cdn.test.ts` fails when a skill reference names another version of a pinned library.
 - Each `<script src>` and `<link href>` to a CDN in the scieng skill references has an exact version, an `integrity` attribute (sha384) and `crossorigin="anonymous"`. The hashes come from the fetched files. `test/skill-cdn.test.ts` fails when a CDN tag has no integrity attribute. The Viz.js examples load `@viz-js/viz@3.28.0/dist/viz-global.min.js` from jsDelivr, the file that `render_html` pins.
 - `test/repo-metadata.test.ts` fails when `package.json` and `plugin/.claude-plugin/plugin.json` declare different versions. `AGENTS.md` names the test in the release rule.
 
