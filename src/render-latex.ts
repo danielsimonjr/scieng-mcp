@@ -75,6 +75,11 @@ function stripPreamble(svg: string): string {
   return svg.replace(/^\s*<\?xml[\s\S]*?\?>\s*/, "").replace(/^\s*<!DOCTYPE[\s\S]*?>\s*/, "");
 }
 
+/** Formats a written number with at most 3 decimals and no trailing zeros. */
+function fmt(n: number): string {
+  return String(Math.round(n * 1000) / 1000);
+}
+
 /**
  * Writes the width, the height, and the placement of a block on its first svg root tag.
  * Removes the existing width and height attributes and keeps every other attribute, including the viewBox.
@@ -86,7 +91,7 @@ function placeRootTag(svg: string, width: number, height: number, y: number): st
   let tag = original.replace(/\s(width|height)\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
   const selfClosing = tag.endsWith("/>");
   const stem = tag.slice(0, tag.length - (selfClosing ? 2 : 1)).replace(/\s+$/, "");
-  tag = stem + ` width="${width}" height="${height}" x="20" y="${y}"` + (selfClosing ? "/>" : ">");
+  tag = stem + ` width="${fmt(width)}" height="${fmt(height)}" x="20" y="${fmt(y)}"` + (selfClosing ? "/>" : ">");
   return svg.slice(0, openMatch.index) + tag + svg.slice(openMatch.index + original.length);
 }
 
@@ -114,11 +119,12 @@ export function combineSvgs(svgs: string[]): string {
     blocks.push(placeRootTag(body, width, height, y));
     widths.push(width);
   }
-  const maxW = (widths.length > 0 ? Math.max(...widths) : 0) + 40;
+  const maxW = fmt((widths.length > 0 ? Math.max(...widths) : 0) + 40);
+  const total = fmt(totalHeight);
   return [
     `<?xml version="1.0" encoding="UTF-8"?>`,
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}" height="${totalHeight}" viewBox="0 0 ${maxW} ${totalHeight}">`,
-    `<rect width="${maxW}" height="${totalHeight}" fill="white"/>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}" height="${total}" viewBox="0 0 ${maxW} ${total}">`,
+    `<rect width="${maxW}" height="${total}" fill="white"/>`,
     ...blocks,
     "</svg>",
   ].join("\n");

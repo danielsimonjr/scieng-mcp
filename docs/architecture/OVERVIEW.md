@@ -15,7 +15,7 @@ The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
 | `totalSourceFiles` | 25 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 3364 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 3378 | The census. | `dependency-graph.json` |
 | `totalExports` | 80 | The census: 30 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 3364. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 3378. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -114,7 +114,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 25 | dependency-graph.json |
-| totalLinesOfCode | 3364 | dependency-graph.json |
+| totalLinesOfCode | 3378 | dependency-graph.json |
 | totalExports | 80 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

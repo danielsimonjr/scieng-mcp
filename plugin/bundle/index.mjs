@@ -13472,45 +13472,45 @@ var PATTERN_IS_COMPLETE = /* @__PURE__ */ new Set([
   "xid"
 ]);
 function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
-  const fmt = def.format;
-  if (fmt === "base64") {
+  const fmt2 = def.format;
+  if (fmt2 === "base64") {
     const validator = addConstant(ctx, isValidBase64);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "base64url") {
+  if (fmt2 === "base64url") {
     const validator = addConstant(ctx, isValidBase64URL);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "jwt") {
+  if (fmt2 === "jwt") {
     const validator = addConstant(ctx, isValidJWT);
     const alg = addConstant(ctx, def.alg ?? null);
     doc.write(`if (!${validator}(${accessor}, ${alg})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "ipv6") {
+  if (fmt2 === "ipv6") {
     const validator = addConstant(ctx, isValidIPv6);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "cidrv6") {
+  if (fmt2 === "cidrv6") {
     const validator = addConstant(ctx, isValidCIDRv6);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "credit_card") {
+  if (fmt2 === "credit_card") {
     const validator = addConstant(ctx, isValidCreditCard);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "iban") {
+  if (fmt2 === "iban") {
     const validator = addConstant(ctx, isValidIBAN);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
   const formatDef = def;
-  if (fmt === "url" || fmt === "httpurl" || formatDef.normalize || formatDef.hostname !== void 0 || formatDef.protocol !== void 0) {
+  if (fmt2 === "url" || fmt2 === "httpurl" || formatDef.normalize || formatDef.hostname !== void 0 || formatDef.protocol !== void 0) {
     const parseConst = addConstant(ctx, validateURL);
     const defConst = addConstant(ctx, def);
     const trimVar = newVar(ctx);
@@ -13536,12 +13536,12 @@ function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
   const customFn = def.fn;
   if (customFn) {
     if (isAsyncFunction(customFn))
-      throw new ZodCompileUnsupportedError(`async string format ${fmt}`);
+      throw new ZodCompileUnsupportedError(`async string format ${fmt2}`);
     const fnConst = addConstant(ctx, customFn);
     doc.write(`if (!${fnConst}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (PATTERN_IS_COMPLETE.has(fmt) && def.pattern) {
+  if (PATTERN_IS_COMPLETE.has(fmt2) && def.pattern) {
     const patternConst = addConstant(ctx, def.pattern);
     doc.write(`${patternConst}.lastIndex = 0;`);
     doc.write(`if (!${patternConst}.test(${accessor})) return INVALID;`);
@@ -30893,7 +30893,7 @@ var require_format$2 = /* @__PURE__ */ __commonJSMin(((exports) => {
         }
         function getFormat(fmtDef) {
           const code = fmtDef instanceof RegExp ? (0, codegen_1.regexpCode)(fmtDef) : opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(schema)}` : void 0;
-          const fmt = gen.scopeValue("formats", {
+          const fmt2 = gen.scopeValue("formats", {
             key: schema,
             ref: fmtDef,
             code
@@ -30901,12 +30901,12 @@ var require_format$2 = /* @__PURE__ */ __commonJSMin(((exports) => {
           if (typeof fmtDef == "object" && !(fmtDef instanceof RegExp)) return [
             fmtDef.type || "string",
             fmtDef.validate,
-            (0, codegen_1._)`${fmt}.validate`
+            (0, codegen_1._)`${fmt2}.validate`
           ];
           return [
             "string",
             fmtDef,
-            fmt
+            fmt2
           ];
         }
         function validCondition() {
@@ -32630,23 +32630,23 @@ var require_limit = /* @__PURE__ */ __commonJSMin(((exports) => {
           ref: self.formats,
           code: opts.code.formats
         });
-        const fmt = gen.const("fmt", (0, codegen_1._)`${fmts}[${fCxt.schemaCode}]`);
-        cxt.fail$data((0, codegen_1.or)((0, codegen_1._)`typeof ${fmt} != "object"`, (0, codegen_1._)`${fmt} instanceof RegExp`, (0, codegen_1._)`typeof ${fmt}.compare != "function"`, compareCode(fmt)));
+        const fmt2 = gen.const("fmt", (0, codegen_1._)`${fmts}[${fCxt.schemaCode}]`);
+        cxt.fail$data((0, codegen_1.or)((0, codegen_1._)`typeof ${fmt2} != "object"`, (0, codegen_1._)`${fmt2} instanceof RegExp`, (0, codegen_1._)`typeof ${fmt2}.compare != "function"`, compareCode(fmt2)));
       }
       function validateFormat() {
         const format = fCxt.schema;
         const fmtDef = self.formats[format];
         if (!fmtDef || fmtDef === true) return;
         if (typeof fmtDef != "object" || fmtDef instanceof RegExp || typeof fmtDef.compare != "function") throw new Error(`"${keyword}": format "${format}" does not define "compare" function`);
-        const fmt = gen.scopeValue("formats", {
+        const fmt2 = gen.scopeValue("formats", {
           key: format,
           ref: fmtDef,
           code: opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(format)}` : void 0
         });
-        cxt.fail$data(compareCode(fmt));
+        cxt.fail$data(compareCode(fmt2));
       }
-      function compareCode(fmt) {
-        return (0, codegen_1._)`${fmt}.compare(${data}, ${schemaCode}) ${KWDs[keyword].fail} 0`;
+      function compareCode(fmt2) {
+        return (0, codegen_1._)`${fmt2}.compare(${data}, ${schemaCode}) ${KWDs[keyword].fail} 0`;
       }
     },
     dependencies: ["format"]
@@ -35488,6 +35488,9 @@ function readViewBoxSize(attributes) {
 function stripPreamble(svg) {
   return svg.replace(/^\s*<\?xml[\s\S]*?\?>\s*/, "").replace(/^\s*<!DOCTYPE[\s\S]*?>\s*/, "");
 }
+function fmt(n) {
+  return String(Math.round(n * 1e3) / 1e3);
+}
 function placeRootTag(svg, width, height, y) {
   const openMatch = /<svg\b[^>]*>/i.exec(svg);
   if (openMatch === null) return svg;
@@ -35495,7 +35498,7 @@ function placeRootTag(svg, width, height, y) {
   let tag = original.replace(/\s(width|height)\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
   const selfClosing = tag.endsWith("/>");
   const stem = tag.slice(0, tag.length - (selfClosing ? 2 : 1)).replace(/\s+$/, "");
-  tag = stem + ` width="${width}" height="${height}" x="20" y="${y}"` + (selfClosing ? "/>" : ">");
+  tag = stem + ` width="${fmt(width)}" height="${fmt(height)}" x="20" y="${fmt(y)}"` + (selfClosing ? "/>" : ">");
   return svg.slice(0, openMatch.index) + tag + svg.slice(openMatch.index + original.length);
 }
 function combineSvgs(svgs) {
@@ -35515,11 +35518,12 @@ function combineSvgs(svgs) {
     blocks.push(placeRootTag(body, width, height, y));
     widths.push(width);
   }
-  const maxW = (widths.length > 0 ? Math.max(...widths) : 0) + 40;
+  const maxW = fmt((widths.length > 0 ? Math.max(...widths) : 0) + 40);
+  const total = fmt(totalHeight);
   return [
     `<?xml version="1.0" encoding="UTF-8"?>`,
-    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}" height="${totalHeight}" viewBox="0 0 ${maxW} ${totalHeight}">`,
-    `<rect width="${maxW}" height="${totalHeight}" fill="white"/>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}" height="${total}" viewBox="0 0 ${maxW} ${total}">`,
+    `<rect width="${maxW}" height="${total}" fill="white"/>`,
     ...blocks,
     "</svg>"
   ].join("\n");

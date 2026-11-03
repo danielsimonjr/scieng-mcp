@@ -157,6 +157,13 @@ test("combineSvgs stacks the live codecogs headers with no overlap", () => {
     assertNear(boxes[i + 1].y - (boxes[i].y + boxes[i].height), 20); // the gap is the margin
   }
   assertNear(outerHeight(out), 20 + (19.12 + 51.76 + 36.69) + 3 * 20);
+  // Every number that combineSvgs writes has at most 3 decimals and no float artefact.
+  for (const m of out.matchAll(/\s(?:x|y|width|height|viewBox)="([^"]*)"/g)) {
+    for (const num of m[1].match(/-?\d+(?:\.\d+)?/g) ?? []) {
+      assert.ok(/\.\d{4,}/.test(num) === false, `too many decimals: ${num} in ${m[0]}`);
+    }
+  }
+  assert.match(out, /y="59.12"/);
   assert.match(out, /<svg xmlns="http:\/\/www.w3.org\/2000\/svg" xmlns:xlink="http:\/\/www.w3.org\/1999\/xlink" width="127.64" height="187.57" viewBox="0 0 127.64 187.57">/);
 });
 
@@ -196,7 +203,8 @@ test("combineSvgs reads single-quoted pt sizes in user units", () => {
   const b = "<svg width='200pt' height='40pt'>B</svg>";
   const out = combineSvgs([a, b]);
   const boxes = nestedBoxes(out);
-  assertNear(boxes[0].height, 20 * 4 / 3);
-  assertNear(boxes[1].y, 20 + 20 * 4 / 3 + 20);
-  assertNear(Number(attributeOf(out.match(/<svg\b[^>]*>/)?.[0] ?? "", "width")), 200 * 4 / 3 + 40);
+  // Written values have at most 3 decimals: 20 pt = 26.667 user units (rounded).
+  assertNear(boxes[0].height, 26.667);
+  assertNear(boxes[1].y, 66.667);
+  assertNear(Number(attributeOf(out.match(/<svg\b[^>]*>/)?.[0] ?? "", "width")), 306.667);
 });
