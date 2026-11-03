@@ -35458,53 +35458,71 @@ function extractBlocks(texSource) {
   return blocks;
 }
 function readRootAttributes(svg) {
-  const tagMatch = svg.match(/<svg\b[^>]*>/i);
-  const tag = tagMatch === null ? "" : tagMatch[0];
   const attributes = /* @__PURE__ */ new Map();
-  const attributePattern = /\s([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-  let attributeMatch;
-  while ((attributeMatch = attributePattern.exec(tag)) !== null) {
-    attributes.set(attributeMatch[1] ?? "", attributeMatch[2] ?? attributeMatch[3] ?? "");
+  const tagMatch = /<svg\b[^>]*>/i.exec(svg);
+  if (tagMatch === null) return attributes;
+  const attributeRegex = /\s([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let match;
+  while ((match = attributeRegex.exec(tagMatch[0])) !== null) {
+    attributes.set(match[1], match[2] !== void 0 ? match[2] : match[3]);
   }
   return attributes;
 }
-function parseLengthToPt(value) {
-  const match = value.trim().match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(pt|px|ex|em)?$/i);
+function parseLengthToUserUnits(value) {
+  const match = /^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(pt|px|ex|em)?$/i.exec(value);
   if (match === null) return null;
-  const amount = parseFloat(match[1] ?? "");
-  const unit = (match[2] ?? "").toLowerCase();
-  if (unit === "ex" || unit === "em") return null;
-  if (unit === "pt") return amount;
-  return amount * 0.75;
+  const amount = Number.parseFloat(match[1]);
+  const unit = match[2] === void 0 ? "" : match[2].toLowerCase();
+  if (unit === "" || unit === "px") return amount;
+  if (unit === "pt") return amount * 4 / 3;
+  return null;
+}
+function readViewBoxSize(attributes) {
+  const value = attributes.get("viewBox");
+  if (value === void 0) return { width: Number.NaN, height: Number.NaN };
+  const parts = value.trim().split(/[\s,]+/).filter((part) => part.length > 0);
+  const width = parts.length >= 3 ? Number(parts[2]) : Number.NaN;
+  const height = parts.length >= 4 ? Number(parts[3]) : Number.NaN;
+  return { width, height };
+}
+function stripPreamble(svg) {
+  return svg.replace(/^\s*<\?xml[\s\S]*?\?>\s*/, "").replace(/^\s*<!DOCTYPE[\s\S]*?>\s*/, "");
+}
+function placeRootTag(svg, width, height, y) {
+  const openMatch = /<svg\b[^>]*>/i.exec(svg);
+  if (openMatch === null) return svg;
+  const original = openMatch[0];
+  let tag = original.replace(/\s(width|height)\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
+  const selfClosing = tag.endsWith("/>");
+  const stem = tag.slice(0, tag.length - (selfClosing ? 2 : 1)).replace(/\s+$/, "");
+  tag = stem + ` width="${width}" height="${height}" x="20" y="${y}"` + (selfClosing ? "/>" : ">");
+  return svg.slice(0, openMatch.index) + tag + svg.slice(openMatch.index + original.length);
 }
 function combineSvgs(svgs) {
-  const resolve = (attributes, name, viewBoxIndex, fallback) => {
-    const parsed = attributes.has(name) ? parseLengthToPt(attributes.get(name) ?? "") : null;
-    if (parsed !== null) return parsed;
-    const viewBox = attributes.get("viewBox");
-    const fromViewBox = viewBox === void 0 ? NaN : parseFloat(viewBox.trim().split(/[\s,]+/)[viewBoxIndex] ?? "");
-    return Number.isFinite(fromViewBox) ? fromViewBox : fallback;
-  };
   let totalHeight = 20;
-  const info = [];
+  const blocks = [];
+  const widths = [];
   for (const svg of svgs) {
-    const attributes = readRootAttributes(svg);
-    const h = resolve(attributes, "height", 3, 50);
-    const w = resolve(attributes, "width", 2, 400);
-    info.push({ svg, w, h, y: totalHeight });
-    totalHeight += h + 20;
+    const body = stripPreamble(svg);
+    const attributes = readRootAttributes(body);
+    const viewBoxSize = readViewBoxSize(attributes);
+    let width = parseLengthToUserUnits(attributes.get("width") ?? "");
+    if (width === null) width = Number.isFinite(viewBoxSize.width) ? viewBoxSize.width : 400;
+    let height = parseLengthToUserUnits(attributes.get("height") ?? "");
+    if (height === null) height = Number.isFinite(viewBoxSize.height) ? viewBoxSize.height : 50;
+    const y = totalHeight;
+    totalHeight += height + 20;
+    blocks.push(placeRootTag(body, width, height, y));
+    widths.push(width);
   }
-  const maxW = Math.max(...info.map((b) => b.w)) + 40;
-  const parts = [];
-  parts.push(`<?xml version="1.0" encoding="UTF-8"?>`);
-  parts.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}pt" height="${totalHeight}pt" viewBox="0 0 ${maxW} ${totalHeight}">`);
-  parts.push(`<rect width="${maxW}" height="${totalHeight}" fill="white"/>`);
-  for (const b of info) {
-    const inner = b.svg.replace(/<\?xml[^?]*\?>\s*/, "").replace(/<!DOCTYPE[^>]*>\s*/, "").replace(/<svg([^>]*)>/, `<svg$1 x="20" y="${b.y}">`);
-    parts.push(inner);
-  }
-  parts.push("</svg>");
-  return parts.join("\n");
+  const maxW = (widths.length > 0 ? Math.max(...widths) : 0) + 40;
+  return [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${maxW}" height="${totalHeight}" viewBox="0 0 ${maxW} ${totalHeight}">`,
+    `<rect width="${maxW}" height="${totalHeight}" fill="white"/>`,
+    ...blocks,
+    "</svg>"
+  ].join("\n");
 }
 async function renderLatexSource(texSource, output2, opts = {}) {
   const { dpi = 200, fetchImpl } = opts;
