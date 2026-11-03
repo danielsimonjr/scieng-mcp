@@ -1,11 +1,11 @@
 {
-  "totalFiles": 25,
+  "totalFiles": 27,
   "byDisposition": {
     "reachable": 8,
     "build-entry": 1,
     "test-only": 0,
     "orphan": 3,
-    "test": 10,
+    "test": 12,
     "tool": 3,
     "config": 0,
     "bench": 0,
@@ -14,10 +14,10 @@
   "byArea": {
     "src": 12,
     "tools": 3,
-    "tests": 10
+    "tests": 12
   },
   "byPackage": {
-    "(root)": 16,
+    "(root)": 18,
     "scieng-mcp": 9
   },
   "files": [
@@ -188,6 +188,20 @@
       "area": "tests",
       "disposition": "test",
       "loc": 27
+    },
+    {
+      "file": "test/repo-metadata.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 46
+    },
+    {
+      "file": "test/skill-cdn.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 69
     },
     {
       "file": "test/tools.test.ts",

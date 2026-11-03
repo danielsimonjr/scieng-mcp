@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 11,
-    "totalTestFiles": 10,
+    "totalTestFiles": 12,
     "testedCount": 8,
     "untestedCount": 3,
     "coveragePercent": "72.7",
@@ -88,6 +88,8 @@
     "test/render-mermaid.test.ts": [
       "src/render-mermaid.ts"
     ],
+    "test/repo-metadata.test.ts": [],
+    "test/skill-cdn.test.ts": [],
     "test/tools.test.ts": [
       "src/tools.ts"
     ]
