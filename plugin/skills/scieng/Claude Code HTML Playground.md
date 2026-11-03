@@ -48,7 +48,7 @@ This is the fundamental mechanism. The “playground” is just an opinionated s
 
 ### 2.1 Mermaid Charts ✅ FULLY SUPPORTED
 
-**How it works**: Claude Code generates an HTML file that includes the [Mermaid.js](https://mermaid.js.org/) library (either via CDN like `https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js` or inlined) and embeds Mermaid diagram definitions in `<pre class="mermaid">` blocks.
+**How it works**: Claude Code generates an HTML file that includes the [Mermaid.js](https://mermaid.js.org/) library (either via CDN like `https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js` or inlined) and embeds Mermaid diagram definitions in `<pre class="mermaid">` blocks.
 
 **Key details**:
 
@@ -64,7 +64,7 @@ This is the fundamental mechanism. The “playground” is just an opinionated s
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad: true, theme: 'dark'});</script>
 </head>
 <body>
@@ -95,9 +95,9 @@ This is the fundamental mechanism. The “playground” is just an opinionated s
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
 </head>
 <body onload="renderMathInElement(document.body);">
   <p>The quadratic formula: $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$</p>
@@ -127,7 +127,7 @@ This is the fundamental mechanism. The “playground” is just an opinionated s
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://unpkg.com/@viz-js/viz"></script>
+  <script src="https://unpkg.com/@viz-js/viz@3.28.0"></script>
 </head>
 <body>
   <div id="graph"></div>
@@ -234,13 +234,13 @@ A single HTML file that can render Mermaid, LaTeX, Graphviz, and syntax-highligh
   <meta charset="UTF-8">
   <title>Universal Renderer</title>
   <!-- KaTeX for LaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
   <!-- Mermaid for diagrams -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
   <!-- Viz.js for Graphviz -->
-  <script src="https://unpkg.com/@viz-js/viz"></script>
+  <script src="https://unpkg.com/@viz-js/viz@3.28.0"></script>
   <!-- Highlight.js for code -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>

@@ -37,10 +37,10 @@ Every playground follows this template. Remove renderer imports not needed for t
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
 
   <!-- Mermaid (diagrams) -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
 
   <!-- Viz.js (Graphviz/DOT) -->
-  <script src="https://unpkg.com/@viz-js/viz"></script>
+  <script src="https://unpkg.com/@viz-js/viz@3.28.0"></script>
 
   <!-- Highlight.js (syntax highlighting) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
@@ -90,7 +90,7 @@ Every playground follows this template. Remove renderer imports not needed for t
 **CDN import:**
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
 ```
 
 **Initialization:**
@@ -201,7 +201,7 @@ WebAssembly port of Graphviz. Renders DOT language graphs in the browser.
 **CDN import:**
 
 ```html
-<script src="https://unpkg.com/@viz-js/viz"></script>
+<script src="https://unpkg.com/@viz-js/viz@3.28.0"></script>
 ```
 
 **Render to SVG element (recommended):**

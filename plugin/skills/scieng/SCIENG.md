@@ -1177,7 +1177,7 @@ A full sci/eng HTML document combining all systems above. Copy this skeleton and
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
   <!-- ── Mermaid (for system diagrams) ── -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
 
   <!-- ── Highlight.js (for code listings) ── -->
   <link rel="stylesheet"
