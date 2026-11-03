@@ -31,7 +31,7 @@ export function extractBlocks(texSource: string): Block[] {
 
 /**
  * Stacks SVG images in one vertical SVG document on a white background.
- * A width or height that is not in single quotes is not read. The default is 400 units for a width and 50 units for a height.
+ * The function does not read a width or height that is not in single quotes. The default is 400 units for a width and 50 units for a height.
  */
 export function combineSvgs(svgs: string[]): string {
   let totalHeight = 20;
@@ -93,7 +93,7 @@ export async function renderLatexSource(
 }
 
 /**
- * Reads a LaTeX source file, renders it with renderLatexSource, and writes the SVG to the output path.
+ * Reads a LaTeX source file. Renders the file with renderLatexSource. Writes the SVG to the output path.
  * The function returns the SVG text.
  */
 export async function renderLatex(

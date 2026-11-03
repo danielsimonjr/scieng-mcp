@@ -20,7 +20,7 @@ export async function renderMermaidSource(code: string, output: string, fetchImp
   return svg;
 }
 
-/** Reads a Mermaid file, renders it with renderMermaidSource, and returns the SVG text. */
+/** Reads a Mermaid file. Renders the file with renderMermaidSource. Returns the SVG text. */
 export async function renderMermaid(input: string, output: string, fetchImpl?: FetchLike): Promise<string> {
   return renderMermaidSource(readInput(input), output, fetchImpl);
 }

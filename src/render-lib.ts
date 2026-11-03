@@ -20,7 +20,7 @@ const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms
 /**
  * Sends an HTTP request and returns the response text.
  * The call retries a network error, and the statuses 429, 500, 502, 503 and 504. The wait doubles after each attempt. For a retried status, a valid Retry-After header sets the wait.
- * Any other error status throws at once. A failure while the body is read is not retried. The message holds the host and the first 500 characters of the body.
+ * Any other error status throws at once. The call does not retry an error that occurs while the call reads the body. The message holds the host and the first 500 characters of the body.
  */
 export async function httpText(url: string, opts: HttpOptions = {}): Promise<string> {
   const { method = "GET", body, headers = {}, timeoutMs = 20000, retries = 3, fetchImpl = fetch } = opts;

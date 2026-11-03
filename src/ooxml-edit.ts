@@ -32,7 +32,7 @@ const runText = (run: string): string =>
   [...run.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]).join("");
 
 /** Replace the text of the FIRST <w:r> whose combined <w:t> text contains `search`.
- *  The whole text of that run becomes the replacement. The <w:rPr> is untouched. Secondary <w:t> nodes are blanked. `search` and `replacement` are XML text, so an ampersand must be written as &amp;. */
+ *  The whole text of that run becomes the replacement. The function does not change <w:rPr>. The function empties the secondary <w:t> nodes. `search` and `replacement` are XML text. Write an ampersand as &amp;. */
 export function replaceInRuns(
   xml: string,
   search: string,
