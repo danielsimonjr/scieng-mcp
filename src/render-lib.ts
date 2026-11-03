@@ -79,7 +79,7 @@ export function writeOutput(path: string, content: string | Uint8Array): void {
 
 /**
  * Calls fn for each item, with at most limit calls at once. The results keep the order of the items.
- * When a call throws, the returned promise rejects with that error. The other items still run.
+ * When a call throws, the returned promise rejects with that error. The worker that made the call stops. The other workers keep taking items, so an item that no worker takes may never run.
  */
 export async function mapLimit<T, R>(
   items: T[],
