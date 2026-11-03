@@ -92,8 +92,9 @@ test("every import of the bundle, static or dynamic, names a builtin or a file o
   assert.ok(seen > 0, "the scan found no import in the bundle, so it proves nothing");
 });
 
-test("render_dot and capabilities run from the built bundle, offline, with no node_modules", { timeout: TEST_TIMEOUT_MS }, async () => {
+test("render_dot and capabilities run from the built bundle, offline, with no node_modules", { timeout: TEST_TIMEOUT_MS }, async (t) => {
   const root = mkdtempSync(join(tmpdir(), "bundle-gate-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
   const dir = join(root, "fresh");
   const netLog = join(root, "network.log");
   cpSync(BUNDLE, join(dir, "bundle"), { recursive: true });
@@ -140,5 +141,4 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
 
   const log = existsSync(netLog) ? readFileSync(netLog, "utf-8") : "";
   assert.equal(log, "", "the bundle attempted a network request");
-  rmSync(root, { recursive: true, force: true });
 });
