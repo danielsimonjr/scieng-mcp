@@ -57,7 +57,7 @@ export function deriveOutputPath(input: string, ext = ".svg"): string {
   return join(dirname(input), basename(input, extname(input)) + ext);
 }
 
-export function writeOutput(path: string, content: string): void {
+export function writeOutput(path: string, content: string | Uint8Array): void {
   const tmp = path + ".tmp";
   writeFileSync(tmp, content, "utf-8");
   renameSync(tmp, path);

@@ -24,7 +24,8 @@ Give each command a description or the path of a source file. Example:
 
 ## Where the source goes
 
-- `mermaid`, `dot` and `latex` send the source to mermaid.ink, quickchart.io or latex.codecogs.com and save an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `mermaid` and `latex` send the source to mermaid.ink or latex.codecogs.com and save an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 
 ## Output

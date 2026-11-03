@@ -61,11 +61,24 @@ test("each reference file that a command or the skill names exists in the skill 
 });
 
 test("the remote commands name the service that receives the source, and offer --local", () => {
-  const remote: Record<string, string> = { mermaid: "mermaid.ink", dot: "quickchart.io", latex: "codecogs.com" };
+  const remote: Record<string, string> = { mermaid: "mermaid.ink", latex: "codecogs.com" };
   for (const [cmd, host] of Object.entries(remote)) {
     const { meta, body } = parse(join(COMMANDS, `${cmd}.md`));
     assert.ok(body.includes(host), `${cmd}: does not name ${host}`);
     assert.ok(meta["argument-hint"]!.includes("--local") && body.includes("--local"), `${cmd}: no --local`);
+  }
+});
+
+test("the dot command renders locally and names no remote service", () => {
+  const { body } = parse(join(COMMANDS, "dot.md"));
+  assert.doesNotMatch(body, /quickchart/i);
+  assert.match(body, /locally|the engine/i);
+});
+
+test("no shipped file of the plugin names quickchart", () => {
+  for (const f of readdirSync(PLUGIN, { recursive: true }) as string[]) {
+    if (!/\.(md|mjs|js|json|ts)$/.test(f)) continue;
+    assert.doesNotMatch(readFileSync(join(PLUGIN, f), "utf-8"), /quickchart/i, `${f} names quickchart`);
   }
 });
 

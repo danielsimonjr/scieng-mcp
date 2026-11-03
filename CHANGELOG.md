@@ -1,6 +1,22 @@
 # Changelog
+<!-- ste:historical-record -->
 
 ## [Unreleased]
+
+## [0.5.0] - 2026-11-02
+
+### Changed
+
+- `render_dot` draws the graph on this machine with the sciengjs engine (`@danielsimonjr/sciengjs`). `render_dot` makes no network request. DOT source no longer goes to quickchart.io. The result is `{path, bytes, warnings}`.
+- `render_dot` takes a `format` argument: `svg` (the default) or `png`.
+- The engine removes each `image` and `stylesheet` attribute from a DOT source. The result holds a warning for each attribute that the engine removes.
+- The `dot` command, the `scieng` skill, `GRAPHVIZ.md`, `plugin/README.md` and the README describe the local render.
+
+### Added
+
+- The `capabilities` tool lists the render pairs of the engine (type and format, with the stage of each pair and whether the pair is ready). The tool is read-only and takes no input.
+- CI checks that the committed `plugin/bundle/` equals a fresh build.
+- `.gitattributes` stores the bundle's text files with LF line endings, and its font and WASM files as binary.
 
 ## [0.4.2] - 2026-11-01
 

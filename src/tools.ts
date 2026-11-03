@@ -1,5 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
+import { capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
 import { renderMermaidSource } from "./render-mermaid.ts";
 import { renderDotSource } from "./render-dot.ts";
@@ -52,9 +53,19 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "render_dot",
-    description: "Render Graphviz DOT source to an SVG file via quickchart.io/graphviz. Returns {path, bytes}.",
+    description: "Render Graphviz DOT source to an SVG or PNG file locally, through the sciengjs engine. format is svg (default) or png. Returns {path, bytes, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
-    inputSchema: { type: "object", properties: renderIo, additionalProperties: false },
+    inputSchema: {
+      type: "object",
+      properties: { ...renderIo, format: { type: "string", enum: ["svg", "png"], description: "Output format (default svg)." } },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "capabilities",
+    description: "Report each input and output pair of the local engine, its stage, and whether that stage is ready on this machine. Returns {capabilities}.",
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "render_latex",
@@ -124,15 +135,17 @@ const RenderArgs = z.object({
   output_path: z.string().optional(),
 }).strict();
 
-function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: unknown, extra?: T): { code: string; out: string; args: Record<string, unknown> } {
-  const schema = extra ? RenderArgs.extend(extra) : RenderArgs;
+const DotFormat = z.enum(["svg", "png"]);
+
+function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: unknown, extra?: T, ext = ".svg"): { code: string; out: string; args: Record<string, unknown> } {
+  const schema = extra ? RenderArgs.extend(extra).strict() : RenderArgs;
   const a = schema.parse(raw ?? {});
   if (!!a.source === !!a.input_path) throw new Error("provide exactly one of source or input_path");
   if (a.source !== undefined) {
     if (!a.output_path) throw new Error("output_path is required when source is inline");
     return { code: a.source, out: a.output_path, args: a };
   }
-  return { code: readInput(a.input_path!), out: a.output_path ?? deriveOutputPath(a.input_path!), args: a };
+  return { code: readInput(a.input_path!), out: a.output_path ?? deriveOutputPath(a.input_path!, ext), args: a };
 }
 
 const result = (path: string, content: string, extra: Record<string, unknown> = {}): string =>
@@ -161,9 +174,12 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       return result(out, await renderMermaidSource(code, out, fetchImpl));
     },
     render_dot: async (raw) => {
-      const { code, out } = resolveRenderIo(raw);
-      return result(out, await renderDotSource(code, out, fetchImpl));
+      const format = DotFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
+      const { code, out } = resolveRenderIo(raw, { format: DotFormat.optional() }, `.${format}`);
+      const res = await renderDotSource(code, out, format);
+      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
+    capabilities: async () => JSON.stringify({ capabilities: await engineCapabilities() }),
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });

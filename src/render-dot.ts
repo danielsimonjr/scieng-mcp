@@ -1,18 +1,15 @@
-import { readInput, writeOutput, httpText, type FetchLike } from "./render-lib.ts";
+// Renders DOT graph sources through the sciengjs engine and writes the image to disk.
+// Engine errors, including code-carrying validation failures, propagate unchanged.
+import { render } from "@danielsimonjr/sciengjs";
+import { writeOutput } from "./render-lib.ts";
 
-export async function renderDotSource(dot: string, output: string, fetchImpl?: FetchLike): Promise<string> {
-  const body = JSON.stringify({ graph: dot, layout: "dot", format: "svg" });
-  const svg = await httpText("https://quickchart.io/graphviz", {
-    method: "POST",
-    body,
-    headers: { "Content-Type": "application/json" },
-    fetchImpl,
-  });
-  if (!svg.includes("<svg")) throw new Error("no SVG in response");
-  writeOutput(output, svg);
-  return svg;
-}
-
-export async function renderDot(input: string, output: string, fetchImpl?: FetchLike): Promise<string> {
-  return renderDotSource(readInput(input), output, fetchImpl);
+/** Draws a DOT source to an SVG or PNG file and returns the written byte count plus any engine warnings. */
+export async function renderDotSource(
+  source: string,
+  output: string,
+  format: "svg" | "png",
+): Promise<{ bytes: number; warnings: string[] }> {
+  const result = await render({ type: "dot", format, source });
+  writeOutput(output, result.bytes);
+  return { bytes: result.bytes.byteLength, warnings: result.warnings };
 }
