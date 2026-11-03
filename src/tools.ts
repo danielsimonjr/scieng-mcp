@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
-import { capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
+import { RENDER_ERROR_CODES, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
 import { renderMermaidSource } from "./render-mermaid.ts";
 import { renderDotSource } from "./render-dot.ts";
@@ -31,8 +31,41 @@ export async function dispatchTool(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}\n`);
-    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+    return { content: [{ type: "text", text: JSON.stringify(errorBody(err, msg)) }], isError: true };
   }
+}
+
+/** The fields that an engine error gives: its code, and its line and column when the engine has them. */
+interface EngineFailure {
+  code: string;
+  line?: number;
+  column?: number;
+}
+
+/**
+ * Reads an error of the sciengjs engine. The check matches the name and the code, not the class,
+ * because a bundle can hold a second copy of the engine's errors module.
+ */
+function engineFailure(err: unknown): EngineFailure | undefined {
+  if (!(err instanceof Error) || err.name !== "RenderError") return undefined;
+  const { code, line, column } = err as Error & { code?: unknown; line?: unknown; column?: unknown };
+  if (typeof code !== "string" || !(RENDER_ERROR_CODES as readonly string[]).includes(code)) return undefined;
+  return {
+    code,
+    line: typeof line === "number" ? line : undefined,
+    column: typeof column === "number" ? column : undefined,
+  };
+}
+
+/**
+ * The JSON body of a failed tool call. An engine error adds its code, and its line and column when it has them.
+ * An internal failure of the engine names the engine, so that the client can tell it from a bad request.
+ */
+function errorBody(err: unknown, msg: string): Record<string, unknown> {
+  const failure = engineFailure(err);
+  if (!failure) return { status: "error", error: msg };
+  const label = failure.code === "E_INTERNAL" ? "sciengjs engine: " : "";
+  return { status: "error", error: `[${failure.code}] ${label}${msg}`, code: failure.code, line: failure.line, column: failure.column };
 }
 
 const SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";

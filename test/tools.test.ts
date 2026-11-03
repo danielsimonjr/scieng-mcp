@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { RenderError } from "@danielsimonjr/sciengjs";
 import { TOOLS, makeHandlers, dispatchTool, type ToolHandler } from "../src/tools.ts";
 
 test("exactly the six tools are defined", () => {
@@ -151,6 +152,37 @@ test("dispatchTool wraps a throwing handler as an isError JSON envelope", async 
   assert.equal(res.isError, true);
   const body = JSON.parse(res.content[0].text);
   assert.deepEqual(body, { status: "error", error: "boom" });
+});
+
+test("render_dot: the tool error keeps the engine code and the line of a syntax error", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const res = await dispatchTool(makeHandlers(), "render_dot", { source: "digraph{a-> ", output_path: join(dir, "bad.svg") });
+  assert.equal(res.isError, true);
+  const body = JSON.parse(res.content[0].text);
+  assert.match(body.error, /^\[E_INPUT\] syntax error in line 1/);
+  assert.equal(body.code, "E_INPUT");
+  assert.equal(body.line, 1);
+});
+
+test("dispatchTool keeps the column of an engine error that gives one", async () => {
+  const handlers: Record<string, ToolHandler> = {
+    render_dot: async () => { throw new RenderError("E_INPUT", "unexpected token", { line: 2, column: 5 }); },
+  };
+  const body = JSON.parse((await dispatchTool(handlers, "render_dot", {})).content[0].text);
+  assert.deepEqual(body, { status: "error", error: "[E_INPUT] unexpected token", code: "E_INPUT", line: 2, column: 5 });
+});
+
+test("dispatchTool names the engine when the engine fails inside its worker", async () => {
+  // The engine reports a stack overflow in its worker as E_INTERNAL, with the RangeError message.
+  const handlers: Record<string, ToolHandler> = {
+    render_dot: async () => { throw new RenderError("E_INTERNAL", "Maximum call stack size exceeded"); },
+  };
+  const body = JSON.parse((await dispatchTool(handlers, "render_dot", {})).content[0].text);
+  assert.deepEqual(body, {
+    status: "error",
+    error: "[E_INTERNAL] sciengjs engine: Maximum call stack size exceeded",
+    code: "E_INTERNAL",
+  });
 });
 
 test("dispatchTool happy path returns handler text with no isError", async () => {

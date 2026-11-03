@@ -11,6 +11,7 @@
 - The engine removes each `image` and `stylesheet` attribute from a DOT source. The result holds a warning for each attribute that the engine removes.
 - The `dot` command, the `scieng` skill, `GRAPHVIZ.md`, `plugin/README.md` and the README describe the local render.
 - The sciengjs dependency changes from `^0.1.0` to `^0.1.1`. The server gives the engine the `assets/` folder beside the bundle. The bundle needs no `node_modules`.
+- A failed tool call from the sciengjs engine returns the engine error code (`code`). The result also gives `line` and `column` when the engine gives them. An internal engine failure names the engine in the error text.
 
 ### Added
 
@@ -19,6 +20,8 @@
 - `.gitattributes` stores the bundle's `.mjs` files with LF line endings, and the bundle's font and WASM files as binary. Git stores the engine assets without line-ending conversion, so each asset is a byte-exact copy of the engine package.
 - `plugin/bundle/assets/index_bg.wasm`, the WASM file of the raster stage. `test/bundle-gate.test.ts` runs the built bundle in a fresh folder with no `node_modules`. The test renders SVG and PNG. The test checks that the bundle sends no network request.
 - The bundle gate checks that each engine asset is a byte-exact copy of the engine package file. On systems other than Windows, the bundle gate checks that each bundle file has mode 0644. `scripts/bundle.mjs` sets that mode on each file the build writes.
+- `plugin/README.md` states the Node.js version (24 or later), the limit of one request line (10,485,760 bytes) and the limit of an `input_path` file (512 KiB).
+- `plugin/README.md` has a Third-party assets section. The Third-party assets section names the licence of each engine asset. The licences are SIL Open Font License 1.1 (Liberation Serif), MPL-2.0 (the resvg WASM file) and EPL-2.0 (Graphviz, inside `@viz-js/viz`). The wrapper of `@viz-js/viz` is MIT.
 
 ## [0.4.2] - 2026-11-01
 

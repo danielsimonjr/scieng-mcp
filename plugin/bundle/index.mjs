@@ -4,6 +4,7 @@ import {
   loadConfig
 } from "./chunk-AU2OYEUG.mjs";
 import {
+  RENDER_ERROR_CODES,
   RenderError
 } from "./chunk-JFFRTQ6A.mjs";
 import {
@@ -35668,8 +35669,24 @@ async function dispatchTool(handlers, name, args) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}
 `);
-    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+    return { content: [{ type: "text", text: JSON.stringify(errorBody(err, msg)) }], isError: true };
   }
+}
+function engineFailure(err) {
+  if (!(err instanceof Error) || err.name !== "RenderError") return void 0;
+  const { code, line, column } = err;
+  if (typeof code !== "string" || !RENDER_ERROR_CODES.includes(code)) return void 0;
+  return {
+    code,
+    line: typeof line === "number" ? line : void 0,
+    column: typeof column === "number" ? column : void 0
+  };
+}
+function errorBody(err, msg) {
+  const failure2 = engineFailure(err);
+  if (!failure2) return { status: "error", error: msg };
+  const label = failure2.code === "E_INTERNAL" ? "sciengjs engine: " : "";
+  return { status: "error", error: `[${failure2.code}] ${label}${msg}`, code: failure2.code, line: failure2.line, column: failure2.column };
 }
 var SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";
 var INPUT_DESC = "Path to a source file. Provide exactly one of source / input_path.";

@@ -2,11 +2,13 @@
 // reference files that they name. A command that names a tool or a file that does not exist fails here.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { basename, join } from "node:path";
+import { STDIO_DEFAULT_MAX_BUFFER_SIZE } from "@modelcontextprotocol/server";
 import { TOOLS } from "../src/tools.ts";
 
-const PLUGIN = join(import.meta.dirname, "..", "plugin");
+const ROOT = join(import.meta.dirname, "..");
+const PLUGIN = join(ROOT, "plugin");
 const COMMANDS = join(PLUGIN, "commands");
 const SKILL_DIR = join(PLUGIN, "skills", "scieng");
 const EXPECTED = ["circuit", "dot", "latex", "mermaid", "playground", "plot", "wavedrom"];
@@ -99,6 +101,27 @@ test("each script that the skill says is in this skill directory exists there", 
       assert.ok(existsSync(join(SKILL_DIR, m[1]!)), `${f}: names ${m[1]} in this skill directory, which does not exist`);
     }
   }
+});
+
+test("the plugin README states the Node.js version that package.json declares", () => {
+  const { engines } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf-8")) as { engines: { node: string } };
+  const major = /\d+/.exec(engines.node)?.[0];
+  assert.ok(major, `package.json declares engines.node ${engines.node}`);
+  assert.match(readFileSync(join(PLUGIN, "README.md"), "utf-8"), new RegExp(`Node\\.js ${major} or later`));
+});
+
+test("the plugin README states the stdio message limit of the MCP SDK", () => {
+  const limit = String(STDIO_DEFAULT_MAX_BUFFER_SIZE).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  assert.ok(readFileSync(join(PLUGIN, "README.md"), "utf-8").includes(`${limit} bytes`), `the README does not state ${limit} bytes`);
+});
+
+test("the plugin README has a Third-party assets section that names every bundled engine asset", () => {
+  const assets = join(PLUGIN, "bundle", "assets");
+  const readme = readFileSync(join(PLUGIN, "README.md"), "utf-8");
+  assert.match(readme, /^## Third-party assets$/m);
+  const files = (readdirSync(assets, { recursive: true }) as string[]).filter((f) => statSync(join(assets, f)).isFile());
+  assert.ok(files.length > 0, "no engine assets are bundled");
+  for (const f of files) assert.ok(readme.includes(basename(f)), `the README does not name ${basename(f)}`);
 });
 
 test("the circuit command and SCIENG.md forbid a wire that crosses a part", () => {
