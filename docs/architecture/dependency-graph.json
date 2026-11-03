@@ -3,7 +3,7 @@
     "name": "scieng-mcp",
     "schemaVersion": "2.0.0",
     "language": "typescript",
-    "totalFiles": 25,
+    "totalFiles": 27,
     "totalModules": 3,
     "totalExports": 81
   },
@@ -544,6 +544,28 @@
         ],
         "exports": []
       },
+      "test/repo-metadata.test.ts": {
+        "externalDependencies": [],
+        "nodeDependencies": [
+          "node:assert/strict",
+          "node:fs",
+          "node:path",
+          "node:test"
+        ],
+        "internalDependencies": [],
+        "exports": []
+      },
+      "test/skill-cdn.test.ts": {
+        "externalDependencies": [],
+        "nodeDependencies": [
+          "node:assert/strict",
+          "node:fs",
+          "node:path",
+          "node:test"
+        ],
+        "internalDependencies": [],
+        "exports": []
+      },
       "test/tools.test.ts": {
         "externalDependencies": [
           "@danielsimonjr/sciengjs"
@@ -572,10 +594,10 @@
     }
   },
   "statistics": {
-    "totalTypeScriptFiles": 25,
-    "totalSourceFiles": 25,
+    "totalTypeScriptFiles": 27,
+    "totalSourceFiles": 27,
     "totalModules": 3,
-    "totalLinesOfCode": 3548,
+    "totalLinesOfCode": 3699,
     "totalExports": 81,
     "entryRoots": 1,
     "reachableFiles": 9,

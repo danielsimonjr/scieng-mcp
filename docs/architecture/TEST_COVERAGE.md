@@ -9,7 +9,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 11 |
-| Total Test Files | 10 |
+| Total Test Files | 12 |
 | Source Files with Tests | 8 |
 | Source Files without Tests | 3 |
 | Coverage (raw, direct-import) | **72.7%** |
@@ -58,4 +58,6 @@ The following 3 source files are not directly imported by any test file:
 | `test/render-latex.test.ts` | 1 files |
 | `test/render-lib.test.ts` | 1 files |
 | `test/render-mermaid.test.ts` | 1 files |
+| `test/repo-metadata.test.ts` | 0 files |
+| `test/skill-cdn.test.ts` | 0 files |
 | `test/tools.test.ts` | 1 files |

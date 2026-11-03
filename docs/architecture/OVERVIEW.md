@@ -10,32 +10,32 @@ The server runs on Node.js 24 or later. Its runtime entry is the committed bundl
 
 ## Key metrics
 
-The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 25 files and no file of `plugin/bundle/`.
+The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 27 files and no file of `plugin/bundle/`.
 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
-| `totalSourceFiles` | 25 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 3548 | The census. | `dependency-graph.json` |
+| `totalSourceFiles` | 27 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 3699 | The census. | `dependency-graph.json` |
 | `totalExports` | 81 | The census: 31 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
 | Tools | 6 | The `TOOLS` array in `src/tools.ts`. | Direct search. Not a `repo-tools` metric. |
-| Test cases | 88 | The `test(` calls in the ten files of `test/`. | Direct count. Not a `repo-tools` metric. |
+| Test cases | 123 | The `test(` calls at the first column in the twelve files of `test/`. | Direct count. Not a `repo-tools` metric. |
 
-The 30 exports in `src/` are the declarations that start at the first column of a file in `src/`. The `src/index.ts` module exports nothing.
+The 31 exports in `src/` are the declarations that start at the first column of a file in `src/`. The `src/index.ts` module exports nothing.
 
 ## Directory structure
 
 ```
 scieng-mcp/
-├── src/                    Server source. 9 files, 770 lines.
-├── test/                   node:test suites. 10 files, 996 lines.
+├── src/                    Server source. 9 files, 1009 lines.
+├── test/                   node:test suites. 12 files, 1490 lines.
 ├── scripts/                Bundle build, network guard for the tests, handshake check. 3 files, 118 lines.
 ├── smoke/                  Live-service smoke test. 1 file, 67 lines. No package script runs it.
 ├── plugin/                 Files that the plugin installs.
 │   ├── .claude-plugin/     Plugin manifest.
 │   ├── .mcp.json           Launch definition. Node runs bundle/index.mjs.
-│   ├── bundle/             Committed build output. 14 files.
+│   ├── bundle/             Committed build output. 15 files.
 │   ├── commands/           Seven slash commands, one Markdown file each.
 │   ├── skills/scieng/      The skill. 9 Markdown files and 2 TypeScript files, 1015 lines of code.
 │   └── README.md           User guide for the plugin.
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 3548. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 3699. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -113,8 +113,8 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 25 | dependency-graph.json |
-| totalLinesOfCode | 3548 | dependency-graph.json |
+| totalSourceFiles | 27 | dependency-graph.json |
+| totalLinesOfCode | 3699 | dependency-graph.json |
 | totalExports | 81 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

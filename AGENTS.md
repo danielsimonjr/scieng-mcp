@@ -55,7 +55,7 @@ CI runs the typecheck, the tests, a Node load of the bundle, and a check that th
 
 The marketplace entry lives in the separate `skills` repository (`.claude-plugin/marketplace.json`). It installs this repository with `git-subdir` and `path: "plugin"`. The plugin cache uses the version as its key. A change that ships without a new version deploys nothing.
 
-1. Bump the version in `package.json` and `plugin/.claude-plugin/plugin.json`, in the same commit as the content. Run `bun run bundle`, because the bundle reads the version from `package.json`.
+1. Bump the version in `package.json` and `plugin/.claude-plugin/plugin.json`, in the same commit as the content. The test `test/repo-metadata.test.ts` fails when the two versions differ. Run `bun run bundle`, because the bundle reads the version from `package.json`.
 2. Add the CHANGELOG entry. Commit and push to `main`. Check that CI passes for that commit.
 3. In the `skills` repository, set the same version on the `scieng-mcp` entry. Commit, push and check CI.
 4. Run `claude plugin marketplace update local-marketplace`, then `claude plugin update scieng-mcp@local-marketplace`. The user runs `/reload-plugins`.

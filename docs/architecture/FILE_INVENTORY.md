@@ -8,7 +8,7 @@ This report lists each source file that the map census finds, with a disposition
 
 **Language**: typescript
 
-**Total files**: 25
+**Total files**: 27
 
 ## Disposition counts
 
@@ -18,26 +18,26 @@ This report lists each source file that the map census finds, with a disposition
 | `build-entry` | 1 | A `src`-area file that is an entry root. |
 | `test-only` | 0 | A `src`-area file that only a test reaches. |
 | `orphan` | 3 | A `src`-area file that nothing reaches. Delete it, or wire it to a root. |
-| `test` | 10 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
+| `test` | 12 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
 | `tool` | 3 | A file in a `tools/` or `scripts/` folder outside `src/`. |
 | `config` | 0 | A `*.config.*` file of TypeScript or JavaScript. |
 | `example` | 0 | A file in `examples/` or `docs/`. |
 | `bench` | 0 | A file in `bench/` or `benchmarks/`, or a `*.bench.*` file. |
-| **Total** | **25** | |
+| **Total** | **27** | |
 
 ## Per-area counts
 
 | Area | Files |
 | --- | --: |
 | `src` | 12 |
-| `tests` | 10 |
+| `tests` | 12 |
 | `tools` | 3 |
 
 ## Per-package counts
 
 | Package | Files |
 | --- | --: |
-| `(root)` | 16 |
+| `(root)` | 18 |
 | `scieng-mcp` | 9 |
 
 ## All files
@@ -68,6 +68,8 @@ This report lists each source file that the map census finds, with a disposition
 | `test/render-latex.test.ts` | (root) | tests | test | 210 |
 | `test/render-lib.test.ts` | (root) | tests | test | 167 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 27 |
+| `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
+| `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
 | `test/tools.test.ts` | (root) | tests | test | 227 |
 
 ## Skipped links
