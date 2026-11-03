@@ -5,6 +5,7 @@
 ### Added
 
 - `LICENSE` at the repository root holds the MIT licence. `package.json` declares `"license": "MIT"`.
+- `test/repo-metadata.test.ts` fails when `package.json` and `plugin/.claude-plugin/plugin.json` declare different versions. `AGENTS.md` names the test in the release rule.
 
 ### Fixed
 
