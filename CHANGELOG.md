@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `LICENSE` at the repository root holds the MIT licence. `package.json` declares `"license": "MIT"`.
+
 ### Fixed
 
 - `httpText` retries a failed response-body read in the same way as a network error.
