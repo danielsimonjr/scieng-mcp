@@ -242,8 +242,8 @@ A single HTML file that can render Mermaid, LaTeX, Graphviz, and syntax-highligh
   <!-- Viz.js for Graphviz -->
   <script src="https://cdn.jsdelivr.net/npm/@viz-js/viz@3.28.0/dist/viz-global.min.js" integrity="sha384-jv5ql4TEr9ULyGfjHq2FtVcK4+Eda4mfBLyS+yMQpx8ncVHQk+U0TIgGQ4L6EXCk" crossorigin="anonymous"></script>
   <!-- Highlight.js for code -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" integrity="sha384-RH2xi4eIQ/gjtbs9fUXM68sLSi99C7ZWBRX1vDrVv6GQXRibxXLbwO2NGZB74MbU" crossorigin="anonymous"></script>
 </head>
 <body onload="renderMathInElement(document.body); mermaid.initialize({startOnLoad:true, theme:'dark'}); hljs.highlightAll();">
   <!-- All four rendering engines active simultaneously -->

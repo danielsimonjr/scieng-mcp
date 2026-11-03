@@ -67,3 +67,27 @@ test("every script src and link href to a CDN in the scieng skill references has
   assert.ok(count > 0, "no CDN script or link tag was found");
   assert.deepEqual(problems, []);
 });
+
+/** Every CDN URL in the scieng skill references, with the file that holds it. */
+function skillUrls(): { file: string; url: string }[] {
+  const out: { file: string; url: string }[] = [];
+  for (const file of readdirSync(SKILL_DIR).filter((f) => f.endsWith(".md"))) {
+    const text = readFileSync(join(SKILL_DIR, file), "utf-8");
+    for (const m of text.matchAll(CDN_URL)) out.push({ file, url: m[0] });
+  }
+  return out;
+}
+
+test("each library in the scieng skill references uses one version only", () => {
+  const urls = skillUrls();
+  const versions = new Map<string, Set<string>>();
+  for (const { url } of urls) {
+    const { lib, version } = libOf(url);
+    if (!version) continue;
+    if (!versions.has(lib)) versions.set(lib, new Set());
+    versions.get(lib)!.add(version);
+  }
+  const problems = [...versions].filter(([, v]) => v.size > 1).map(([lib, v]) => `${lib} has versions ${[...v].sort().join(", ")}`);
+  assert.deepEqual(problems, []);
+});
+
