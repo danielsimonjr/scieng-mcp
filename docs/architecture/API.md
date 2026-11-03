@@ -79,9 +79,9 @@ This document describes the public surface of the server. The surface holds six 
 
 - Matching rules:
   - Each pair changes the first run whose text contains `find`.
-  - The whole text of that run becomes `replace`. Other text in the run is removed.
+  - Only the matched text of that run becomes `replace`. The other text of the run keeps its place.
   - The run formatting, which is the `<w:rPr>` element, does not change.
-  - `find` and `replace` are XML text. An ampersand is `&amp;`, a less-than sign is `&lt;`, and a greater-than sign is `&gt;`.
+  - `find` and `replace` are plain text. The tool escapes `&`, `<` and `>` in `replace`. An empty `find` is refused with `[EMPTY_FIND]` and the file is not changed.
   - A `<w:tab/>` element adds XML markup to the text that the search reads. A search for a tab character does not match.
   - Each pair works on the file as the earlier pairs left it.
 - Result: `{"results": [{"find": string, "replaced": boolean}], "replaced_count": number, "written": boolean}`. The file is written only when `replaced_count` is greater than zero. The result holds no `path`.
@@ -183,7 +183,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 | Export | Kind | Signature | Purpose |
 |---|---|---|---|
 | `assertNoDoctype` | Function | `(xml) => void` | Throws when the text holds a DOCTYPE or ENTITY declaration. |
-| `replaceInRuns` | Function | `(xml, search, replacement, preserveSpace) => { xml, replaced }` | Replaces the text of the first matching run. |
+| `replaceInRuns` | Function | `(xml, search, replacement, preserveSpace) => { xml, replaced }` | Replaces the matched text in the first matching run. |
 | `EditResult` | Interface | `{ find, replaced }` | The result of one find pair. |
 | `applyEdits` | Function | `(documentXmlPath, replacements, preserveSpace?) => { results, replaced_count, written }` | Applies the pairs to a file, in place. |
 

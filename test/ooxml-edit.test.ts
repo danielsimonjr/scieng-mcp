@@ -68,3 +68,73 @@ test("applyEdits refuses a file without a w:document root", () => {
   writeFileSync(p, "PK this is a zip, not xml");
   assert.throws(() => applyEdits(p, [{ find: "a", replace: "b" }]), /w:document/);
 });
+
+// Well-formedness check for the written XML: every tag is balanced, every "&" starts a
+// valid entity reference, and no "<" or ">" appears outside a tag. This is not a full parser.
+function assertWellFormed(xml: string): void {
+  const stack: string[] = [];
+  const tagRe = /<(\/?)([A-Za-z_][\w:.-]*)((?:\s[^<>]*?)?)(\/?)>/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = tagRe.exec(xml)) !== null) {
+    checkText(xml.slice(last, m.index));
+    last = tagRe.lastIndex;
+    const [, closing, name, , selfClose] = m;
+    if (closing) {
+      assert.equal(stack.pop(), name, `mismatched closing tag </${name}>`);
+    } else if (!selfClose) {
+      stack.push(name);
+    }
+  }
+  checkText(xml.slice(last));
+  assert.deepEqual(stack, [], "unclosed tags at end of document");
+}
+
+function checkText(text: string): void {
+  assert.doesNotMatch(text, /</, "a bare '<' in text content");
+  assert.doesNotMatch(text, />/, "a bare '>' in text content");
+  for (const amp of text.matchAll(/&([^;]*);?/g)) {
+    assert.match(amp[0], /^&(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);$/, `a bare or invalid '&' in text: ${amp[0]}`);
+  }
+}
+
+test("F1: replaces only the matched words of a run and keeps the rest and rPr", () => {
+  const xml = `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Dear Alice, your invoice is due Friday.</w:t></w:r></w:p>`;
+  const { xml: out, replaced } = replaceInRuns(xml, "Alice", "Bob", false);
+  assert.equal(replaced, true);
+  assert.equal(out, `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Dear Bob, your invoice is due Friday.</w:t></w:r></w:p>`);
+});
+
+test("F2: an empty find is refused and changes nothing", () => {
+  assert.equal(replaceInRuns(`<w:r><w:t>Dear</w:t></w:r>`, "", "X", false).replaced, false);
+  const dir = mkdtempSync(join(tmpdir(), "oox4-"));
+  const p = join(dir, "document.xml");
+  const original = `<w:document><w:r><w:rPr/><w:t>Dear Alice</w:t></w:r></w:document>`;
+  writeFileSync(p, original);
+  assert.throws(() => applyEdits(p, [{ find: "Alice", replace: "Bob" }, { find: "", replace: "X" }]), /\[EMPTY_FIND\]/);
+  assert.equal(readFileSync(p, "utf-8"), original, "an empty find must leave the file unchanged, even after a valid pair");
+});
+
+test("F3: a replacement with & < > is escaped and the written XML parses", () => {
+  const dir = mkdtempSync(join(tmpdir(), "oox5-"));
+  const p = join(dir, "document.xml");
+  writeFileSync(p, `<w:document><w:r><w:rPr/><w:t>Title goes here</w:t></w:r></w:document>`);
+  const r = applyEdits(p, [{ find: "Title goes here", replace: "Q&A <draft>" }]);
+  assert.equal(r.written, true);
+  const out = readFileSync(p, "utf-8");
+  assert.match(out, /<w:t[^>]*>Q&amp;A &lt;draft&gt;<\/w:t>/);
+  assertWellFormed(out);
+});
+
+test("F4a: a find of & matches text stored as &amp;", () => {
+  const xml = `<w:r><w:t>Q&amp;A</w:t></w:r>`;
+  const { xml: out, replaced } = replaceInRuns(xml, "&", " and ", false);
+  assert.equal(replaced, true);
+  assert.equal(out, `<w:r><w:t>Q and A</w:t></w:r>`);
+});
+
+test("F4b: markup is not matched as text and <w:tab/> is not read as <w:t>", () => {
+  assert.equal(replaceInRuns(`<w:r><w:tab/><w:t>Hello</w:t></w:r>`, "<w:t>", "X", false).replaced, false);
+  const { xml: out } = replaceInRuns(`<w:r><w:tab/><w:t>Hello</w:t></w:r>`, "Hello", "Bye", false);
+  assert.equal(out, `<w:r><w:tab/><w:t>Bye</w:t></w:r>`);
+});

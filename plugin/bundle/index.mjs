@@ -35617,27 +35617,78 @@ function assertNoDoctype(xml) {
     throw new Error("document.xml contains a DOCTYPE/ENTITY declaration; refusing to parse.");
   }
 }
-var runText = (run) => [...run.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]).join("");
+var RUN_RE = /<w:r\b[^>]*?(?<!\/)>[\s\S]*?<\/w:r>/g;
+var WT_RE = /<w:t\b([^>]*?)(?:\/>|>([\s\S]*?)<\/w:t>)/g;
+var ENTITY_NAMES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+var decodeXml = (s) => s.replace(/&(#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g, (all, name) => {
+  if (name[0] === "#") {
+    const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+    return String.fromCodePoint(code);
+  }
+  return ENTITY_NAMES[name] ?? all;
+});
+var escapeXml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function replaceInRun(run, search, replacement, preserveSpace) {
+  const nodes = [...run.matchAll(WT_RE)];
+  const textNodes = nodes.filter((m) => m[2] !== void 0);
+  const texts = textNodes.map((m) => decodeXml(m[2]));
+  const full = texts.join("");
+  const start = full.indexOf(search);
+  if (start < 0) return null;
+  const end = start + search.length;
+  const bodies = [];
+  let insertedAt = -1;
+  let offset = 0;
+  texts.forEach((s, i) => {
+    const o = offset;
+    const e = o + s.length;
+    offset = e;
+    const left = s.slice(0, Math.max(0, Math.min(start, e) - o));
+    const right = s.slice(Math.max(0, Math.max(end, o) - o));
+    let mid = "";
+    if (insertedAt < 0 && start >= o && start < e) {
+      mid = replacement;
+      insertedAt = i;
+    }
+    bodies.push(left + mid + right);
+  });
+  let out = "";
+  let cursor = 0;
+  let ti = 0;
+  for (const m of nodes) {
+    const at = m.index;
+    out += run.slice(cursor, at);
+    cursor = at + m[0].length;
+    if (m[2] === void 0) {
+      out += m[0];
+      continue;
+    }
+    const idx = ti++;
+    if (bodies[idx] === texts[idx]) {
+      out += m[0];
+      continue;
+    }
+    let attrs = m[1];
+    if (preserveSpace && idx === insertedAt && !/xml:space=/.test(attrs)) attrs += ' xml:space="preserve"';
+    out += `<w:t${attrs}>${escapeXml(bodies[idx])}</w:t>`;
+  }
+  out += run.slice(cursor);
+  return out;
+}
 function replaceInRuns(xml, search, replacement, preserveSpace) {
-  const runRegex = /<w:r\b[^>]*>[\s\S]*?<\/w:r>/g;
-  let match;
-  while ((match = runRegex.exec(xml)) !== null) {
-    const run = match[0];
-    if (!runText(run).includes(search)) continue;
-    let first = true;
-    const newRun = run.replace(/<w:t\b([^>]*)>([\s\S]*?)<\/w:t>/g, (_full, attrs) => {
-      if (first) {
-        first = false;
-        const attr = preserveSpace && !/xml:space=/.test(attrs) ? `${attrs} xml:space="preserve"` : attrs;
-        return `<w:t${attr}>${replacement}</w:t>`;
-      }
-      return `<w:t${attrs}></w:t>`;
-    });
-    return { xml: xml.slice(0, match.index) + newRun + xml.slice(match.index + run.length), replaced: true };
+  if (search === "") return { xml, replaced: false };
+  for (const m of xml.matchAll(RUN_RE)) {
+    const at = m.index;
+    const newRun = replaceInRun(m[0], search, replacement, preserveSpace);
+    if (newRun === null) continue;
+    return { xml: xml.slice(0, at) + newRun + xml.slice(at + m[0].length), replaced: true };
   }
   return { xml, replaced: false };
 }
 function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
+  if (replacements.some(({ find }) => find === "")) {
+    throw new Error("[EMPTY_FIND] a find text must not be empty. No change was made.");
+  }
   let xml = readFileSync2(documentXmlPath, "utf-8");
   assertNoDoctype(xml);
   if (!xml.includes("<w:document")) {
@@ -35759,7 +35810,7 @@ var TOOLS = [
   },
   {
     name: "ooxml_replace",
-    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the FIRST matching run per pair. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
+    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
     inputSchema: {
       type: "object",

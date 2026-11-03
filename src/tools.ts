@@ -147,7 +147,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "ooxml_replace",
-    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the FIRST matching run per pair. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
+    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
     inputSchema: {
       type: "object",
