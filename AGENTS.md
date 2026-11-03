@@ -4,15 +4,16 @@ Rules for an agent that works on this repository. `CLAUDE.md` loads this file.
 
 ## What this repository is
 
-scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has five tools:
+scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has six tools:
 
 | Tool | Job |
 |---|---|
 | `render_mermaid` | Mermaid source to an SVG file, through mermaid.ink |
-| `render_dot` | Graphviz DOT source to an SVG file, through quickchart.io |
+| `render_dot` | Graphviz DOT source to an SVG or PNG file, drawn on this machine by the sciengjs engine |
 | `render_latex` | LaTeX math to an SVG file, through latex.codecogs.com |
 | `render_html` | typed blocks to one self-contained HTML page with pinned CDN imports |
 | `ooxml_replace` | find and replace in an unpacked `word/document.xml`, with the run formatting kept |
+| `capabilities` | the render pairs of the engine (type and format) with their readiness. Read-only |
 
 The plugin also ships the `scieng` skill and one slash command per diagram type.
 
@@ -23,7 +24,7 @@ The plugin also ships the `scieng` skill and one slash command per diagram type.
 | `src/` | the server source in TypeScript. `index.ts` starts the server; `tools.ts` defines the tools and their handlers. |
 | `test/` | `node:test` tests. `plugin-content.test.ts` checks the commands and the skill against `TOOLS`. |
 | `smoke/`, `scripts/smoke-handshake.mjs` | checks against the live services and of the built bundle |
-| `scripts/bundle.mjs` | esbuild, `src/index.ts` to `plugin/bundle/index.mjs` |
+| `scripts/bundle.mjs` | esbuild. It writes `src/index.ts`, the engine worker and its two backends to `plugin/bundle/`, and the engine assets to `plugin/bundle/assets/` |
 | `plugin/` | everything that the plugin installs: `.claude-plugin/plugin.json`, `.mcp.json`, `bundle/`, `commands/`, `skills/scieng/`, `README.md` |
 
 `plugin/` holds no `package.json` and no lockfile. The plugin installer runs a package install when it finds both files. The server needs no runtime package. Keep the two out of `plugin/`.
@@ -34,15 +35,15 @@ The plugin also ships the `scieng` skill and one slash command per diagram type.
 bun install --frozen-lockfile
 bun run typecheck      # tsc --noEmit
 bun run test           # node --test: unit tests and plugin-content tests
-bun run bundle         # writes plugin/bundle/index.mjs
+bun run bundle         # writes plugin/bundle/ (index.mjs and the files beside it)
 bun run smoke          # starts the bundle and sends an MCP initialize
 ```
 
-CI runs the typecheck, the tests and a Node load of the bundle on Ubuntu and on Windows. Windows is the production platform.
+CI runs the typecheck, the tests, a Node load of the bundle, and a check that the committed `plugin/bundle/` equals a fresh build. CI runs on Ubuntu and on Windows. Windows is the production platform.
 
 ## Rules
 
-- **The bundle is committed.** After each change under `src/`, run `bun run bundle` and commit `plugin/bundle/index.mjs` in the same commit as the source.
+- **The bundle is committed.** After each change under `src/`, run `bun run bundle`. Commit the files of `plugin/bundle/` in the same commit as the source.
 - **The tests come first.** Write the failing test, see it fail, then change the code or the prose.
 - **A command or the skill names only real tools and real reference files.** `plugin-content.test.ts` checks this. Add a new command to its `EXPECTED` list, and to the command table of `SKILL.md`.
 - **Privacy is part of each command.** A command that sends source to a remote service names the service and offers `--local`. `render_html` pages load only exact-pinned CDN files with a Subresource Integrity hash. A new pin and its hash change together, in `src/render-html.ts`.

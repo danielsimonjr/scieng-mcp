@@ -24,7 +24,8 @@ Give each command a description or the path of a source file. Example:
 
 ## Where the source goes
 
-- `mermaid`, `dot` and `latex` send the source to mermaid.ink, quickchart.io or latex.codecogs.com and save an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `mermaid` and `latex` send the source to mermaid.ink or latex.codecogs.com and save an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 
 ## Output
@@ -32,3 +33,25 @@ Give each command a description or the path of a source file. Example:
 Files go to the `--out` folder, else the folder in `SCIENG_OUT_DIR`, else `./diagrams`. Each output keeps its source file next to it. A command never overwrites a file.
 
 The `scieng` skill holds the syntax references and the rules that the commands use.
+
+## Requirements
+
+The plugin needs Node.js 24 or later. The engine declares Node.js 22 or later. The repository tests the plugin on Node.js 24.
+
+## Limits
+
+- An inline `source` must fit in a request line of less than 10,485,760 bytes (10 MiB). The JSON escaping of the source counts in the line. A larger request makes the MCP SDK close the connection. The server process then ends. The tool does not run.
+- An `input_path` file must be 512 KiB (524,288 bytes) or smaller. A larger file gives an error that starts with `input too large`.
+
+## Third-party assets
+
+The bundle ships the engine assets in `plugin/bundle/assets/`. Each asset keeps the licence of its own project.
+
+| Asset | Licence | Licence text |
+|---|---|---|
+| `fonts/LiberationSerif-Regular.ttf`: Liberation Serif Regular 2.1.5 | SIL Open Font License 1.1 | `fonts/LiberationSerif-Regular.LICENSE.txt` |
+| `index_bg.wasm`: the WASM file of `@resvg/resvg-wasm` 2.6.2 (resvg, raster stage) | Mozilla Public License 2.0 (MPL-2.0) | `licenses/MPL-2.0.txt` |
+| Graphviz, inside `@viz-js/viz` 3.31.0 (graph stage) | Eclipse Public License 2.0 (EPL-2.0) | `licenses/EPL-2.0.txt` |
+| `@viz-js/viz` 3.31.0, the JavaScript wrapper | MIT | The MIT licence text is not in this folder. The package has no licence file. The bundle holds the copyright line, but not the MIT permission text, in `viz-*.mjs`. |
+
+The licence texts for the three rows with a file are in `plugin/bundle/assets/`.

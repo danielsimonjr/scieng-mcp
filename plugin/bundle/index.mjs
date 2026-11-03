@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
-var __defProp = Object.defineProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
+import {
+  loadConfig
+} from "./chunk-AU2OYEUG.mjs";
+import {
+  RENDER_ERROR_CODES,
+  RenderError
+} from "./chunk-JFFRTQ6A.mjs";
+import {
+  __export
+} from "./chunk-Y7HUHYVH.mjs";
 
 // node_modules/@modelcontextprotocol/server/dist/chunk-vYduTEsO.mjs
 var __create = Object.create;
-var __defProp2 = Object.defineProperty;
+var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
@@ -17,13 +22,13 @@ var __commonJSMin = (cb, mod) => () => (mod || cb((mod = { exports: {} }).export
 var __exportAll = (all, symbols) => {
   let target = {};
   for (var name in all) {
-    __defProp2(target, name, {
+    __defProp(target, name, {
       get: all[name],
       enumerable: true
     });
   }
   if (symbols) {
-    __defProp2(target, Symbol.toStringTag, { value: "Module" });
+    __defProp(target, Symbol.toStringTag, { value: "Module" });
   }
   return target;
 };
@@ -32,7 +37,7 @@ var __copyProps = (to, from, except, desc) => {
     for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
       key = keys[i];
       if (!__hasOwnProp.call(to, key) && key !== except) {
-        __defProp2(to, key, {
+        __defProp(to, key, {
           get: ((k) => from[k]).bind(null, key),
           enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
         });
@@ -41,7 +46,7 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp2(target, "default", {
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
   value: mod,
   enumerable: true
 }) : target, mod));
@@ -23324,9 +23329,9 @@ function enforceDeletedFields(method, result2) {
     delete rest["execution"];
     return rest;
   });
-  const capabilities = result2.capabilities;
-  if (isPlainObject$4(capabilities) && "tasks" in capabilities) {
-    const rest = { ...capabilities };
+  const capabilities2 = result2.capabilities;
+  if (isPlainObject$4(capabilities2) && "tasks" in capabilities2) {
+    const rest = { ...capabilities2 };
     delete rest["tasks"];
     copy().capabilities = rest;
   }
@@ -33278,10 +33283,10 @@ var Server = class extends Protocol {
   *
   * The new capabilities will be merged with any existing capabilities previously given (e.g., at initialization).
   */
-  registerCapabilities(capabilities) {
+  registerCapabilities(capabilities2) {
     if (this.transport) throw new SdkError(SdkErrorCode.AlreadyConnected, "Cannot register capabilities after connecting to transport");
     const hadLogging = !!this._capabilities.logging;
-    this._capabilities = mergeCapabilities(this._capabilities, capabilities);
+    this._capabilities = mergeCapabilities(this._capabilities, capabilities2);
     if (!hadLogging && this._capabilities.logging) this._registerLoggingHandler();
   }
   /**
@@ -33767,8 +33772,8 @@ var Server = class extends Protocol {
     return this.notification({ method: "notifications/prompts/list_changed" });
   }
 };
-function discoverAdvertisedCapabilities(capabilities) {
-  return { ...capabilities };
+function discoverAdvertisedCapabilities(capabilities2) {
+  return { ...capabilities2 };
 }
 function toolInputElementCount(value, max) {
   let count = 0;
@@ -34438,13 +34443,13 @@ function listenFilterAccepts(filter, event) {
       return filter.resourceSubscriptions !== void 0 && filter.resourceSubscriptions.includes(event.uri);
   }
 }
-function honoredSubset(requested, capabilities) {
+function honoredSubset(requested, capabilities2) {
   const honored = {};
-  const allow = (bit) => capabilities === void 0 || bit === true;
-  if (requested.toolsListChanged === true && allow(capabilities?.tools?.listChanged)) honored.toolsListChanged = true;
-  if (requested.promptsListChanged === true && allow(capabilities?.prompts?.listChanged)) honored.promptsListChanged = true;
-  if (requested.resourcesListChanged === true && allow(capabilities?.resources?.listChanged)) honored.resourcesListChanged = true;
-  if (requested.resourceSubscriptions !== void 0 && requested.resourceSubscriptions.length > 0 && allow(capabilities?.resources?.subscribe)) honored.resourceSubscriptions = [...requested.resourceSubscriptions];
+  const allow = (bit) => capabilities2 === void 0 || bit === true;
+  if (requested.toolsListChanged === true && allow(capabilities2?.tools?.listChanged)) honored.toolsListChanged = true;
+  if (requested.promptsListChanged === true && allow(capabilities2?.prompts?.listChanged)) honored.promptsListChanged = true;
+  if (requested.resourcesListChanged === true && allow(capabilities2?.resources?.listChanged)) honored.resourcesListChanged = true;
+  if (requested.resourceSubscriptions !== void 0 && requested.resourceSubscriptions.length > 0 && allow(capabilities2?.resources?.subscribe)) honored.resourceSubscriptions = [...requested.resourceSubscriptions];
   return honored;
 }
 var DEFAULT_MAX_SUBSCRIPTIONS = 1024;
@@ -34497,8 +34502,8 @@ var StdioListenRouter = class {
   * subsequent `serve()` calls narrow the honored filter against the
   * capabilities, and `teardownAll()` stamps the identity.
   */
-  setServerCapabilities(capabilities, serverInfo) {
-    this._serverCapabilities = capabilities;
+  setServerCapabilities(capabilities2, serverInfo) {
+    this._serverCapabilities = capabilities2;
     if (serverInfo !== void 0) this._serverInfo = serverInfo;
   }
   /** Whether `id` is an active listen subscription on this connection. */
@@ -35112,9 +35117,238 @@ function toError(value) {
   return value instanceof Error ? value : new Error(String(value));
 }
 
+// node_modules/@danielsimonjr/sciengjs/dist/pairs.js
+var PAIRS = [
+  { type: "dot", format: "svg", stage: "graph" },
+  { type: "dot", format: "png", stage: "graph" },
+  { type: "dot", format: "pdf", stage: "browser" },
+  { type: "mermaid", format: "svg", stage: "browser" },
+  { type: "mermaid", format: "png", stage: "browser" },
+  { type: "mermaid", format: "pdf", stage: "browser" },
+  { type: "math", format: "svg", stage: "math" },
+  { type: "math", format: "png", stage: "math" },
+  { type: "math", format: "pdf", stage: "math" },
+  { type: "tikz", format: "svg", stage: "tex" },
+  { type: "tikz", format: "png", stage: "tex" },
+  { type: "tikz", format: "pdf", stage: "tex" },
+  { type: "plot", format: "svg", stage: "plot" },
+  { type: "plot", format: "png", stage: "plot" },
+  { type: "plot", format: "pdf", stage: "plot" },
+  { type: "plot", format: "html", stage: "plot" },
+  { type: "sysml", format: "svg", stage: "graph" },
+  { type: "sysml", format: "png", stage: "graph" },
+  { type: "sysml", format: "pdf", stage: "graph" },
+  { type: "step", format: "html", stage: "mesh" },
+  { type: "step", format: "png", stage: "browser" },
+  { type: "step", format: "glb", stage: "mesh" },
+  { type: "iges", format: "html", stage: "mesh" },
+  { type: "iges", format: "png", stage: "browser" },
+  { type: "iges", format: "glb", stage: "mesh" },
+  { type: "brep", format: "html", stage: "mesh" },
+  { type: "brep", format: "png", stage: "browser" },
+  { type: "brep", format: "glb", stage: "mesh" },
+  { type: "cad", format: "html", stage: "mesh" },
+  { type: "cad", format: "png", stage: "browser" },
+  { type: "cad", format: "glb", stage: "mesh" },
+  { type: "cad", format: "stl", stage: "mesh" },
+  { type: "html", format: "png", stage: "browser" },
+  { type: "html", format: "pdf", stage: "browser" },
+  { type: "html", format: "md", stage: "html" }
+];
+function findPair(type, format) {
+  return PAIRS.find((p) => p.type === type && p.format === format);
+}
+
+// node_modules/@danielsimonjr/sciengjs/dist/registry.js
+import { extname } from "node:path";
+import { fileURLToPath } from "node:url";
+function backendUrl(name) {
+  const extension = extname(fileURLToPath(import.meta.url));
+  return new URL(`./${name}${extension}`, import.meta.url).href;
+}
+var DEFAULT_REGISTRY = {
+  "dot:svg": { backend: "graph/viz", moduleUrl: backendUrl("graph/backend-svg") },
+  "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") }
+};
+function registryKey(type, format) {
+  return `${type}:${format}`;
+}
+
+// node_modules/@danielsimonjr/sciengjs/dist/worker/run.js
+import { Worker } from "node:worker_threads";
+import { extname as extname2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+var DEFAULT_TERMINATE_WAIT_MS = 5e3;
+function createDefaultWorker(entry, data, maxMemoryMb) {
+  return new Worker(entry, {
+    workerData: data,
+    resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb }
+  });
+}
+function stopWorker(worker, waitMs) {
+  let timer;
+  const bound = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`the worker did not stop within ${waitMs} ms`)), waitMs);
+  });
+  const stop = new Promise((resolve) => resolve(worker.terminate()));
+  return Promise.race([stop, bound]).finally(() => clearTimeout(timer));
+}
+function messageOf(err) {
+  return err instanceof Error ? err.message : String(err);
+}
+function entryUrl() {
+  const here = fileURLToPath2(import.meta.url);
+  return new URL(`./entry${extname2(here)}`, import.meta.url);
+}
+function runInWorker(job, limits) {
+  return new Promise((resolve, reject) => {
+    const create = limits.createWorker ?? createDefaultWorker;
+    const worker = create(entryUrl(), job, limits.maxMemoryMb);
+    const terminateWaitMs = limits.terminateWaitMs ?? DEFAULT_TERMINATE_WAIT_MS;
+    let settled = false;
+    let timer;
+    const settle2 = (action) => {
+      if (settled)
+        return;
+      settled = true;
+      if (timer !== void 0)
+        clearTimeout(timer);
+      stopWorker(worker, terminateWaitMs).then((exitCode) => {
+        limits.onWorkerExit?.({ exitCode });
+      }).then(action, (err) => {
+        reject(new RenderError("E_INTERNAL", `render worker did not stop cleanly: ${messageOf(err)}`));
+      });
+    };
+    timer = setTimeout(() => {
+      settle2(() => reject(new RenderError("E_TIMEOUT", `render did not finish within ${limits.timeoutMs} ms`)));
+    }, limits.timeoutMs);
+    worker.once("message", (msg) => {
+      settle2(() => {
+        if (msg.ok) {
+          resolve({ bytes: msg.bytes, warnings: msg.warnings });
+        } else {
+          const code = msg.code;
+          reject(new RenderError(code, msg.message, { line: msg.line, column: msg.column }));
+        }
+      });
+    });
+    worker.once("error", (err) => {
+      settle2(() => {
+        if (err.code === "ERR_WORKER_OUT_OF_MEMORY") {
+          reject(new RenderError("E_LIMIT", `render exceeded the heap limit of ${limits.maxMemoryMb} MB`));
+        } else {
+          reject(new RenderError("E_INTERNAL", `render worker failed: ${err.message}`));
+        }
+      });
+    });
+    worker.once("exit", (code) => {
+      settle2(() => reject(new RenderError("E_INTERNAL", `render worker exited with code ${code} before it returned`)));
+    });
+  });
+}
+
+// node_modules/@danielsimonjr/sciengjs/dist/types.js
+var INPUT_TYPES = [
+  "dot",
+  "mermaid",
+  "math",
+  "tikz",
+  "plot",
+  "sysml",
+  "step",
+  "iges",
+  "brep",
+  "cad",
+  "html"
+];
+var OUTPUT_FORMATS = ["svg", "png", "pdf", "html", "md", "glb", "stl"];
+var BINARY_INPUT_TYPES = ["step", "iges", "brep"];
+
+// node_modules/@danielsimonjr/sciengjs/dist/core.js
+var MIME = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  pdf: "application/pdf",
+  html: "text/html; charset=utf-8",
+  md: "text/markdown; charset=utf-8",
+  glb: "model/gltf-binary",
+  stl: "model/stl"
+};
+var encoder = new TextEncoder();
+async function renderWithRegistry(req, options, registry2, configDeps) {
+  const cfg = await loadConfig(options, configDeps);
+  if (!INPUT_TYPES.includes(req.type)) {
+    throw new RenderError("E_INPUT", `unknown input type: ${String(req.type)}`);
+  }
+  if (!OUTPUT_FORMATS.includes(req.format)) {
+    throw new RenderError("E_INPUT", `unknown output format: ${String(req.format)}`);
+  }
+  const pair = findPair(req.type, req.format);
+  if (pair === void 0) {
+    throw new RenderError("E_UNSUPPORTED", `${req.type} to ${req.format} is not a supported pair`);
+  }
+  const isBinary = BINARY_INPUT_TYPES.includes(req.type);
+  if (isBinary && typeof req.source === "string") {
+    throw new RenderError("E_INPUT", `${req.type} takes bytes, not text`);
+  }
+  if (!isBinary && typeof req.source !== "string") {
+    throw new RenderError("E_INPUT", `${req.type} takes text, not bytes`);
+  }
+  const sourceBytes = typeof req.source === "string" ? encoder.encode(req.source).byteLength : req.source.byteLength;
+  if (sourceBytes > cfg.maxSourceBytes) {
+    throw new RenderError("E_LIMIT", `source is ${sourceBytes} bytes; the limit is ${cfg.maxSourceBytes}`);
+  }
+  const entry = registry2[registryKey(req.type, req.format)];
+  if (entry === void 0) {
+    throw new RenderError("E_UNSUPPORTED", `no ${req.type} to ${req.format} backend is built in this release`);
+  }
+  if (pair.stage === "browser" && cfg.browser === void 0) {
+    throw new RenderError("E_STAGE_MISSING", "the browser stage needs SCIENG_BROWSER or the browser configuration key");
+  }
+  const out = await runInWorker({
+    moduleUrl: entry.moduleUrl,
+    backend: entry.backend,
+    request: {
+      type: req.type,
+      format: req.format,
+      source: req.source,
+      options: req.options ?? {},
+      settings: { maxMemoryMb: cfg.maxMemoryMb, rasterFont: cfg.rasterFont, assetsUrl: cfg.assetsUrl }
+    }
+  }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
+  return {
+    bytes: out.bytes,
+    mime: MIME[req.format],
+    backend: entry.backend,
+    warnings: out.warnings ?? []
+  };
+}
+async function capabilitiesWithRegistry(options, registry2, configDeps) {
+  const cfg = await loadConfig(options, configDeps);
+  return PAIRS.map((pair) => {
+    const registered = registry2[registryKey(pair.type, pair.format)] !== void 0;
+    const browserReady = pair.stage !== "browser" || cfg.browser !== void 0;
+    const ready = registered && browserReady;
+    const cap = { type: pair.type, format: pair.format, stage: pair.stage, ready };
+    if (!registered)
+      cap.reason = "no backend is built in this release";
+    else if (!browserReady)
+      cap.reason = "no browser path is configured (SCIENG_BROWSER)";
+    return cap;
+  });
+}
+
+// node_modules/@danielsimonjr/sciengjs/dist/index.js
+function render(req, config2) {
+  return renderWithRegistry(req, config2 ?? {}, DEFAULT_REGISTRY);
+}
+function capabilities(config2) {
+  return capabilitiesWithRegistry(config2 ?? {}, DEFAULT_REGISTRY);
+}
+
 // src/render-lib.ts
 import { readFileSync, writeFileSync, renameSync } from "node:fs";
-import { dirname, join, basename, extname } from "node:path";
+import { dirname, join, basename, extname as extname3 } from "node:path";
 var TRANSIENT = /* @__PURE__ */ new Set([429, 500, 502, 503, 504]);
 var sleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
 async function httpText(url2, opts = {}) {
@@ -35153,7 +35387,7 @@ function readInput(path, maxBytes = 512 * 1024) {
   return buf.toString("utf-8");
 }
 function deriveOutputPath(input2, ext = ".svg") {
-  return join(dirname(input2), basename(input2, extname(input2)) + ext);
+  return join(dirname(input2), basename(input2, extname3(input2)) + ext);
 }
 function writeOutput(path, content) {
   const tmp = path + ".tmp";
@@ -35188,18 +35422,22 @@ async function renderMermaidSource(code, output2, fetchImpl) {
   return svg;
 }
 
+// src/engine-config.ts
+function bundledEngineConfig(moduleUrl) {
+  return { assetsUrl: new URL("./assets/", moduleUrl).href };
+}
+function engineConfig() {
+  if (true) {
+    return bundledEngineConfig(import.meta.url);
+  }
+  return {};
+}
+
 // src/render-dot.ts
-async function renderDotSource(dot, output2, fetchImpl) {
-  const body = JSON.stringify({ graph: dot, layout: "dot", format: "svg" });
-  const svg = await httpText("https://quickchart.io/graphviz", {
-    method: "POST",
-    body,
-    headers: { "Content-Type": "application/json" },
-    fetchImpl
-  });
-  if (!svg.includes("<svg")) throw new Error("no SVG in response");
-  writeOutput(output2, svg);
-  return svg;
+async function renderDotSource(source, output2, format) {
+  const result2 = await render({ type: "dot", format, source }, engineConfig());
+  writeOutput(output2, result2.bytes);
+  return { bytes: result2.bytes.byteLength, warnings: result2.warnings };
 }
 
 // src/render-latex.ts
@@ -35431,8 +35669,24 @@ async function dispatchTool(handlers, name, args) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}
 `);
-    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+    return { content: [{ type: "text", text: JSON.stringify(errorBody(err, msg)) }], isError: true };
   }
+}
+function engineFailure(err) {
+  if (!(err instanceof Error) || err.name !== "RenderError") return void 0;
+  const { code, line, column } = err;
+  if (typeof code !== "string" || !RENDER_ERROR_CODES.includes(code)) return void 0;
+  return {
+    code,
+    line: typeof line === "number" ? line : void 0,
+    column: typeof column === "number" ? column : void 0
+  };
+}
+function errorBody(err, msg) {
+  const failure2 = engineFailure(err);
+  if (!failure2) return { status: "error", error: msg };
+  const label = failure2.code === "E_INTERNAL" ? "sciengjs engine: " : "";
+  return { status: "error", error: `[${failure2.code}] ${label}${msg}`, code: failure2.code, line: failure2.line, column: failure2.column };
 }
 var SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";
 var INPUT_DESC = "Path to a source file. Provide exactly one of source / input_path.";
@@ -35451,9 +35705,19 @@ var TOOLS = [
   },
   {
     name: "render_dot",
-    description: "Render Graphviz DOT source to an SVG file via quickchart.io/graphviz. Returns {path, bytes}.",
+    description: "Render Graphviz DOT source to an SVG or PNG file locally, through the sciengjs engine. format is svg (default) or png. Returns {path, bytes, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
-    inputSchema: { type: "object", properties: renderIo, additionalProperties: false }
+    inputSchema: {
+      type: "object",
+      properties: { ...renderIo, format: { type: "string", enum: ["svg", "png"], description: "Output format (default svg)." } },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "capabilities",
+    description: "Report each input and output pair of the local engine, its stage, and whether that stage is ready on this machine. Returns {capabilities}.",
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    inputSchema: { type: "object", properties: {}, additionalProperties: false }
   },
   {
     name: "render_latex",
@@ -35523,15 +35787,16 @@ var RenderArgs = external_exports.object({
   input_path: external_exports.string().optional(),
   output_path: external_exports.string().optional()
 }).strict();
-function resolveRenderIo(raw, extra) {
-  const schema = extra ? RenderArgs.extend(extra) : RenderArgs;
+var DotFormat = external_exports.enum(["svg", "png"]);
+function resolveRenderIo(raw, extra, ext = ".svg") {
+  const schema = extra ? RenderArgs.extend(extra).strict() : RenderArgs;
   const a = schema.parse(raw ?? {});
   if (!!a.source === !!a.input_path) throw new Error("provide exactly one of source or input_path");
   if (a.source !== void 0) {
     if (!a.output_path) throw new Error("output_path is required when source is inline");
     return { code: a.source, out: a.output_path, args: a };
   }
-  return { code: readInput(a.input_path), out: a.output_path ?? deriveOutputPath(a.input_path), args: a };
+  return { code: readInput(a.input_path), out: a.output_path ?? deriveOutputPath(a.input_path, ext), args: a };
 }
 var result = (path, content, extra = {}) => JSON.stringify({ path, bytes: Buffer.byteLength(content, "utf-8"), ...extra });
 var HtmlArgs = external_exports.object({
@@ -35555,9 +35820,12 @@ function makeHandlers(fetchImpl = fetch) {
       return result(out, await renderMermaidSource(code, out, fetchImpl));
     },
     render_dot: async (raw) => {
-      const { code, out } = resolveRenderIo(raw);
-      return result(out, await renderDotSource(code, out, fetchImpl));
+      const format = DotFormat.parse(raw?.format ?? "svg");
+      const { code, out } = resolveRenderIo(raw, { format: DotFormat.optional() }, `.${format}`);
+      const res = await renderDotSource(code, out, format);
+      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
+    capabilities: async () => JSON.stringify({ capabilities: await capabilities(engineConfig()) }),
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: external_exports.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi, fetchImpl });
@@ -35577,7 +35845,7 @@ function makeHandlers(fetchImpl = fetch) {
 }
 
 // src/index.ts
-var VERSION = true ? "0.4.2" : "0.0.0-dev";
+var VERSION = true ? "0.5.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

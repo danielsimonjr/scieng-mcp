@@ -34,6 +34,19 @@ jobs:
         with:
           bun-version: '1.4.2'
       - run: bun install --frozen-lockfile
+      # The committed bundle must equal a fresh build. A change under src/ that nobody built fails here.
+      # A build that adds an uncommitted file also fails here.
+      - name: Bundle is current
+        shell: bash
+        run: |
+          bun run bundle
+          if [ -n "$(git status --porcelain -- plugin/bundle)" ]; then
+            git status --porcelain -- plugin/bundle
+            git diff --stat -- plugin/bundle
+            echo "FAIL: plugin/bundle differs from a fresh build. Run bun run bundle and commit the result."
+            exit 1
+          fi
+          echo "PASS: plugin/bundle matches a fresh build"
       # --if-present: run each stage only if the repo defines it (universal template).
       - run: bun run --if-present typecheck
       - run: bun run --if-present lint

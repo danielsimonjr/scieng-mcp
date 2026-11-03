@@ -1,8 +1,10 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
+import { RENDER_ERROR_CODES, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
 import { renderMermaidSource } from "./render-mermaid.ts";
 import { renderDotSource } from "./render-dot.ts";
+import { engineConfig } from "./engine-config.ts";
 import { renderLatexSource } from "./render-latex.ts";
 import { buildHtml, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
@@ -29,8 +31,41 @@ export async function dispatchTool(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`scieng-mcp: handler '${name}' threw: ${msg}\n`);
-    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: msg }) }], isError: true };
+    return { content: [{ type: "text", text: JSON.stringify(errorBody(err, msg)) }], isError: true };
   }
+}
+
+/** The fields that an engine error gives: its code, and its line and column when the engine has them. */
+interface EngineFailure {
+  code: string;
+  line?: number;
+  column?: number;
+}
+
+/**
+ * Reads an error of the sciengjs engine. The check matches the name and the code, not the class,
+ * because a bundle can hold a second copy of the engine's errors module.
+ */
+function engineFailure(err: unknown): EngineFailure | undefined {
+  if (!(err instanceof Error) || err.name !== "RenderError") return undefined;
+  const { code, line, column } = err as Error & { code?: unknown; line?: unknown; column?: unknown };
+  if (typeof code !== "string" || !(RENDER_ERROR_CODES as readonly string[]).includes(code)) return undefined;
+  return {
+    code,
+    line: typeof line === "number" ? line : undefined,
+    column: typeof column === "number" ? column : undefined,
+  };
+}
+
+/**
+ * The JSON body of a failed tool call. An engine error adds its code, and its line and column when it has them.
+ * An internal failure of the engine names the engine, so that the client can tell it from a bad request.
+ */
+function errorBody(err: unknown, msg: string): Record<string, unknown> {
+  const failure = engineFailure(err);
+  if (!failure) return { status: "error", error: msg };
+  const label = failure.code === "E_INTERNAL" ? "sciengjs engine: " : "";
+  return { status: "error", error: `[${failure.code}] ${label}${msg}`, code: failure.code, line: failure.line, column: failure.column };
 }
 
 const SOURCE_DESC = "Inline source text. Provide exactly one of source / input_path.";
@@ -52,9 +87,19 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "render_dot",
-    description: "Render Graphviz DOT source to an SVG file via quickchart.io/graphviz. Returns {path, bytes}.",
+    description: "Render Graphviz DOT source to an SVG or PNG file locally, through the sciengjs engine. format is svg (default) or png. Returns {path, bytes, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
-    inputSchema: { type: "object", properties: renderIo, additionalProperties: false },
+    inputSchema: {
+      type: "object",
+      properties: { ...renderIo, format: { type: "string", enum: ["svg", "png"], description: "Output format (default svg)." } },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "capabilities",
+    description: "Report each input and output pair of the local engine, its stage, and whether that stage is ready on this machine. Returns {capabilities}.",
+    annotations: { readOnlyHint: true, destructiveHint: false },
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "render_latex",
@@ -124,15 +169,17 @@ const RenderArgs = z.object({
   output_path: z.string().optional(),
 }).strict();
 
-function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: unknown, extra?: T): { code: string; out: string; args: Record<string, unknown> } {
-  const schema = extra ? RenderArgs.extend(extra) : RenderArgs;
+const DotFormat = z.enum(["svg", "png"]);
+
+function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: unknown, extra?: T, ext = ".svg"): { code: string; out: string; args: Record<string, unknown> } {
+  const schema = extra ? RenderArgs.extend(extra).strict() : RenderArgs;
   const a = schema.parse(raw ?? {});
   if (!!a.source === !!a.input_path) throw new Error("provide exactly one of source or input_path");
   if (a.source !== undefined) {
     if (!a.output_path) throw new Error("output_path is required when source is inline");
     return { code: a.source, out: a.output_path, args: a };
   }
-  return { code: readInput(a.input_path!), out: a.output_path ?? deriveOutputPath(a.input_path!), args: a };
+  return { code: readInput(a.input_path!), out: a.output_path ?? deriveOutputPath(a.input_path!, ext), args: a };
 }
 
 const result = (path: string, content: string, extra: Record<string, unknown> = {}): string =>
@@ -161,9 +208,12 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       return result(out, await renderMermaidSource(code, out, fetchImpl));
     },
     render_dot: async (raw) => {
-      const { code, out } = resolveRenderIo(raw);
-      return result(out, await renderDotSource(code, out, fetchImpl));
+      const format = DotFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
+      const { code, out } = resolveRenderIo(raw, { format: DotFormat.optional() }, `.${format}`);
+      const res = await renderDotSource(code, out, format);
+      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
+    capabilities: async () => JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) }),
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });

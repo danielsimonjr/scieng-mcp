@@ -25,6 +25,14 @@ test("writeOutput is atomic (no .tmp left behind)", () => {
   assert.throws(() => readFileSync(f + ".tmp", "utf-8"));
 });
 
+test("writeOutput writes bytes exactly", () => {
+  const dir = mkdtempSync(join(tmpdir(), "scieng-"));
+  const f = join(dir, "o.png");
+  const bytes = new Uint8Array([137, 80, 78, 71, 0, 1, 2]);
+  writeOutput(f, bytes);
+  assert.deepEqual([...readFileSync(f)], [...bytes]);
+});
+
 test("httpText returns body on 200", async () => {
   const fake: typeof fetch = async () => new Response("<svg>ok</svg>", { status: 200 });
   assert.equal(await httpText("https://x", { fetchImpl: fake }), "<svg>ok</svg>");

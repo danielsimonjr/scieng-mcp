@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-02
+
+### Changed
+
+- `render_dot` draws the graph on this machine with the sciengjs engine (`@danielsimonjr/sciengjs`). `render_dot` makes no network request. DOT source no longer goes to quickchart.io. The result is `{path, bytes, warnings}`.
+- `render_dot` takes a `format` argument: `svg` (the default) or `png`.
+- The engine removes each `image` and `stylesheet` attribute from a DOT source. The result holds a warning for each attribute that the engine removes.
+- The `dot` command, the `scieng` skill, `GRAPHVIZ.md`, `plugin/README.md` and the README describe the local render.
+- The sciengjs dependency changes from `^0.1.0` to `^0.1.1`. The server gives the engine the `assets/` folder beside the bundle. The bundle needs no `node_modules`.
+- A failed tool call from the sciengjs engine returns the engine error code (`code`). The result also gives `line` and `column` when the engine gives them. An internal engine failure names the engine in the error text.
+
+### Added
+
+- The `capabilities` tool lists the render pairs of the engine (type and format, with the stage of each pair and whether the pair is ready). The tool is read-only and takes no input.
+- CI checks that the committed `plugin/bundle/` equals a fresh build.
+- `.gitattributes` stores the bundle's `.mjs` files with LF line endings, and the bundle's font and WASM files as binary. Git stores the engine assets without line-ending conversion, so each asset is a byte-exact copy of the engine package.
+- `plugin/bundle/assets/index_bg.wasm`, the WASM file of the raster stage. `test/bundle-gate.test.ts` runs the built bundle in a fresh folder with no `node_modules`. The test renders SVG and PNG. The test checks that the bundle sends no network request.
+- The bundle gate checks that each engine asset is a byte-exact copy of the engine package file. On systems other than Windows, the bundle gate checks that each bundle file has mode 0644. `scripts/bundle.mjs` sets that mode on each file the build writes.
+- `plugin/README.md` states the Node.js version (24 or later), the limit of one request line (10,485,760 bytes) and the limit of an `input_path` file (512 KiB).
+- `plugin/README.md` has a Third-party assets section. The Third-party assets section names the licence of each engine asset. The licences are SIL Open Font License 1.1 (Liberation Serif), MPL-2.0 (the resvg WASM file) and EPL-2.0 (Graphviz, inside `@viz-js/viz`). The wrapper of `@viz-js/viz` is MIT.
+
 ## [0.4.2] - 2026-11-01
 
 ### Security
@@ -32,7 +53,7 @@
 - `mermaid`, `dot` and `latex` make an SVG file through the remote render tools, and name the service that receives the source. `--local` makes an HTML page that renders in the browser, so the source stays on the machine. `dot` refuses to send a source with a `URL`, `href` or `image` attribute.
 - `plot` computes every point with a script that it saves next to the chart. `circuit` writes a netlist first and never invents a part value.
 - `AGENTS.md` (with a `CLAUDE.md` loader) for agents that work on the repository, and `plugin/README.md`, a short usage guide.
-- `test/plugin-content.test.ts`: the seven commands exist, each has a description and an argument hint, each tool and reference file that a command or the skill names exists, and the remote commands name their service and offer `--local`.
+- `test/plugin-content.test.ts` checks the plugin content. The seven commands exist. Each command has a description and an argument hint. Each tool and reference file that a command or the skill names exists. The remote commands name their service and offer `--local`.
 
 ### Changed
 
@@ -41,11 +62,11 @@
 ## 2026-10-01
 
 - **Removed the dead root `bun` Dependabot entry.** No dependency-update ecosystem works on a
-  Bun-managed root right now: `bun` fails with "Unsupported bun.lock 'lockfileVersion' 2" and `npm`
+  Bun-managed root right now. `bun` fails with "Unsupported bun.lock 'lockfileVersion' 2". `npm`
   aborts during file fetching with "npm_and_yarn ecosystem cannot update bun.lock". Each error
   recommends the other. Measured fleet-wide 2026-10-01: 19 dead updater jobs. The entry was failing
-  weekly and proposing nothing, so it was removed and the reason recorded in `dependabot.yml`.
-  Security alerts are unaffected; automated remediation is what stops. `github-actions` updates
+  weekly and proposing nothing. The change removed the entry and recorded the reason in `dependabot.yml`.
+  Security alerts are unaffected. Automated remediation is what stops. `github-actions` updates
   continue.
 
 ## [0.3.0] - 2026-09-17
@@ -55,8 +76,8 @@
 - **The plugin now installs from `plugin/`, so Claude Code no longer installs the dev
   toolchain into the plugin cache.** The marketplace entry installed the repo root, which
   holds `package.json`, `bun.lock` and `package-lock.json`. Claude Code's plugin installer
-  runs `bun install --frozen-lockfile --ignore-scripts` when it finds a manifest plus a
-  lockfile at the plugin root, and it has no omit-dev option, so `typescript`, `esbuild`
+  runs `bun install --frozen-lockfile --ignore-scripts` when the plugin root holds a manifest
+  plus a lockfile. The installer has no omit-dev option, so `typescript`, `esbuild`
   and `@types/node` were installed into the cache. The 0.2.0 cache measured **59 MB of
   `node_modules` out of 60 MB total**, for a server that needs none of it at runtime.
 
@@ -81,16 +102,16 @@
   without it a marketplace refresh reuses the existing clone.
 
 - **TypeScript range tightened to `^7.0.2` and Bun pinned to 1.4.2.** The range was
-  `^7.0`, which installs 7.0.2+ today but declares a floor of 7.0.0 -- a declaration is
-  reproducible, whatever the registry happens to serve is not. `packageManager` was
+  `^7.0`, which installs 7.0.2+ today but declares a floor of 7.0.0. A declaration is
+  reproducible. What the registry happens to serve is not reproducible. `packageManager` was
   absent entirely, so the toolchain version was not stated where most tools read it;
   it and the CI workflow now both say 1.4.2.
 
-- **Removed the now-dead `@modelcontextprotocol/sdk@1.x` dependency.** The port left it in
-  `package.json` though nothing imported it any more, which made a fleet scan classify this repo
-  as MIXED-generation -- the manifest claimed both SDKs and could not say which was live. A
-  dependency nothing imports is not harmless: it is a second source of truth about what this
-  server runs on.
+- **Removed the now-dead `@modelcontextprotocol/sdk@1.x` dependency.** The port left the dependency in
+  `package.json`. Nothing imported the dependency any more. The dependency made a fleet scan
+  classify this repo as MIXED-generation. The manifest claimed both SDKs and could not say
+  which SDK was live. An unused dependency is not harmless. Such a dependency is a second source
+  of truth about what this server runs on.
 
 - **Ported to the MCP 2.0 SDK** — `@modelcontextprotocol/sdk@1.x` replaced by
   `@modelcontextprotocol/server` + `core` @2.0.0. Three non-obvious differences, recorded because
@@ -100,11 +121,11 @@
     throws at runtime: *"is not a spec request method; pass schemas as the second argument"*.
   - **`serveStdio()` replaces `connect(new StdioServerTransport())`** and owns the transport
     lifecycle, including legacy-era clients via `legacy: "serve"`.
-  - **The `Tool` type moved to `@modelcontextprotocol/server`** (type-only). It is NOT in `core`,
-    and v2 types `inputSchema.properties` as recursive JSON values rather than `object`, so leaving
-    the v1 `Tool` import in place fails typecheck with a deeply nested and misleading error.
+  - **The `Tool` type moved to `@modelcontextprotocol/server`** (type-only). The type is NOT in `core`.
+    In v2, `inputSchema.properties` is typed as recursive JSON values, not as `object`. If the v1 `Tool`
+    import stays in place, the typecheck fails with a deeply nested and misleading error.
 
-  Verified against the BUILT bundle over real stdio, not just a passing build: a live `initialize`
+  The verification covers the BUILT bundle over real stdio, not only a passing build. A live `initialize`
   negotiates `2025-11-25` (the SDK's actual latest) and `tools/list` returns all 5 tools.
   Note this is a DEPENDENCY-generation change; the wire protocol is 2025-11-25 before and after.
 
@@ -125,9 +146,9 @@ own build and test scripts.
 
 ### Added
 
-- **Windows CI leg.** CI ran on `ubuntu-latest` only — but Windows is the *production*
-  platform for this MCP server (it runs on the user's Windows box), so CI had never once
-  tested the OS the server actually ships on. The `build` job now runs a
+- **Windows CI leg.** CI ran on `ubuntu-latest` only. Windows is the *production* platform for this MCP server,
+  and the server runs on the user's Windows box. So CI had never once tested the OS the server
+  actually ships on. The `build` job now runs a
   `[ubuntu-latest, windows-latest]` matrix.
 
 
@@ -145,10 +166,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   0.1.3 -> **0.2.0**, not 2.0.0: under semver a breaking change while below 1.0.0 moves the MINOR.
   Jumping to 2.0.0 would invent a 1.0.0 that never existed and claim an API stability this package
   has never declared.
-- **The wire protocol is UNCHANGED at `2025-11-25`.** Verified by a live stdio round trip against
-  the rebuilt `bundle/index.mjs` -- the exact file `.mcp.json` launches -- which reports version
-  0.2.0, negotiates 2025-11-25, lists all 5 tools, and returns -32601 for a bogus method so the
-  probe is known failure-capable. The v2 package major and the protocol era are separate facts.
+- **The wire protocol is UNCHANGED at `2025-11-25`.** Verified by a live stdio round trip against the rebuilt `bundle/index.mjs`, which is the exact
+  file that `.mcp.json` launches. The round trip reports version 0.2.0, negotiates 2025-11-25,
+  lists all 5 tools, and returns -32601 for a bogus method. The bogus method shows that the probe
+  is known failure-capable. The v2 package major and the protocol era are separate facts.
 - **Tag history note:** the previous tag is `v0.1.1` while `package.json` had reached `0.1.3`, and
   this repo had NO GitHub releases at all. Versions 0.1.2 and 0.1.3 were never tagged or released,
   so the tag sequence skips them. Recorded rather than back-filled: inventing tags after the fact
@@ -171,7 +192,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.1.1] - 2026-07-02
 
 ### Fixed
-- Tool dispatch guarded with `Object.hasOwn` (prototype names like `toString` no longer bypass the unknown-tool error); unknown-tool errors now use the same JSON envelope as handler throws.
+- `Object.hasOwn` guards tool dispatch. Prototype names like `toString` no longer bypass the unknown-tool error. Unknown-tool errors now use the same JSON envelope as handler throws.
 - `httpText` non-2xx errors name the remote service host.
 - Nested `blocks[]`/`replacements[]` schemas reject unknown keys, matching the declared JSON Schema.
 - SKILL.md Quick Reference now routes to PAPERS.md and the HTML-playground background doc.
@@ -186,9 +207,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `render_latex` reports per-item render failures in a `failures` array
   instead of throwing, so partial document renders still return usable
   output.
-- `render_html` assembles self-contained HTML playgrounds from typed content
-  blocks, emitting only the CDN imports each block type needs, pinned via
-  Subresource Integrity (SRI) hashes, with script-breakout hardening for
+- `render_html` assembles self-contained HTML playgrounds from typed content blocks.
+  The tool emits only the CDN imports that each block type needs. Subresource Integrity (SRI)
+  hashes pin the imports. The tool adds script-breakout hardening for
   embedded/user-supplied content.
 - `ooxml_replace` applies run-preserving batch find/replace edits to unpacked
   Word `document.xml`, leaving `<w:rPr>` formatting untouched.

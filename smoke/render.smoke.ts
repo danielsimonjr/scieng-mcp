@@ -3,16 +3,16 @@
  * Live-API smoke test — NOT part of the `node --test` unit suite.
  *
  * Run on demand: `node render.smoke.ts`
- * Requires network access. Hits the real mermaid.ink, quickchart.io, and
- * latex.codecogs.com APIs (no fetch mocking) and asserts each renderer
+ * Requires network access. Hits the real mermaid.ink and latex.codecogs.com
+ * APIs (no fetch mocking). The DOT case renders through the local engine. It asserts each renderer
  * returns a response containing "<svg". Intentionally named `*.smoke.ts`
  * (not `*.test.ts`) so Node's test runner skips it and it is never run in
  * CI.
  */
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { renderDot } from "../src/render-dot.ts";
+import { renderDotSource } from "../src/render-dot.ts";
 import { renderMermaid } from "../src/render-mermaid.ts";
 import { renderLatex } from "../src/render-latex.ts";
 
@@ -20,11 +20,11 @@ async function main(): Promise<void> {
   const dir = mkdtempSync(join(tmpdir(), "scieng-smoke-"));
   const cases: { name: string; run: () => Promise<string> }[] = [
     {
-      name: "renderDot (quickchart.io)",
-      run: () => {
-        const inp = join(dir, "g.dot");
-        writeFileSync(inp, "digraph G { A -> B; }");
-        return renderDot(inp, join(dir, "g.svg"));
+      name: "renderDot (local engine)",
+      run: async () => {
+        const out = join(dir, "g.svg");
+        await renderDotSource("digraph G { A -> B; }", out, "svg");
+        return readFileSync(out, "utf-8");
       },
     },
     {

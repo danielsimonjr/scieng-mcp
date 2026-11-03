@@ -135,11 +135,11 @@ digraph {
 
 ## Rendering to SVG
 
-Call the `render_dot` tool of the scieng-mcp server. Set `input_path` to the `.dot` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
+Call the `render_dot` tool of the scieng-mcp server. Set `input_path` to the `.dot` file. Set `output_path` to the output file. Without `output_path`, the tool uses the input path with the `.svg` extension. Set `format` to `png` for a PNG file. The tool returns the path, the size of the file and the warnings.
 
-- The tool sends the source to quickchart.io. No local install is necessary.
-- Do not send a source with a `URL`, `href` or `image` attribute. The remote service can fetch that address.
-- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
+- The tool renders the source on this machine, with the Graphviz engine. No local install is necessary.
+- The tool removes each `image` and `stylesheet` attribute from the source. The result holds a warning for each attribute that it removes.
+- The source stays on the machine. The tool makes no network request.
 
 ## Validation Checklist
 
