@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- `docs/architecture/` holds the architecture documents: five hand-written documents (`OVERVIEW.md`, `ARCHITECTURE.md`, `COMPONENTS.md`, `DATAFLOW.md` and `API.md`) and the reports that `repo-tools` generates. `repo-tools check . --docs=docs/architecture` compares the numbers in the `## Verification` block of each hand-written document with the code.
+- The README has a `## Documentation` section. The section links the documents of `docs/architecture/`, `CHANGELOG.md`, `CLAUDE.md` and `AGENTS.md`.
+
 ### Changed
 
-- Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Only comments changed. The plugin bundle is byte-identical to the committed bundle.
-- Four doc comments in `src/` describe the code as it runs: the retry of a failed body read in `httpText`, the single-quote rule of `combineSvgs`, the whole-run replacement of `replaceInRuns`, and the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. Only comments changed.
+- Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Five doc comments in `src/` use ASD-STE100 sentence form. Only comments changed. The plugin bundle is byte-identical to the committed bundle.
+- Four doc comments in `src/` state how the code behaves. The comments cover the retry of a failed body read in `httpText`, the single-quote rule of `combineSvgs` and the whole-run replacement of `replaceInRuns`. The fourth comment is the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. Only comments changed.
 
 ## [0.5.0] - 2026-11-02
 

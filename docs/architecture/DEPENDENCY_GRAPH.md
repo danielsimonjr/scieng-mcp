@@ -109,7 +109,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/ooxml-edit.ts` - ooxml-edit module
+### `src/ooxml-edit.ts` - Applies each find pair, in order, to an unpacked word/document.xml file.
 
 **Node.js Built-in Dependencies:**
 | Module | Import |
@@ -140,7 +140,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-html.ts` - Trust model per block type: mermaid/latex sources are HTML-escaped; dot and
+### `src/render-html.ts` - Builds one HTML page from the blocks, in the order given.
 
 **Exports:**
 - Interfaces: `HtmlBlock`
@@ -149,7 +149,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-latex.ts` - render-latex module
+### `src/render-latex.ts` - Splits a LaTeX source into blocks.
 
 **Internal Dependencies:**
 | File | Imports | Type |
@@ -162,7 +162,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-lib.ts` - render-lib module
+### `src/render-lib.ts` - Sends an HTTP request and returns the response text.
 
 **Node.js Built-in Dependencies:**
 | Module | Import |
@@ -177,7 +177,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-mermaid.ts` - render-mermaid module
+### `src/render-mermaid.ts` - Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.
 
 **Node.js Built-in Dependencies:**
 | Module | Import |
@@ -194,7 +194,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/tools.ts` - Reads an error of the sciengjs engine. The check matches the name and the code, not the class,
+### `src/tools.ts` - Runs the handler of the named tool, and returns the MCP result.
 
 **External Dependencies:**
 | Package | Import |
@@ -324,7 +324,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 25 |
 | Subsystems | 4 |
-| Total Lines of Code | 2898 |
+| Total Lines of Code | 2966 |
 | Total Exports | 80 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |

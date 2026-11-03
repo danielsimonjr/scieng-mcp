@@ -212,7 +212,7 @@
         ]
       },
       "src/ooxml-edit.ts": {
-        "description": "ooxml-edit module",
+        "description": "Applies each find pair, in order, to an unpacked word/document.xml file.",
         "externalDependencies": [],
         "nodeDependencies": [
           {
@@ -273,7 +273,7 @@
         ]
       },
       "src/render-html.ts": {
-        "description": "Trust model per block type: mermaid/latex sources are HTML-escaped; dot and",
+        "description": "Builds one HTML page from the blocks, in the order given.",
         "externalDependencies": [],
         "nodeDependencies": [],
         "internalDependencies": [],
@@ -289,7 +289,7 @@
         ]
       },
       "src/render-latex.ts": {
-        "description": "render-latex module",
+        "description": "Splits a LaTeX source into blocks.",
         "externalDependencies": [],
         "nodeDependencies": [],
         "internalDependencies": [
@@ -322,7 +322,7 @@
         ]
       },
       "src/render-lib.ts": {
-        "description": "render-lib module",
+        "description": "Sends an HTTP request and returns the response text.",
         "externalDependencies": [],
         "nodeDependencies": [
           {
@@ -364,7 +364,7 @@
         ]
       },
       "src/render-mermaid.ts": {
-        "description": "render-mermaid module",
+        "description": "Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.",
         "externalDependencies": [],
         "nodeDependencies": [
           {
@@ -398,7 +398,7 @@
         ]
       },
       "src/tools.ts": {
-        "description": "Reads an error of the sciengjs engine. The check matches the name and the code, not the class,",
+        "description": "Runs the handler of the named tool, and returns the MCP result.",
         "externalDependencies": [
           {
             "package": "@modelcontextprotocol/server",
