@@ -93,3 +93,13 @@ test("each library in the scieng skill references uses one version only", () => 
   assert.deepEqual(problems, []);
 });
 
+test("no scieng skill reference loads a CDN module or stylesheet without an integrity hash", () => {
+  const unchecked = /\bimport\s*\(\s*["'`]https|@import/;
+  const problems: string[] = [];
+  for (const file of readdirSync(SKILL_DIR).filter((f) => f.endsWith(".md"))) {
+    readFileSync(join(SKILL_DIR, file), "utf-8").split("\n").forEach((line, i) => {
+      if (unchecked.test(line)) problems.push(`${file}:${i + 1}: ${line.trim()}`);
+    });
+  }
+  assert.deepEqual(problems, []);
+});
