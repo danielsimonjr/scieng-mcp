@@ -1,0 +1,6 @@
+# The plugin bundle is generated and committed. Git keeps its text files with LF line endings on
+# every platform, so a build on Windows matches the committed bundle byte for byte.
+plugin/bundle/**/*.mjs text eol=lf
+plugin/bundle/**/*.txt text eol=lf
+plugin/bundle/**/*.wasm binary
+plugin/bundle/**/*.ttf binary
