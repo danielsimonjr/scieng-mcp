@@ -1,6 +1,6 @@
 {
   "name": "scieng-mcp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "MCP server for science/engineering authoring: Mermaid/DOT/LaTeX to SVG, self-contained HTML playgrounds, OOXML run-preserving edits",
   "type": "module",
   "main": "plugin/bundle/index.mjs",
@@ -11,7 +11,7 @@
     "smoke": "node scripts/smoke-handshake.mjs"
   },
   "dependencies": {
-    "@danielsimonjr/sciengjs": "^0.1.1",
+    "@danielsimonjr/sciengjs": "^0.2.0",
     "@modelcontextprotocol/core": "^2.4.0",
     "@modelcontextprotocol/server": "^2.4.0",
     "zod": "^4.6.7"

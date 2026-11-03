@@ -4,7 +4,7 @@ import {
   RESVG_WASM_FILE,
   bundledFontPathIn,
   readAsset
-} from "../chunk-AU2OYEUG.mjs";
+} from "../chunk-KMFV4PKN.mjs";
 import {
   dotSourceText,
   dotToSvg
@@ -840,6 +840,10 @@ function readFont(path, bundled) {
   }
   return bytes;
 }
+function fontOf(settings, bundledFontPath) {
+  const rasterFont = settings.rasterFont;
+  return readFont(rasterFont ?? bundledFontPath, rasterFont === void 0);
+}
 async function render(request) {
   return renderPng(request, bundledFontPathIn(request.settings.assetsUrl));
 }
@@ -859,8 +863,7 @@ async function renderPng(request, bundledFontPath) {
       throw new RenderError("E_INPUT", "option scale must be a finite number greater than 0");
     }
   }
-  const rasterFont = request.settings.rasterFont;
-  const font = readFont(rasterFont ?? bundledFontPath, rasterFont === void 0);
+  const font = fontOf(request.settings, bundledFontPath);
   const dot = await dotToSvg(dotSourceText(request.source));
   const bytes = await svgToPng(dot.svg, {
     scale,
@@ -870,7 +873,18 @@ async function renderPng(request, bundledFontPath) {
   });
   return { bytes, warnings: [...dot.warnings, ...rasterWarnings(dot.svg, font)] };
 }
+async function svgDocumentToPng(svg, request) {
+  const font = fontOf(request.settings, bundledFontPathIn(request.settings.assetsUrl));
+  const bytes = await svgToPng(svg, {
+    scale: 1,
+    maxMemoryMb: request.settings.maxMemoryMb,
+    font,
+    assetsUrl: request.settings.assetsUrl
+  });
+  return { bytes, warnings: rasterWarnings(svg, font) };
+}
 export {
   render,
-  renderPng
+  renderPng,
+  svgDocumentToPng
 };

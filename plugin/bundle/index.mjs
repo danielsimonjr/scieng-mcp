@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-AU2OYEUG.mjs";
+} from "./chunk-KMFV4PKN.mjs";
 import {
   RENDER_ERROR_CODES,
   RenderError
@@ -35122,8 +35122,8 @@ var PAIRS = [
   { type: "dot", format: "svg", stage: "graph" },
   { type: "dot", format: "png", stage: "graph" },
   { type: "dot", format: "pdf", stage: "browser" },
-  { type: "mermaid", format: "svg", stage: "browser" },
-  { type: "mermaid", format: "png", stage: "browser" },
+  { type: "mermaid", format: "svg", stage: "graph" },
+  { type: "mermaid", format: "png", stage: "graph" },
   { type: "mermaid", format: "pdf", stage: "browser" },
   { type: "math", format: "svg", stage: "math" },
   { type: "math", format: "png", stage: "math" },
@@ -35168,7 +35168,9 @@ function backendUrl(name) {
 }
 var DEFAULT_REGISTRY = {
   "dot:svg": { backend: "graph/viz", moduleUrl: backendUrl("graph/backend-svg") },
-  "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") }
+  "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") },
+  "mermaid:svg": { backend: "mermaid/native", moduleUrl: backendUrl("mermaid/backend-svg") },
+  "mermaid:png": { backend: "mermaid/native+raster/resvg", moduleUrl: backendUrl("mermaid/backend-png") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35969,7 +35971,7 @@ function makeHandlers(fetchImpl = fetch) {
 }
 
 // src/index.ts
-var VERSION = true ? "0.5.0" : "0.0.0-dev";
+var VERSION = true ? "0.6.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }
