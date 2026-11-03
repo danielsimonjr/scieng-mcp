@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-03
+
 ### Added
 
 - `LICENSE` at the repository root holds the MIT licence. `package.json` declares `"license": "MIT"`.
