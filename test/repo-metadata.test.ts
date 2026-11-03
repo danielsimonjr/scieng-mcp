@@ -12,7 +12,7 @@ const readJson = (file: string): Record<string, unknown> =>
 test("the repository root has a LICENSE file with the MIT text and the copyright line", () => {
   const file = join(ROOT, "LICENSE");
   assert.ok(existsSync(file), "LICENSE is missing at the repository root");
-  const text = readFileSync(file, "utf-8");
+  const text = readFileSync(file, "utf-8").replace(/\r\n/g, "\n");
   assert.ok(text.startsWith("MIT License\n\nCopyright (c) 2026 Daniel Simon Jr.\n"), "LICENSE does not start with the MIT header");
   assert.match(text, /Permission is hereby granted, free of charge, to any person obtaining a copy/);
 });
