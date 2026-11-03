@@ -78,8 +78,9 @@ function renderBlock(b: HtmlBlock, i: number): string {
       // WaveDrom reads this tag's text verbatim; legitimate WaveJSON never
       // contains "</script", so refuse rather than risk tag breakout.
       // An opening <script or an HTML comment can change how the parser ends the tag, so both are refused too.
-      if (/<\/?script|<!--/i.test(b.source)) {
-        throw new Error(`wavedrom block ${i}: source must not contain "<script", "</script" or "<!--"`);
+      const refused = /<\/?script|<!--/i.exec(b.source);
+      if (refused) {
+        throw new Error(`wavedrom block ${i}: source contains "${refused[0]}", which can open a script context in the page`);
       }
       // The default skin draws black lines and text, so the block gets a light panel.
       return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;

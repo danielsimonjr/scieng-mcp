@@ -114,7 +114,7 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync, renameSync` |
+| `fs` | `readFileSync, writeFileSync, renameSync, rmSync` |
 | `path` | `basename, dirname, join` |
 
 **Exports:**
@@ -326,7 +326,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 25 |
 | Subsystems | 4 |
-| Total Lines of Code | 3489 |
+| Total Lines of Code | 3548 |
 | Total Exports | 81 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |

@@ -4,6 +4,26 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { httpText, readInput, writeOutput, deriveOutputPath, mapLimit } from "../src/render-lib.ts";
+import { createRequire, syncBuiltinESMExports } from "node:module";
+
+const cjsFs = createRequire(import.meta.url)("node:fs") as typeof import("node:fs");
+
+test("readInput rejects an oversize file without reading its content (F23)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "readinput-"));
+  const f = join(dir, "big.txt");
+  writeFileSync(f, "x".repeat(600 * 1024));
+  const realRead = cjsFs.readFileSync;
+  let reads = 0;
+  cjsFs.readFileSync = ((...args: Parameters<typeof realRead>) => { reads++; return realRead(...args); }) as typeof realRead;
+  syncBuiltinESMExports();
+  try {
+    assert.throws(() => readInput(f), /too large/);
+  } finally {
+    cjsFs.readFileSync = realRead;
+    syncBuiltinESMExports();
+  }
+  assert.equal(reads, 0);
+});
 
 test("deriveOutputPath swaps extension, basename-only dir of input", () => {
   assert.equal(deriveOutputPath(join("a", "b", "d.dot")), join("a", "b", "d.svg"));

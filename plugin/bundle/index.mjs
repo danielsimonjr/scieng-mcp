@@ -35639,8 +35639,9 @@ function renderBlock(b, i) {
 <script>Plotly.newPlot("plotly-${i}", ${jsEmbed(spec.data ?? [])}, ${jsEmbed(spec.layout ?? {})});</script>`;
     }
     case "wavedrom":
-      if (/<\/?script|<!--/i.test(b.source)) {
-        throw new Error(`wavedrom block ${i}: source must not contain "<script", "</script" or "<!--"`);
+      const refused = /<\/?script|<!--/i.exec(b.source);
+      if (refused) {
+        throw new Error(`wavedrom block ${i}: source contains "${refused[0]}", which can open a script context in the page`);
       }
       return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;
     case "raw-html":
@@ -35689,7 +35690,7 @@ ${inits.join("\n")}
 }
 
 // src/ooxml-edit.ts
-import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2 } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2, rmSync } from "node:fs";
 import { basename as basename2, dirname as dirname2, join as join2 } from "node:path";
 function assertNoDoctype(xml) {
   const low = xml.toLowerCase();
@@ -35813,8 +35814,13 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
   }
   if (made > 0) {
     const tmp = join2(dirname2(documentXmlPath), `.${basename2(documentXmlPath)}.${process.pid}.tmp`);
-    writeFileSync2(tmp, xml, "utf-8");
-    renameSync2(tmp, documentXmlPath);
+    try {
+      writeFileSync2(tmp, xml, "utf-8");
+      renameSync2(tmp, documentXmlPath);
+    } catch (err) {
+      rmSync(tmp, { force: true });
+      throw err;
+    }
   }
   return { results, replaced_count: made, written: made > 0 };
 }

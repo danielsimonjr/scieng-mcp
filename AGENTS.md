@@ -47,7 +47,7 @@ CI runs the typecheck, the tests, a Node load of the bundle, and a check that th
 - **The tests come first.** Write the failing test, see it fail, then change the code or the prose.
 - **A command or the skill names only real tools and real reference files.** `plugin-content.test.ts` checks this. Add a new command to its `EXPECTED` list, and to the command table of `SKILL.md`.
 - **Privacy is part of each command.** A command that sends source to a remote service names the service and offers `--local`. `render_html` pages load only exact-pinned CDN files with a Subresource Integrity hash. A new pin and its hash change together, in `src/render-html.ts`.
-- **Trust model of `render_html`.** Mermaid and LaTeX sources are HTML-escaped. DOT and Plotly sources go in as JSON with `<` escaped. WaveDrom goes in as it is, and a source with `<script`, `</script` or `<!--` in any case is refused. `raw-html` goes in as it is: the caller owns its safety.
+- **Trust model of `render_html`.** Mermaid and LaTeX sources are HTML-escaped. DOT and Plotly sources go in as JSON with `<` escaped. WaveDrom goes in as it is. The tool rejects a source with `<script`, `</script` or `<!--` in any letter case. `raw-html` goes in as it is: the caller owns its safety.
 - **No machine names and no personal names** in `plugin/`. Use roles: "the user", "the model host".
 - **Documents use ASD-STE100 Simplified Technical English**: one instruction per sentence, active voice, present tense.
 

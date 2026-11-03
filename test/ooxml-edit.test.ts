@@ -4,6 +4,29 @@ import { replaceInRuns, assertNoDoctype, applyEdits } from "../src/ooxml-edit.ts
 import { mkdtempSync, writeFileSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire, syncBuiltinESMExports } from "node:module";
+import { readdirSync } from "node:fs";
+
+// The CommonJS fs object. Replacing a member here and calling syncBuiltinESMExports() changes the ESM bindings the library reads.
+const cjsFs = createRequire(import.meta.url)("node:fs") as typeof import("node:fs");
+
+test("applyEdits keeps the original file and leaves no temp file when the rename fails (F21)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ooxml-atomic-"));
+  const p = join(dir, "document.xml");
+  const original = `<w:document><w:r><w:t>old</w:t></w:r></w:document>`;
+  writeFileSync(p, original);
+  const realRename = cjsFs.renameSync;
+  cjsFs.renameSync = (() => { throw Object.assign(new Error("EPERM: simulated rename failure"), { code: "EPERM" }); }) as typeof realRename;
+  syncBuiltinESMExports();
+  try {
+    assert.throws(() => applyEdits(p, [{ find: "old", replace: "new" }]), /EPERM/);
+  } finally {
+    cjsFs.renameSync = realRename;
+    syncBuiltinESMExports();
+  }
+  assert.equal(readFileSync(p, "utf-8"), original);
+  assert.deepEqual(readdirSync(dir).filter((f) => f.endsWith(".tmp")), []);
+});
 
 const RUN = (rpr: string, t: string) => `<w:r>${rpr}<w:t>${t}</w:t></w:r>`;
 

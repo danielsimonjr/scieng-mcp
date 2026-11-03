@@ -4,13 +4,13 @@
 
 ### Fixed
 
-- `httpText` retries a failed response-body read, as it retries a network error.
-- `httpText` caps a Retry-After wait at 30 s (`RETRY_AFTER_CAP_MS`). A caller sets another cap with `maxRetryAfterMs`. An HTTP-date Retry-After value now sets the wait.
-- `mapLimit` runs every item. A failing item no longer stops its worker. The call rejects with an `AggregateError` that holds each error.
-- `readInput` checks the file size before it reads the file.
-- The `capabilities` tool refuses unknown arguments.
-- The WaveDrom guard of `render_html` refuses `<script`, `</script` and `<!--` in any case.
-- `ooxml_replace` writes the edited file through a temporary file and a rename.
+- `httpText` retries a failed response-body read in the same way as a network error.
+- `httpText` limits a Retry-After wait to 30 s (`RETRY_AFTER_CAP_MS`). A caller sets a different limit with `maxRetryAfterMs`. An HTTP-date Retry-After value now sets the wait.
+- `mapLimit` runs every item. An item that fails no longer stops its worker. The call rejects with an `AggregateError` that holds each error.
+- `readInput` checks the file size. It reads the file only when the size is within the limit.
+- The `capabilities` tool rejects arguments that the tool does not know.
+- The WaveDrom guard in `render_html` rejects `<script`, `</script` and `<!--` in any letter case. The error names the token.
+- `ooxml_replace` writes the edited file to a temporary file, then renames the temporary file over the target. A failed call removes the temporary file.
 
 ## [0.6.0] - 2026-11-03
 

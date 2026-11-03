@@ -295,6 +295,7 @@ modules:
       nodeDependencies:
         - node:assert/strict
         - node:fs
+        - node:module
         - node:os
         - node:path
         - node:test
@@ -367,6 +368,7 @@ modules:
       nodeDependencies:
         - node:assert/strict
         - node:fs
+        - node:module
         - node:os
         - node:path
         - node:test
@@ -419,7 +421,7 @@ statistics:
   totalTypeScriptFiles: 25
   totalSourceFiles: 25
   totalModules: 3
-  totalLinesOfCode: 3489
+  totalLinesOfCode: 3548
   totalExports: 81
   entryRoots: 1
   reachableFiles: 9
