@@ -52,6 +52,6 @@ The bundle ships the engine assets in `plugin/bundle/assets/`. Each asset keeps 
 | `fonts/LiberationSerif-Regular.ttf`: Liberation Serif Regular 2.1.5 | SIL Open Font License 1.1 | `fonts/LiberationSerif-Regular.LICENSE.txt` |
 | `index_bg.wasm`: the WASM file of `@resvg/resvg-wasm` 2.6.2 (resvg, raster stage) | Mozilla Public License 2.0 (MPL-2.0) | `licenses/MPL-2.0.txt` |
 | Graphviz, inside `@viz-js/viz` 3.31.0 (graph stage) | Eclipse Public License 2.0 (EPL-2.0) | `licenses/EPL-2.0.txt` |
-| `@viz-js/viz` 3.31.0, the JavaScript wrapper | MIT | The MIT licence text is not in this folder. The package has no licence file. The bundle holds the copyright line, but not the MIT permission text, in `viz-*.mjs`. |
+| `@viz-js/viz` 3.31.0, the JavaScript wrapper | MIT | `licenses/MIT-viz-js.txt` |
 
-The licence texts for the three rows with a file are in `plugin/bundle/assets/`.
+The licence texts of the four rows are in `plugin/bundle/assets/`.
