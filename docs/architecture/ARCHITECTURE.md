@@ -20,7 +20,7 @@ Three tools render diagram or formula source. Two of them send the source to a p
 1. Source text leaves the machine only for the two remote renderers, Mermaid and LaTeX.
 2. A render call writes one output file. The call returns the path and the size of the file, not its content.
 3. A generated page loads only exact-version files. Each file carries a Subresource Integrity hash.
-4. Each tool input object refuses an unknown key. The `capabilities` tool is the exception. It reads no input, and its handler accepts any argument.
+4. Each tool input object refuses an unknown key. The `capabilities` tool is the exception. The tool reads no input, and its handler accepts any argument.
 5. The committed bundle is the shipped artifact. A source change and its bundle change share one commit. CI rejects a stale bundle.
 6. The server needs no install step at run time. The bundle carries the engine assets that the engine reads.
 7. A failed tool call does not end the session. The error travels in the tool result.
@@ -55,7 +55,7 @@ Each decision gives the choice, the reason for the choice, the cost of the choic
 - **Decision.** `render_dot` draws the graph with the local engine. The DOT source does not leave the machine.
 - **Rationale.** The repository gives privacy as a design goal for each command. The engine removes each `image` and `stylesheet` attribute from the source, and it reports a warning for each removal. The renderer therefore cannot load the image or the stylesheet that a source names. A unit test checks the removal of an `image` attribute.
 - **Trade-offs.** The bundle carries the engine, its worker entry and its assets. The output depends on the engine version.
-- **Alternative.** A remote DOT service. It sends the source off the machine.
+- **Alternative.** A remote DOT service sends the source off the machine.
 
 ### D3. The bundle is committed
 
@@ -148,12 +148,12 @@ The package requires Node.js 24 or later. `package.json` names Bun as the packag
 
 The continuous integration workflow in `.github/workflows/ci.yml` works as follows.
 
-- It runs on each push to `main` and on each pull request.
-- It runs on `ubuntu-latest` and on `windows-latest`.
-- It sets up Node.js 24 and the Bun version named in the file. It installs with `bun install --frozen-lockfile`.
-- It rebuilds the bundle and fails when `plugin/bundle` differs from the committed files.
-- It runs the `typecheck`, `lint`, `test` and `build` scripts when a package defines them. This package defines `typecheck` and `test` only.
-- It imports `plugin/bundle/index.mjs` in Node. The step passes when the import completes without an error.
+- The workflow runs on each push to `main` and on each pull request.
+- The workflow runs on `ubuntu-latest` and on `windows-latest`.
+- The workflow sets up Node.js 24 and the Bun version named in the file. The workflow installs with `bun install --frozen-lockfile`.
+- The workflow rebuilds the bundle and fails when `plugin/bundle` differs from the committed files.
+- The workflow runs the `typecheck`, `lint`, `test` and `build` scripts when a package defines them. This package defines `typecheck` and `test` only.
+- The workflow imports `plugin/bundle/index.mjs` in Node. The step passes when the import completes without an error.
 
 ## Performance
 
@@ -179,7 +179,7 @@ The server source reads no environment variable. The remote services need no key
 
 - The test runner is `node --test`. `bun run test` starts the runner. Ten test files hold 88 test cases.
 - The bundle gate starts the bundle with `scripts/block-network.mjs` preloaded. The preload refuses socket connections, DNS lookups and `fetch` calls, and it logs each attempt. The gate then renders SVG and PNG output, and it checks that the bundle sends no network request.
-- The bundle gate runs the bundle in a fresh folder with no `node_modules`. It compares each engine asset with the file in the engine package. On systems other than Windows, it checks that each bundle file has mode 0644.
+- The bundle gate runs the bundle in a fresh folder with no `node_modules`. The bundle gate compares each engine asset with the file in the engine package. On systems other than Windows, it checks that each bundle file has mode 0644.
 - The other tests pass a fake fetch function to the remote renderers.
 - The plugin-content test checks that each command and the skill name only tools and reference files that exist.
 - `bun run smoke` starts the bundle and sends an `initialize` request. CI does not run this script.

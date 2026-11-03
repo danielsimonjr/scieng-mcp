@@ -128,7 +128,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 
 | Export | Kind | Signature | Purpose |
 |---|---|---|---|
-| `ToolHandler` | Type | `(raw: unknown) => Promise<string>` | The handler of one tool. It returns the JSON text of the result. |
+| `ToolHandler` | Type | `(raw: unknown) => Promise<string>` | The handler of one tool. The handler returns the JSON text of the result. |
 | `ToolResult` | Interface | `{ content, isError? }` | The MCP result of a tool call. |
 | `dispatchTool` | Function | `(handlers, name, args) => Promise<ToolResult>` | Runs the named handler and returns the MCP result. |
 | `TOOLS` | Constant | `Tool[]` | The six tool definitions. |

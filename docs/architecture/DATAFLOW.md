@@ -1,6 +1,6 @@
 # scieng-mcp Data Flow
 
-This document traces one tool call from the request to the result. It names each step, each file that the call reads or writes, each network request, and each failure path. The tool arguments are in [API.md](API.md). The modules are described in [COMPONENTS.md](COMPONENTS.md).
+This document traces one tool call from the request to the result. This document names each step, each file that the call reads or writes, each network request, and each failure path. The tool arguments are in [API.md](API.md). The modules are described in [COMPONENTS.md](COMPONENTS.md).
 
 ## Common path
 

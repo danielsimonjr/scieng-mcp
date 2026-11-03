@@ -180,13 +180,13 @@ Behaviour:
 - Then `extractBlocks` returns one block for each `\[ ... \]` display. The label of each display block is `display`.
 - Each block gets the `\newcommand` and `\DeclareMathOperator` definitions of the preamble before its source.
 - A document with no block returns one block with the label `document`.
-- `combineSvgs` stacks the SVG images on a white rectangle. It leaves 20 units between images. The width is the largest image width plus 40 units.
+- `combineSvgs` stacks the SVG images on a white rectangle. `combineSvgs` leaves 20 units between images. The width is the largest image width plus 40 units.
 - `combineSvgs` reads a width or a height only when its value is in single quotes. The default is 400 units for a width and 50 units for a height.
 - `renderLatexSource` requests `https://latex.codecogs.com/svg.image?\dpi{<dpi>}<encoded block>` for each block. The default DPI is 200. At most four requests run at the same time.
 - A block that fails goes into `failures`. Each entry holds the block index, the label and the message.
 - When one block renders, the result is its SVG text. When more blocks render, the result is `combineSvgs` of the valid SVG texts.
 - When no block renders, the call throws `no blocks rendered`.
-- `renderLatex` reads the input file with `readInput`. It then calls `renderLatexSource`.
+- `renderLatex` reads the input file with `readInput`, and then calls `renderLatexSource`.
 
 Imports: `src/render-lib.ts`.
 
@@ -292,7 +292,7 @@ Behaviour:
 - `replaceInRuns` finds the first `<w:r>` element whose text contains `search`. The text is the joined content of its `<w:t>` elements, read as XML text.
 - `replaceInRuns` gives the whole text of that run the value `replacement`. The first `<w:t>` element takes the replacement. `replaceInRuns` empties the other `<w:t>` elements. The `<w:rPr>` element does not change.
 - With `preserveSpace`, the first `<w:t>` element gets `xml:space="preserve"` when it lacks that attribute.
-- `applyEdits` reads the file as UTF-8. It throws when the text holds a DOCTYPE or ENTITY declaration. It throws when the text holds no `<w:document` element.
+- `applyEdits` reads the file as UTF-8. `applyEdits` throws when the text holds a DOCTYPE or ENTITY declaration. `applyEdits` throws when the text holds no `<w:document` element.
 - `applyEdits` applies each pair in order. `applyEdits` writes the file with `writeFileSync` only when at least one pair changes a run.
 
 Known behaviour of the text match:

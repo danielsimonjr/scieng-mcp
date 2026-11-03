@@ -2,7 +2,7 @@
 
 ## Summary
 
-scieng-mcp is a Model Context Protocol (MCP) server. The server runs as a child process of an MCP client. It exchanges JSON messages over standard input and standard output. The server exposes six tools.
+scieng-mcp is a Model Context Protocol (MCP) server. The server runs as a child process of an MCP client. The server exchanges JSON messages over standard input and standard output. The server exposes six tools.
 
 Three tools render diagram or formula source to an image file. One tool builds an HTML page from typed blocks. One tool replaces text in an unpacked Word document. The sixth tool reports the render pairs of the local engine.
 
