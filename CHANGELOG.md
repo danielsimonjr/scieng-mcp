@@ -119,7 +119,7 @@
     In v2, `inputSchema.properties` is typed as recursive JSON values, not as `object`. If the v1 `Tool`
     import stays in place, the typecheck fails with a deeply nested and misleading error.
 
-  The verification covers the BUILT bundle over real stdio, not only by a passing build. A live `initialize`
+  The verification covers the BUILT bundle over real stdio, not only a passing build. A live `initialize`
   negotiates `2025-11-25` (the SDK's actual latest) and `tools/list` returns all 5 tools.
   Note this is a DEPENDENCY-generation change; the wire protocol is 2025-11-25 before and after.
 
