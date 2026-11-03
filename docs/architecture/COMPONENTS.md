@@ -280,9 +280,13 @@ export function applyEdits(
 Behaviour:
 
 - `assertNoDoctype` throws when the text holds `<!doctype` or `<!entity`, in any letter case.
-- `replaceInRuns` finds the first `<w:r>` element whose text contains `search`. The text is the joined content of its `<w:t>` elements, read as XML text.
+- `replaceInRuns` finds the first `<w:r>` element whose text contains `search`. The text is the joined decoded content of its `<w:t>` elements.
 - `replaceInRuns` replaces only the matched text of that run with `replacement`. The text before and after the match keeps its place. The `<w:rPr>` element does not change. Other `<w:t>` elements that do not overlap the match keep their bytes.
 - `replaceInRuns` writes `replacement` with `&`, `<` and `>` escaped. An empty `search` replaces nothing.
+- A match does not cross a non-text child of the run, such as `<w:br/>`, `<w:tab/>` or `<w:cr/>`. Adjacent `<w:t>` elements with nothing between them match together.
+- A rewritten `<w:t>` element is re-encoded. Entities such as `&quot;` and `&#160;` become characters. Other elements of the run keep their bytes.
+- A numeric reference stays as written when XML 1.0 does not allow its character. The function does not throw.
+- With `preserveSpace`, each rewritten `<w:t>` element that starts or ends with whitespace gets `xml:space="preserve"`, when it lacks that attribute.
 - With `preserveSpace`, the `<w:t>` element that takes the replacement gets `xml:space="preserve"` when it lacks that attribute.
 - `applyEdits` reads the file as UTF-8. `applyEdits` throws when the text holds a DOCTYPE or ENTITY declaration. `applyEdits` throws when the text holds no `<w:document` element.
 - `applyEdits` applies each pair in order. `applyEdits` writes the file with `writeFileSync` only when at least one pair changes a run.

@@ -138,3 +138,39 @@ test("F4b: markup is not matched as text and <w:tab/> is not read as <w:t>", () 
   const { xml: out } = replaceInRuns(`<w:r><w:tab/><w:t>Hello</w:t></w:r>`, "Hello", "Bye", false);
   assert.equal(out, `<w:r><w:tab/><w:t>Bye</w:t></w:r>`);
 });
+
+test("R2: an out-of-range or forbidden numeric reference does not crash and stays as written", () => {
+  const high = replaceInRuns(`<w:r><w:t>&#x110000; X</w:t></w:r>`, "X", "Y", false);
+  assert.equal(high.replaced, true);
+  assert.match(high.xml, /Y<\/w:t>/);
+  const ctrl = replaceInRuns(`<w:r><w:t>&#1; X</w:t></w:r>`, "X", "Y", false);
+  assert.equal(ctrl.replaced, true);
+  assert.doesNotMatch(ctrl.xml, /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/, "no raw control character in the output");
+});
+
+test("R3: every rewritten w:t with edge whitespace gets xml:space=preserve", () => {
+  const { xml: out, replaced } = replaceInRuns(`<w:r><w:t>a</w:t><w:t>b c</w:t></w:r>`, "ab", "Z", true);
+  assert.equal(replaced, true);
+  assert.match(out, /<w:t xml:space="preserve"> c<\/w:t>/);
+});
+
+test("R4: a match does not cross a non-text child such as w:br", () => {
+  const xml = `<w:r><w:t>ab</w:t><w:br/><w:t>cd</w:t></w:r>`;
+  const { xml: out, replaced } = replaceInRuns(xml, "bc", "X", false);
+  assert.equal(replaced, false);
+  assert.equal(out, xml);
+});
+
+test("R4b: a match across adjacent w:t nodes with nothing between them is allowed", () => {
+  const { xml: out, replaced } = replaceInRuns(`<w:r><w:t>ab</w:t><w:t>cd</w:t></w:r>`, "bc", "X", false);
+  assert.equal(replaced, true);
+  assert.equal(out, `<w:r><w:t>aX</w:t><w:t>d</w:t></w:r>`);
+});
+
+test("R5: a rewritten w:t re-encodes entities and other nodes keep their bytes", () => {
+  const xml = `<w:r><w:t>say &quot;hi&quot; now</w:t><w:tab/><w:t>keep&#160;this</w:t></w:r>`;
+  const { xml: out, replaced } = replaceInRuns(xml, "now", "later", false);
+  assert.equal(replaced, true);
+  assert.match(out, /<w:t>say "hi" later<\/w:t>/);
+  assert.match(out, /<w:tab\/><w:t>keep&#160;this<\/w:t>/);
+});

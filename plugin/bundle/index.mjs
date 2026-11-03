@@ -35619,11 +35619,13 @@ function assertNoDoctype(xml) {
 }
 var RUN_RE = /<w:r\b[^>]*?(?<!\/)>[\s\S]*?<\/w:r>/g;
 var WT_RE = /<w:t\b([^>]*?)(?:\/>|>([\s\S]*?)<\/w:t>)/g;
+var RPR_RE = /<w:rPr\b[^>]*?(?:\/>|>[\s\S]*?<\/w:rPr>)/g;
 var ENTITY_NAMES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+var isXmlChar = (c) => c === 9 || c === 10 || c === 13 || c >= 32 && c <= 55295 || c >= 57344 && c <= 65533 || c >= 65536 && c <= 1114111;
 var decodeXml = (s) => s.replace(/&(#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g, (all, name) => {
   if (name[0] === "#") {
     const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-    return String.fromCodePoint(code);
+    return isXmlChar(code) ? String.fromCodePoint(code) : all;
   }
   return ENTITY_NAMES[name] ?? all;
 });
@@ -35632,14 +35634,36 @@ function replaceInRun(run, search, replacement, preserveSpace) {
   const nodes = [...run.matchAll(WT_RE)];
   const textNodes = nodes.filter((m) => m[2] !== void 0);
   const texts = textNodes.map((m) => decodeXml(m[2]));
-  const full = texts.join("");
-  const start = full.indexOf(search);
-  if (start < 0) return null;
+  const textIndex = new Map(textNodes.map((m, i) => [m, i]));
+  const groups = [];
+  textNodes.forEach((m, i) => {
+    if (i > 0) {
+      const prev = textNodes[i - 1];
+      const gap = run.slice(prev.index + prev[0].length, m.index).replace(RPR_RE, "");
+      if (gap === "") {
+        groups[groups.length - 1].push(i);
+        return;
+      }
+    }
+    groups.push([i]);
+  });
+  let group;
+  let start = -1;
+  for (const g of groups) {
+    const pos = g.map((i) => texts[i]).join("").indexOf(search);
+    if (pos >= 0) {
+      group = g;
+      start = pos;
+      break;
+    }
+  }
+  if (group === void 0) return null;
   const end = start + search.length;
-  const bodies = [];
+  const bodies = /* @__PURE__ */ new Map();
   let insertedAt = -1;
   let offset = 0;
-  texts.forEach((s, i) => {
+  for (const i of group) {
+    const s = texts[i];
     const o = offset;
     const e = o + s.length;
     offset = e;
@@ -35650,27 +35674,30 @@ function replaceInRun(run, search, replacement, preserveSpace) {
       mid = replacement;
       insertedAt = i;
     }
-    bodies.push(left + mid + right);
-  });
+    bodies.set(i, left + mid + right);
+  }
   let out = "";
   let cursor = 0;
-  let ti = 0;
   for (const m of nodes) {
     const at = m.index;
     out += run.slice(cursor, at);
     cursor = at + m[0].length;
-    if (m[2] === void 0) {
+    const ti = textIndex.get(m);
+    if (ti === void 0 || !group.includes(ti)) {
       out += m[0];
       continue;
     }
-    const idx = ti++;
-    if (bodies[idx] === texts[idx]) {
+    const body = bodies.get(ti);
+    if (body === texts[ti]) {
       out += m[0];
       continue;
     }
     let attrs = m[1];
-    if (preserveSpace && idx === insertedAt && !/xml:space=/.test(attrs)) attrs += ' xml:space="preserve"';
-    out += `<w:t${attrs}>${escapeXml(bodies[idx])}</w:t>`;
+    const edgeSpace = /^\s|\s$/.test(body);
+    if (preserveSpace && !/xml:space=/.test(attrs) && (ti === insertedAt || edgeSpace)) {
+      attrs += ' xml:space="preserve"';
+    }
+    out += `<w:t${attrs}>${escapeXml(body)}</w:t>`;
   }
   out += run.slice(cursor);
   return out;
@@ -35810,7 +35837,7 @@ var TOOLS = [
   },
   {
     name: "ooxml_replace",
-    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
+    description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. A match does not cross a w:br, w:tab or w:cr element. A rewritten w:t element is re-encoded; other elements keep their bytes. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
     inputSchema: {
       type: "object",

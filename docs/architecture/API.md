@@ -80,6 +80,7 @@ This document describes the public surface of the server. The surface holds six 
 - Matching rules:
   - Each pair changes the first run whose text contains `find`.
   - Only the matched text of that run becomes `replace`. The other text of the run keeps its place.
+  - A match does not cross a `w:br`, `w:tab` or `w:cr` element. A rewritten `w:t` element is re-encoded. Other elements of the run keep their bytes.
   - The run formatting, which is the `<w:rPr>` element, does not change.
   - `find` and `replace` are plain text. The tool escapes `&`, `<` and `>` in `replace`. An empty `find` is refused with `[EMPTY_FIND]` and the file is not changed.
   - A `<w:tab/>` element adds XML markup to the text that the search reads. A search for a tab character does not match.

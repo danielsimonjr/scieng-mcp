@@ -19,6 +19,10 @@
 - `ooxml_replace` refuses an empty `find`. The tool returns the error `[EMPTY_FIND]`. The tool does not change the file.
 - `ooxml_replace` escapes `&`, `<` and `>` in `replace`. The written `word/document.xml` stays well-formed.
 - `ooxml_replace` reads the text of a run as plain text. A `find` of `&` matches `&amp;` in the file. A `find` of `&amp;` no longer matches. The tool does not read `<w:tab/>` as a `<w:t>` element.
+- `ooxml_replace` does not stop with an error on a numeric reference that XML 1.0 forbids. The tool keeps such a reference as written.
+- `ooxml_replace` gives `xml:space="preserve"` to each rewritten `w:t` element that starts or ends with a space.
+- A match does not cross a `w:br`, `w:tab` or `w:cr` element. Adjacent `w:t` elements match together.
+- The tool re-encodes each rewritten `w:t` element. The tool writes entities such as `&quot;` and `&#160;` as characters. The other elements of the run keep their bytes.
 
 ## [0.5.0] - 2026-11-02
 
