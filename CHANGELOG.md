@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- The HTML playground reference of the scieng skill loads `highlight.js` 11.11.1 (was 11.9.0), the version of the other references. `test/skill-cdn.test.ts` fails when a library has two versions in the references, or when a reference loads a CDN URL through `import()` or `@import`.
 - `httpText` retries a failed response-body read in the same way as a network error.
 - `httpText` limits a Retry-After wait to 30 s (`RETRY_AFTER_CAP_MS`). A caller sets a different limit with `maxRetryAfterMs`. An HTTP-date Retry-After value now sets the wait.
 - `mapLimit` runs every item. An item that fails no longer stops its worker. The call rejects with an `AggregateError` that holds each error.
