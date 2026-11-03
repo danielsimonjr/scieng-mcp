@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "totalSourceFiles": 11,
+    "totalTestFiles": 10,
+    "testedCount": 8,
+    "untestedCount": 3,
+    "coveragePercent": "72.7",
+    "effectiveCoverage": {
+      "policyLoaded": false,
+      "activeFiles": 11,
+      "testedActive": 8,
+      "activeUntested": 3,
+      "excludedTotal": 0,
+      "percent": "72.7",
+      "breakdown": {
+        "active_untested": 3
+      }
+    }
+  },
+  "untestedFiles": [
+    "plugin/skills/scieng/engineering-patterns.ts",
+    "smoke/render.smoke.ts",
+    "src/index.ts"
+  ],
+  "testedFiles": [
+    "src/engine-config.ts",
+    "src/ooxml-edit.ts",
+    "src/render-dot.ts",
+    "src/render-html.ts",
+    "src/render-latex.ts",
+    "src/render-lib.ts",
+    "src/render-mermaid.ts",
+    "src/tools.ts"
+  ],
+  "coverageMap": {
+    "plugin/skills/scieng/engineering-patterns.ts": [],
+    "smoke/render.smoke.ts": [],
+    "src/engine-config.ts": [
+      "test/engine-config.test.ts"
+    ],
+    "src/index.ts": [],
+    "src/ooxml-edit.ts": [
+      "test/ooxml-edit.test.ts"
+    ],
+    "src/render-dot.ts": [
+      "test/render-dot.test.ts"
+    ],
+    "src/render-html.ts": [
+      "test/render-html.test.ts"
+    ],
+    "src/render-latex.ts": [
+      "test/render-latex.test.ts"
+    ],
+    "src/render-lib.ts": [
+      "test/render-lib.test.ts"
+    ],
+    "src/render-mermaid.ts": [
+      "test/render-mermaid.test.ts"
+    ],
+    "src/tools.ts": [
+      "test/plugin-content.test.ts",
+      "test/tools.test.ts"
+    ]
+  },
+  "testToSourceMap": {
+    "test/bundle-gate.test.ts": [],
+    "test/engine-config.test.ts": [
+      "src/engine-config.ts"
+    ],
+    "test/ooxml-edit.test.ts": [
+      "src/ooxml-edit.ts"
+    ],
+    "test/plugin-content.test.ts": [
+      "src/tools.ts"
+    ],
+    "test/render-dot.test.ts": [
+      "src/render-dot.ts"
+    ],
+    "test/render-html.test.ts": [
+      "src/render-html.ts"
+    ],
+    "test/render-latex.test.ts": [
+      "src/render-latex.ts"
+    ],
+    "test/render-lib.test.ts": [
+      "src/render-lib.ts"
+    ],
+    "test/render-mermaid.test.ts": [
+      "src/render-mermaid.ts"
+    ],
+    "test/tools.test.ts": [
+      "src/tools.ts"
+    ]
+  },
+  "classifiedUntested": [
+    {
+      "file": "plugin/skills/scieng/engineering-patterns.ts",
+      "category": null
+    },
+    {
+      "file": "smoke/render.smoke.ts",
+      "category": null
+    },
+    {
+      "file": "src/index.ts",
+      "category": null
+    }
+  ]
+}

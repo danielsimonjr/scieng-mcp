@@ -1,8 +1,10 @@
+/** The kinds of block that buildHtml accepts. */
 export type BlockType = "mermaid" | "dot" | "latex" | "plotly" | "wavedrom" | "raw-html";
 
 // Trust model per block type: mermaid/latex sources are HTML-escaped; dot and
 // plotly are JSON-embedded with "<" escaped; wavedrom is verbatim behind a
 // "</script" guard; raw-html is verbatim and fully caller-trusted.
+/** One block of an HTML page: its kind, its source text, and an optional section heading. */
 export interface HtmlBlock { type: BlockType; source: string; title?: string }
 
 const esc = (s: string): string =>
@@ -86,6 +88,11 @@ function renderBlock(b: HtmlBlock, i: number): string {
   }
 }
 
+/**
+ * Builds one HTML page from the blocks, in the order given.
+ * The page loads only the pinned CDN files that the block types need. Each file has a Subresource Integrity hash.
+ * The call throws when blocks is empty. The call also throws when a plotly source is not valid JSON, or when a wavedrom source contains "</script".
+ */
 export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): string {
   if (blocks.length === 0) throw new Error("buildHtml needs at least one block");
   const types = new Set(blocks.map((b) => b.type));

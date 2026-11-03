@@ -1,0 +1,204 @@
+{
+  "totalFiles": 25,
+  "byDisposition": {
+    "reachable": 8,
+    "build-entry": 1,
+    "test-only": 0,
+    "orphan": 3,
+    "test": 10,
+    "tool": 3,
+    "config": 0,
+    "bench": 0,
+    "example": 0
+  },
+  "byArea": {
+    "src": 12,
+    "tools": 3,
+    "tests": 10
+  },
+  "byPackage": {
+    "(root)": 16,
+    "scieng-mcp": 9
+  },
+  "files": [
+    {
+      "file": "plugin/skills/scieng/engineering-patterns.ts",
+      "package": "(root)",
+      "area": "src",
+      "disposition": "orphan",
+      "loc": 962
+    },
+    {
+      "file": "plugin/skills/scieng/stubs/docx.d.ts",
+      "package": "(root)",
+      "area": "src",
+      "disposition": "orphan",
+      "loc": 53
+    },
+    {
+      "file": "scripts/block-network.mjs",
+      "package": "(root)",
+      "area": "tools",
+      "disposition": "tool",
+      "loc": 37
+    },
+    {
+      "file": "scripts/bundle.mjs",
+      "package": "(root)",
+      "area": "tools",
+      "disposition": "tool",
+      "loc": 59
+    },
+    {
+      "file": "scripts/smoke-handshake.mjs",
+      "package": "(root)",
+      "area": "tools",
+      "disposition": "tool",
+      "loc": 22
+    },
+    {
+      "file": "smoke/render.smoke.ts",
+      "package": "(root)",
+      "area": "src",
+      "disposition": "orphan",
+      "loc": 67
+    },
+    {
+      "file": "src/engine-config.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 23
+    },
+    {
+      "file": "src/index.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "build-entry",
+      "loc": 34
+    },
+    {
+      "file": "src/ooxml-edit.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 88
+    },
+    {
+      "file": "src/render-dot.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 16
+    },
+    {
+      "file": "src/render-html.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 134
+    },
+    {
+      "file": "src/render-latex.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 105
+    },
+    {
+      "file": "src/render-lib.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 100
+    },
+    {
+      "file": "src/render-mermaid.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 26
+    },
+    {
+      "file": "src/tools.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 244
+    },
+    {
+      "file": "test/bundle-gate.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 181
+    },
+    {
+      "file": "test/engine-config.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 15
+    },
+    {
+      "file": "test/ooxml-edit.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 70
+    },
+    {
+      "file": "test/plugin-content.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 131
+    },
+    {
+      "file": "test/render-dot.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 56
+    },
+    {
+      "file": "test/render-html.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 111
+    },
+    {
+      "file": "test/render-latex.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 96
+    },
+    {
+      "file": "test/render-lib.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 97
+    },
+    {
+      "file": "test/render-mermaid.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 27
+    },
+    {
+      "file": "test/tools.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 212
+    }
+  ],
+  "skippedLinks": [],
+  "warnings": [
+    "package.json entry 'plugin/bundle/index.mjs' did not resolve to a known source file. The entry is ignored."
+  ]
+}

@@ -6,8 +6,8 @@ OOXML DOCUMENT EDIT LIBRARY  (self-contained, zero-dependency)
 PURPOSE:
   Edit an *already-unpacked* Word document's word/document.xml while
   preserving each run's formatting (the <w:rPr> block). Run-level
-  find/replace: any <w:r> whose <w:t> text contains the search string has
-  only its text swapped; the <w:rPr> is left untouched.
+  find/replace: the first <w:r> whose <w:t> text contains the search string has
+  its whole text replaced; the <w:rPr> is left untouched.
 
 LIMITATIONS:
   - Matches at the run (<w:r>) level. If your search text is split across
@@ -19,7 +19,7 @@ LIMITATIONS:
 */
 import { readFileSync, writeFileSync } from "node:fs";
 
-/** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY; refuse it
+/** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY declaration. This function refuses such a declaration.
  *  (defense-in-depth; this port does not use an entity-expanding parser). */
 export function assertNoDoctype(xml: string): void {
   const low = xml.toLowerCase();
@@ -31,8 +31,8 @@ export function assertNoDoctype(xml: string): void {
 const runText = (run: string): string =>
   [...run.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]).join("");
 
-/** Replace text in the FIRST <w:r> whose combined <w:t> contains `search`.
- *  The run's <w:rPr> is untouched; secondary <w:t> nodes are blanked. */
+/** Replace the text of the FIRST <w:r> whose combined <w:t> text contains `search`.
+ *  The whole text of that run becomes the replacement. The function does not change <w:rPr>. The function empties the secondary <w:t> nodes. `search` and `replacement` are XML text. Write an ampersand as &amp;. */
 export function replaceInRuns(
   xml: string,
   search: string,
@@ -58,8 +58,14 @@ export function replaceInRuns(
   return { xml, replaced: false };
 }
 
+/** The result of one find pair. The field replaced is true when a run takes the replacement. */
 export interface EditResult { find: string; replaced: boolean }
 
+/**
+ * Applies each find pair, in order, to an unpacked word/document.xml file.
+ * The call writes the file only when at least one pair replaces a run.
+ * The result reports each pair, and the number of pairs that replaced a run.
+ */
 export function applyEdits(
   documentXmlPath: string,
   replacements: { find: string; replace: string }[],

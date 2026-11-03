@@ -1,0 +1,454 @@
+metadata:
+  name: scieng-mcp
+  schemaVersion: 2.0.0
+  language: typescript
+  totalFiles: 25
+  totalModules: 3
+  totalExports: 80
+modules:
+  src:
+    plugin/skills/scieng/engineering-patterns.ts:
+      externalDependencies:
+        - docx
+      nodeDependencies:
+        - node:fs
+      internalDependencies: []
+      exports:
+        - engineeringStyles
+        - engineeringHeader
+        - engineeringFooter
+        - createTableOfContents
+        - createListOfTables
+        - createListOfFigures
+        - createTableCaption
+        - createTableRef
+        - createFigureCaption
+        - createFigureRef
+        - createTitledTable
+        - createImage
+        - createImageWithSize
+        - createFigure
+        - createTitlePage
+        - createApprovalTable
+        - createRevisionHistory
+        - createRequirementsTable
+        - createTestProcedure
+        - createEquipmentTable
+        - createWarning
+        - createCaution
+        - createNote
+        - createSpecsTable
+        - createSignalTable
+        - createIntegrationEffortTable
+        - createRiskAssessmentTable
+        - createComparisonTable
+        - mathSymbols
+        - formatValue
+        - createCodeBlock
+    plugin/skills/scieng/stubs/docx.d.ts:
+      externalDependencies: []
+      nodeDependencies: []
+      internalDependencies: []
+      exports:
+        - Paragraph
+        - TextRun
+        - Header
+        - Footer
+        - Table
+        - TableRow
+        - TableCell
+        - TableOfContents
+        - ImageRun
+        - Bookmark
+        - InternalHyperlink
+        - StyleLevel
+        - HeadingLevel
+        - AlignmentType
+        - WidthType
+        - BorderStyle
+        - PageNumber
+        - ShadingType
+        - VerticalAlign
+    smoke/render.smoke.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:fs
+        - node:os
+        - node:path
+      internalDependencies:
+        - file: src/render-dot.ts
+          imports:
+            - renderDotSource
+          typeOnly: false
+        - file: src/render-mermaid.ts
+          imports:
+            - renderMermaid
+          typeOnly: false
+        - file: src/render-latex.ts
+          imports:
+            - renderLatex
+          typeOnly: false
+      exports: []
+    src/engine-config.ts:
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
+      nodeDependencies: []
+      internalDependencies: []
+      exports:
+        - bundledEngineConfig
+        - engineConfig
+    src/index.ts:
+      externalDependencies:
+        - '@modelcontextprotocol/server'
+        - '@modelcontextprotocol/server/stdio'
+      nodeDependencies: []
+      internalDependencies:
+        - file: src/tools.ts
+          imports:
+            - TOOLS
+            - makeHandlers
+            - dispatchTool
+          typeOnly: false
+      exports: []
+    src/ooxml-edit.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:fs
+      internalDependencies: []
+      exports:
+        - assertNoDoctype
+        - replaceInRuns
+        - EditResult
+        - applyEdits
+    src/render-dot.ts:
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
+      nodeDependencies: []
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - writeOutput
+          typeOnly: false
+        - file: src/engine-config.ts
+          imports:
+            - engineConfig
+          typeOnly: false
+      exports:
+        - renderDotSource
+    src/render-html.ts:
+      externalDependencies: []
+      nodeDependencies: []
+      internalDependencies: []
+      exports:
+        - BlockType
+        - HtmlBlock
+        - buildHtml
+    src/render-latex.ts:
+      externalDependencies: []
+      nodeDependencies: []
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - readInput
+            - writeOutput
+            - httpText
+            - mapLimit
+            - FetchLike
+          typeOnly: false
+      exports:
+        - Block
+        - extractBlocks
+        - combineSvgs
+        - renderLatexSource
+        - renderLatex
+    src/render-lib.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:fs
+        - node:path
+      internalDependencies: []
+      exports:
+        - FetchLike
+        - HttpOptions
+        - httpText
+        - readInput
+        - deriveOutputPath
+        - writeOutput
+        - mapLimit
+    src/render-mermaid.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:zlib
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - readInput
+            - writeOutput
+            - httpText
+            - FetchLike
+          typeOnly: false
+      exports:
+        - encodePako
+        - renderMermaidSource
+        - renderMermaid
+    src/tools.ts:
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
+        - '@modelcontextprotocol/server'
+        - zod
+      nodeDependencies: []
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - readInput
+            - deriveOutputPath
+            - writeOutput
+            - FetchLike
+          typeOnly: false
+        - file: src/render-mermaid.ts
+          imports:
+            - renderMermaidSource
+          typeOnly: false
+        - file: src/render-dot.ts
+          imports:
+            - renderDotSource
+          typeOnly: false
+        - file: src/engine-config.ts
+          imports:
+            - engineConfig
+          typeOnly: false
+        - file: src/render-latex.ts
+          imports:
+            - renderLatexSource
+          typeOnly: false
+        - file: src/render-html.ts
+          imports:
+            - buildHtml
+            - HtmlBlock
+          typeOnly: false
+        - file: src/ooxml-edit.ts
+          imports:
+            - applyEdits
+          typeOnly: false
+      exports:
+        - ToolHandler
+        - ToolResult
+        - dispatchTool
+        - TOOLS
+        - makeHandlers
+  tools:
+    scripts/block-network.mjs:
+      externalDependencies: []
+      nodeDependencies:
+        - node:dns
+        - node:fs
+        - node:net
+      internalDependencies: []
+      exports: []
+    scripts/bundle.mjs:
+      externalDependencies:
+        - esbuild
+      nodeDependencies:
+        - node:fs
+        - node:module
+        - node:path
+        - node:url
+      internalDependencies: []
+      exports: []
+    scripts/smoke-handshake.mjs:
+      externalDependencies: []
+      nodeDependencies:
+        - node:child_process
+      internalDependencies: []
+      exports: []
+  tests:
+    test/bundle-gate.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:child_process
+        - node:crypto
+        - node:fs
+        - node:module
+        - node:os
+        - node:path
+        - node:test
+        - node:url
+      internalDependencies: []
+      exports: []
+    test/engine-config.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:test
+      internalDependencies:
+        - file: src/engine-config.ts
+          imports:
+            - bundledEngineConfig
+            - engineConfig
+          typeOnly: false
+      exports: []
+    test/ooxml-edit.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/ooxml-edit.ts
+          imports:
+            - replaceInRuns
+            - assertNoDoctype
+            - applyEdits
+          typeOnly: false
+      exports: []
+    test/plugin-content.test.ts:
+      externalDependencies:
+        - '@modelcontextprotocol/server'
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/tools.ts
+          imports:
+            - TOOLS
+          typeOnly: false
+      exports: []
+    test/render-dot.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/render-dot.ts
+          imports:
+            - renderDotSource
+          typeOnly: false
+      exports: []
+    test/render-html.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:test
+      internalDependencies:
+        - file: src/render-html.ts
+          imports:
+            - buildHtml
+          typeOnly: false
+      exports: []
+    test/render-latex.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/render-latex.ts
+          imports:
+            - extractBlocks
+            - combineSvgs
+            - renderLatex
+            - renderLatexSource
+          typeOnly: false
+      exports: []
+    test/render-lib.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - httpText
+            - readInput
+            - writeOutput
+            - deriveOutputPath
+            - mapLimit
+          typeOnly: false
+      exports: []
+    test/render-mermaid.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+        - node:zlib
+      internalDependencies:
+        - file: src/render-mermaid.ts
+          imports:
+            - encodePako
+            - renderMermaid
+          typeOnly: false
+      exports: []
+    test/tools.test.ts:
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/tools.ts
+          imports:
+            - TOOLS
+            - makeHandlers
+            - dispatchTool
+            - ToolHandler
+          typeOnly: false
+      exports: []
+statistics:
+  totalTypeScriptFiles: 25
+  totalSourceFiles: 25
+  totalModules: 3
+  totalLinesOfCode: 2966
+  totalExports: 80
+  entryRoots: 1
+  reachableFiles: 9
+  dormantFiles: 3
+  orphanedFiles: 3
+  testOnlyFiles: 0
+  runtimeCircularDeps: 0
+  typeOnlyCircularDeps: 0
+  totalTypeOnlyImports: 0
+  noImporterFileCount: 3
+  unusedExportsCount: 55
+  circularDepsTruncated: false
+  runtimeCyclicComponents: 0
+  typeOnlyCyclicComponents: 0
+  runtimeFilesInCycles: 0
+  typeOnlyFilesInCycles: 0
+  totalClasses: 12
+  totalInterfaces: 5
+  totalFunctions: 21
+  totalTypeGuards: 0
+  totalEnums: 0
+  totalConstants: 8
+  totalReExports: 0
+reachability:
+  roots:
+    - src/index.ts
+  reachableCount: 9
+  dormantCount: 3
+  orphaned:
+    - plugin/skills/scieng/engineering-patterns.ts
+    - plugin/skills/scieng/stubs/docx.d.ts
+    - smoke/render.smoke.ts
+  testOnly: []
+warnings:
+  - package.json entry 'plugin/bundle/index.mjs' did not resolve to a known source file. The entry is ignored.

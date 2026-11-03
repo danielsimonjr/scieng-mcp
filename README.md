@@ -6,9 +6,9 @@ scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp ex
 
 | Tool | Inputs | Behavior |
 |---|---|---|
-| `render_mermaid` | `source` \| `input_path`, `output_path` | Renders Mermaid diagram source to an SVG file via mermaid.ink. Returns `{path, bytes}`; never the SVG body. |
+| `render_mermaid` | `source` \| `input_path`, `output_path` | Renders Mermaid diagram source to an SVG file through mermaid.ink. Returns `{path, bytes}`; never the SVG body. |
 | `render_dot` | `source` \| `input_path`, `output_path`, `format` | Renders Graphviz DOT source to an SVG file (`format` `svg`, the default) or a PNG file (`format` `png`) on this machine, with the sciengjs engine. Returns `{path, bytes, warnings}`. |
-| `render_latex` | `source` \| `input_path`, `output_path`, `dpi` | Renders LaTeX (bare math or a document's equation/align/display blocks) to an SVG file via latex.codecogs.com. Partial failures are reported in a `failures` array rather than thrown. Returns `{path, bytes, failures}`. |
+| `render_latex` | `source` \| `input_path`, `output_path`, `dpi` | Renders LaTeX (bare math or a document's equation/align/display blocks) to an SVG file through latex.codecogs.com. The tool reports partial failures in a `failures` array instead of throwing them. Returns `{path, bytes, failures}`. |
 | `render_html` | `blocks` (typed `mermaid`/`dot`/`latex`/`plotly`/`wavedrom`/`raw-html`), `title`, `output_path` | Assembles a self-contained HTML playground from the given blocks, emitting only the CDN imports the present block types require. `plotly` source must be JSON `{data, layout}`; `raw-html` passes through verbatim. Returns `{path, bytes}`. |
 | `ooxml_replace` | `document_xml_path`, `replacements`, `preserve_space` | Run-preserving batch find/replace on an unpacked Word document's `word/document.xml`, leaving `<w:rPr>` formatting untouched. Replaces the first matching run per pair. Returns per-pair results and `replaced_count`. |
 | `capabilities` | none | Lists the render pairs of the engine (type and format, for example `dot` and `svg`) with the stage and the readiness of each pair. Read-only. Returns `{capabilities}`. |
@@ -38,3 +38,23 @@ Add the marketplace and enable the plugin:
 
 Then enable `scieng-mcp` from the plugin list. The plugin also ships with the
 `scieng` authoring skill, which guides Claude in using these tools together.
+
+## Documentation
+
+The architecture documents are in `docs/architecture/`. Each of the five hand-written documents ends with a `## Verification` block. The `repo-tools check` command compares the numbers in that block with the code.
+
+| Document | Content |
+|---|---|
+| [OVERVIEW.md](docs/architecture/OVERVIEW.md) | The purpose, the layout and the key numbers of the server. |
+| [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) | The design principles, the context and the key decisions. |
+| [COMPONENTS.md](docs/architecture/COMPONENTS.md) | Each module, with its exported signatures. |
+| [DATAFLOW.md](docs/architecture/DATAFLOW.md) | The path of one tool call, from the request to the result. |
+| [API.md](docs/architecture/API.md) | The tools, their arguments and results, and the exports of each module. |
+| [FILE_INVENTORY.md](docs/architecture/FILE_INVENTORY.md) | Each source file, with its disposition. |
+| [TEST_COVERAGE.md](docs/architecture/TEST_COVERAGE.md) | The test files, and the source files that they cover. |
+| [DEPENDENCY_GRAPH.md](docs/architecture/DEPENDENCY_GRAPH.md) | The dependency graph of the code files. |
+| [unused-analysis.md](docs/architecture/unused-analysis.md) | The files and exports with no importer. |
+| [duplicate-symbols.md](docs/architecture/duplicate-symbols.md) | The names that more than one file defines. |
+| [CHANGELOG.md](CHANGELOG.md) | The changes, by version. |
+| [CLAUDE.md](CLAUDE.md) | The instructions for Claude Code in this repository. |
+| [AGENTS.md](AGENTS.md) | The rules for an agent that works in this repository. |

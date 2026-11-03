@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- `docs/architecture/` holds the architecture documents: five hand-written documents (`OVERVIEW.md`, `ARCHITECTURE.md`, `COMPONENTS.md`, `DATAFLOW.md` and `API.md`) and the reports that `repo-tools` generates. `repo-tools check . --docs=docs/architecture` compares the numbers in the `## Verification` block of each hand-written document with the code.
+- The README has a `## Documentation` section. The section links the documents of `docs/architecture/`, `CHANGELOG.md`, `CLAUDE.md` and `AGENTS.md`.
+
+### Changed
+
+- Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Twenty-five doc comments were added. Three doc comments were reworded, and the file header of `src/ooxml-edit.ts` changed. One blank line was removed from `src/tools.ts`. No code changed. The plugin bundle is byte-identical to the committed bundle.
+- Four doc comments in `src/` state how the code behaves. The comments cover the retry of a failed body read in `httpText`, the single-quote rule of `combineSvgs` and the whole-run replacement of `replaceInRuns`. The fourth comment is the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. No code changed.
+- `plugin/README.md` and the architecture documents state the limit of a request line as measured. At 10,485,760 bytes or more, the server stops answering requests. The process stays alive until the client closes standard input.
+
 ## [0.5.0] - 2026-11-02
 
 ### Changed

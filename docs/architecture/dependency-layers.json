@@ -1,0 +1,561 @@
+{
+  "metadata": {
+    "name": "scieng-mcp",
+    "version": "0.5.0",
+    "schemaVersion": "2.0.0",
+    "language": "typescript"
+  },
+  "entryPoints": [
+    {
+      "file": "src/index.ts",
+      "type": "main",
+      "description": "MCP 2.0 registers by SPEC METHOD NAME, not by a schema object. The v1 form"
+    }
+  ],
+  "modules": {
+    "plugin/skills": {
+      "plugin/skills/scieng/engineering-patterns.ts": {
+        "description": "ENGINEERING DOCX PATTERNS - TypeScript Reference",
+        "externalDependencies": [
+          {
+            "package": "docx",
+            "imports": [
+              "Paragraph",
+              "TextRun",
+              "Table",
+              "TableRow",
+              "TableCell",
+              "Header",
+              "Footer",
+              "AlignmentType",
+              "HeadingLevel",
+              "BorderStyle",
+              "WidthType",
+              "PageNumber",
+              "ShadingType",
+              "VerticalAlign",
+              "TableOfContents",
+              "Bookmark",
+              "InternalHyperlink",
+              "ImageRun",
+              "StyleLevel"
+            ]
+          }
+        ],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "*"
+            ]
+          }
+        ],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "engineeringStyles",
+          "engineeringHeader",
+          "engineeringFooter",
+          "createTableOfContents",
+          "createListOfTables",
+          "createListOfFigures",
+          "createTableCaption",
+          "createTableRef",
+          "createFigureCaption",
+          "createFigureRef",
+          "createTitledTable",
+          "createImage",
+          "createImageWithSize",
+          "createFigure",
+          "createTitlePage",
+          "createApprovalTable",
+          "createRevisionHistory",
+          "createRequirementsTable",
+          "createTestProcedure",
+          "createEquipmentTable",
+          "createWarning",
+          "createCaution",
+          "createNote",
+          "createSpecsTable",
+          "createSignalTable",
+          "createIntegrationEffortTable",
+          "createRiskAssessmentTable",
+          "createComparisonTable",
+          "mathSymbols",
+          "formatValue",
+          "createCodeBlock"
+        ]
+      },
+      "plugin/skills/scieng/stubs/docx.d.ts": {
+        "description": "Minimal ambient stub for the `docx` npm package so engineering-patterns.ts",
+        "externalDependencies": [],
+        "nodeDependencies": [],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "Paragraph",
+          "TextRun",
+          "Header",
+          "Footer",
+          "Table",
+          "TableRow",
+          "TableCell",
+          "TableOfContents",
+          "ImageRun",
+          "Bookmark",
+          "InternalHyperlink",
+          "StyleLevel",
+          "HeadingLevel",
+          "AlignmentType",
+          "WidthType",
+          "BorderStyle",
+          "PageNumber",
+          "ShadingType",
+          "VerticalAlign"
+        ],
+        "classes": [
+          "Paragraph",
+          "TextRun",
+          "Header",
+          "Footer",
+          "Table",
+          "TableRow",
+          "TableCell",
+          "TableOfContents",
+          "ImageRun",
+          "Bookmark",
+          "InternalHyperlink",
+          "StyleLevel"
+        ],
+        "constants": [
+          "HeadingLevel",
+          "AlignmentType",
+          "WidthType",
+          "BorderStyle",
+          "PageNumber",
+          "ShadingType",
+          "VerticalAlign"
+        ]
+      }
+    },
+    "smoke": {
+      "smoke/render.smoke.ts": {
+        "description": "Live-API smoke test \u2014 NOT part of the `node --test` unit suite.",
+        "externalDependencies": [],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "mkdtempSync",
+              "readFileSync",
+              "writeFileSync"
+            ]
+          },
+          {
+            "module": "os",
+            "imports": [
+              "tmpdir"
+            ]
+          },
+          {
+            "module": "path",
+            "imports": [
+              "join"
+            ]
+          }
+        ],
+        "internalDependencies": [
+          {
+            "file": "../src/render-dot.ts",
+            "imports": [
+              "renderDotSource"
+            ]
+          },
+          {
+            "file": "../src/render-mermaid.ts",
+            "imports": [
+              "renderMermaid"
+            ]
+          },
+          {
+            "file": "../src/render-latex.ts",
+            "imports": [
+              "renderLatex"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": []
+      }
+    },
+    "root": {
+      "src/engine-config.ts": {
+        "description": "Returns the engine config that reads the assets from the folder beside the given module.",
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "SciengConfig"
+            ]
+          }
+        ],
+        "nodeDependencies": [],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "bundledEngineConfig",
+          "engineConfig"
+        ],
+        "functions": [
+          "bundledEngineConfig",
+          "engineConfig"
+        ]
+      },
+      "src/ooxml-edit.ts": {
+        "description": "Applies each find pair, in order, to an unpacked word/document.xml file.",
+        "externalDependencies": [],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "readFileSync",
+              "writeFileSync"
+            ]
+          }
+        ],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "assertNoDoctype",
+          "replaceInRuns",
+          "applyEdits"
+        ],
+        "interfaces": [
+          "EditResult"
+        ],
+        "functions": [
+          "assertNoDoctype",
+          "replaceInRuns",
+          "applyEdits"
+        ]
+      },
+      "src/render-dot.ts": {
+        "description": "Renders DOT graph sources through the sciengjs engine and writes the image to disk.",
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "render"
+            ]
+          }
+        ],
+        "nodeDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "writeOutput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "renderDotSource"
+        ],
+        "functions": [
+          "renderDotSource"
+        ]
+      },
+      "src/render-html.ts": {
+        "description": "Builds one HTML page from the blocks, in the order given.",
+        "externalDependencies": [],
+        "nodeDependencies": [],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "buildHtml"
+        ],
+        "interfaces": [
+          "HtmlBlock"
+        ],
+        "functions": [
+          "buildHtml"
+        ]
+      },
+      "src/render-latex.ts": {
+        "description": "Splits a LaTeX source into blocks.",
+        "externalDependencies": [],
+        "nodeDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "readInput",
+              "writeOutput",
+              "httpText",
+              "mapLimit",
+              "FetchLike"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "extractBlocks",
+          "combineSvgs",
+          "renderLatexSource",
+          "renderLatex"
+        ],
+        "interfaces": [
+          "Block"
+        ],
+        "functions": [
+          "extractBlocks",
+          "combineSvgs",
+          "renderLatexSource",
+          "renderLatex"
+        ]
+      },
+      "src/render-lib.ts": {
+        "description": "Sends an HTTP request and returns the response text.",
+        "externalDependencies": [],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "readFileSync",
+              "writeFileSync",
+              "renameSync"
+            ]
+          },
+          {
+            "module": "path",
+            "imports": [
+              "dirname",
+              "join",
+              "basename",
+              "extname"
+            ]
+          }
+        ],
+        "internalDependencies": [],
+        "workspaceDependencies": [],
+        "exports": [
+          "httpText",
+          "readInput",
+          "deriveOutputPath",
+          "writeOutput",
+          "mapLimit"
+        ],
+        "interfaces": [
+          "HttpOptions"
+        ],
+        "functions": [
+          "httpText",
+          "readInput",
+          "deriveOutputPath",
+          "writeOutput",
+          "mapLimit"
+        ]
+      },
+      "src/render-mermaid.ts": {
+        "description": "Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.",
+        "externalDependencies": [],
+        "nodeDependencies": [
+          {
+            "module": "zlib",
+            "imports": [
+              "deflateSync"
+            ]
+          }
+        ],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "readInput",
+              "writeOutput",
+              "httpText",
+              "FetchLike"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "encodePako",
+          "renderMermaidSource",
+          "renderMermaid"
+        ],
+        "functions": [
+          "encodePako",
+          "renderMermaidSource",
+          "renderMermaid"
+        ]
+      },
+      "src/tools.ts": {
+        "description": "Runs the handler of the named tool, and returns the MCP result.",
+        "externalDependencies": [
+          {
+            "package": "@modelcontextprotocol/server",
+            "imports": [
+              "Tool"
+            ]
+          },
+          {
+            "package": "zod",
+            "imports": [
+              "z"
+            ]
+          },
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "RENDER_ERROR_CODES",
+              "capabilities"
+            ]
+          }
+        ],
+        "nodeDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "readInput",
+              "deriveOutputPath",
+              "writeOutput",
+              "FetchLike"
+            ]
+          },
+          {
+            "file": "./render-mermaid.ts",
+            "imports": [
+              "renderMermaidSource"
+            ]
+          },
+          {
+            "file": "./render-dot.ts",
+            "imports": [
+              "renderDotSource"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
+            ]
+          },
+          {
+            "file": "./render-latex.ts",
+            "imports": [
+              "renderLatexSource"
+            ]
+          },
+          {
+            "file": "./render-html.ts",
+            "imports": [
+              "buildHtml",
+              "HtmlBlock"
+            ]
+          },
+          {
+            "file": "./ooxml-edit.ts",
+            "imports": [
+              "applyEdits"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "dispatchTool",
+          "TOOLS",
+          "makeHandlers"
+        ],
+        "interfaces": [
+          "ToolResult"
+        ],
+        "functions": [
+          "dispatchTool",
+          "makeHandlers"
+        ],
+        "constants": [
+          "TOOLS"
+        ]
+      }
+    },
+    "entry": {
+      "src/index.ts": {
+        "description": "MCP 2.0 registers by SPEC METHOD NAME, not by a schema object. The v1 form",
+        "externalDependencies": [
+          {
+            "package": "@modelcontextprotocol/server",
+            "imports": [
+              "Server"
+            ]
+          },
+          {
+            "package": "@modelcontextprotocol/server/stdio",
+            "imports": [
+              "serveStdio"
+            ]
+          }
+        ],
+        "nodeDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./tools.ts",
+            "imports": [
+              "TOOLS",
+              "makeHandlers",
+              "dispatchTool"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": []
+      }
+    }
+  },
+  "cyclicComponents": {
+    "runtime": [],
+    "typeOnly": []
+  },
+  "layers": [
+    {
+      "name": "Plugin/skills",
+      "files": [
+        "plugin/skills/scieng/engineering-patterns.ts",
+        "plugin/skills/scieng/stubs/docx.d.ts"
+      ]
+    },
+    {
+      "name": "Smoke",
+      "files": [
+        "smoke/render.smoke.ts"
+      ]
+    },
+    {
+      "name": "Root",
+      "files": [
+        "src/engine-config.ts",
+        "src/ooxml-edit.ts",
+        "src/render-dot.ts",
+        "src/render-html.ts",
+        "src/render-latex.ts",
+        "src/render-lib.ts",
+        "src/render-mermaid.ts",
+        "src/tools.ts"
+      ]
+    },
+    {
+      "name": "Entry",
+      "files": [
+        "src/index.ts"
+      ]
+    }
+  ]
+}
