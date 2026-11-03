@@ -59,7 +59,7 @@ test("every script src and link href to a CDN in the scieng skill references has
       const url = attr.exec(m[0])?.[1];
       if (!url || !/^https:\/\/(?:cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com|cdn\.plot\.ly)\//.test(url)) continue;
       count++;
-      if (!/\sintegrity="sha384-[A-Za-z0-9+/=]+"/.test(m[0]) || !/\scrossorigin="anonymous"/.test(m[0])) {
+      if (!/\sintegrity="sha384-[A-Za-z0-9+/]{64}"/.test(m[0]) || !/\scrossorigin="anonymous"/.test(m[0])) {
         problems.push(`${file}: ${url} has no integrity and crossorigin="anonymous"`);
       }
     }
@@ -80,6 +80,8 @@ function skillUrls(): { file: string; url: string }[] {
 
 test("each library in the scieng skill references uses one version only", () => {
   const urls = skillUrls();
+  const distinct = new Set(urls.map((u) => u.url));
+  assert.ok(distinct.size >= 15, `found ${distinct.size} distinct CDN URLs, expected at least 15`);
   const versions = new Map<string, Set<string>>();
   for (const { url } of urls) {
     const { lib, version } = libOf(url);
