@@ -3,7 +3,7 @@ export type BlockType = "mermaid" | "dot" | "latex" | "plotly" | "wavedrom" | "r
 
 // Trust model per block type: mermaid/latex sources are HTML-escaped; dot and
 // plotly are JSON-embedded with "<" escaped; wavedrom is verbatim behind a
-// "</script" guard; raw-html is verbatim and fully caller-trusted.
+// a guard that refuses "<script", "</script" and "<!--"; raw-html is verbatim and fully caller-trusted.
 /** One block of an HTML page: its kind, its source text, and an optional section heading. */
 export interface HtmlBlock { type: BlockType; source: string; title?: string }
 
@@ -77,8 +77,9 @@ function renderBlock(b: HtmlBlock, i: number): string {
     case "wavedrom":
       // WaveDrom reads this tag's text verbatim; legitimate WaveJSON never
       // contains "</script", so refuse rather than risk tag breakout.
-      if (/<\/script/i.test(b.source)) {
-        throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
+      // An opening <script or an HTML comment can change how the parser ends the tag, so both are refused too.
+      if (/<\/?script|<!--/i.test(b.source)) {
+        throw new Error(`wavedrom block ${i}: source must not contain "<script", "</script" or "<!--"`);
       }
       // The default skin draws black lines and text, so the block gets a light panel.
       return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;

@@ -95,3 +95,53 @@ test("mapLimit preserves order and caps concurrency", async () => {
   assert.deepEqual(out, [2, 4, 6, 8, 10]);
   assert.ok(maxActive <= 2);
 });
+
+test("httpText retries a body-read failure like a network error (F6)", async () => {
+  let calls = 0;
+  const fake: typeof fetch = async () => {
+    calls++;
+    const res = new Response("<svg>ok</svg>", { status: 200 });
+    if (calls === 1) res.text = async () => { throw new Error("socket reset"); };
+    return res;
+  };
+  assert.equal(await httpText("https://x", { fetchImpl: fake, retries: 3 }), "<svg>ok</svg>");
+  assert.equal(calls, 2);
+});
+
+test("httpText exposes a default Retry-After cap of 30 s (N6)", async () => {
+  const lib = (await import("../src/render-lib.ts")) as Record<string, unknown>;
+  assert.equal(lib.RETRY_AFTER_CAP_MS, 30000);
+});
+
+test("httpText caps a date-form Retry-After and honours maxRetryAfterMs (N6)", async () => {
+  let calls = 0;
+  const callTimes: number[] = [];
+  const future = new Date(Date.now() + 3600_000).toUTCString();
+  const fake: typeof fetch = async () => {
+    callTimes.push(Date.now());
+    calls++;
+    return calls < 2 ? new Response("busy", { status: 503, headers: { "retry-after": future } })
+                     : new Response("<svg>ok</svg>", { status: 200 });
+  };
+  await httpText("https://x", { fetchImpl: fake, retries: 3, maxRetryAfterMs: 200 });
+  const gap = callTimes[1] - callTimes[0];
+  assert.ok(gap >= 150 && gap < 400, `expected capped wait near 200ms, got ${gap}ms`);
+});
+
+test("mapLimit runs every item and reports each failure (F31)", async () => {
+  const ran: number[] = [];
+  const fn = async (n: number) => {
+    ran.push(n);
+    if (n === 1 || n === 3) throw new Error(`bad ${n}`);
+    return n;
+  };
+  await assert.rejects(
+    () => mapLimit([1, 2, 3, 4], 1, fn),
+    (err: unknown) => {
+      assert.ok(err instanceof AggregateError, "expected an AggregateError");
+      assert.deepEqual(ran.sort(), [1, 2, 3, 4]);
+      assert.equal((err as AggregateError).errors.length, 2);
+      return true;
+    },
+  );
+});

@@ -103,6 +103,10 @@ test("capabilities is a read-only tool with no input properties", () => {
   assert.deepEqual(Object.keys(tool.inputSchema.properties ?? {}), []);
 });
 
+test("capabilities refuses unknown arguments (F24)", async () => {
+  await assert.rejects(() => makeHandlers().capabilities({ surprise: 1 }));
+});
+
 test("the README names every tool", () => {
   const readme = readFileSync(join(import.meta.dirname, "..", "README.md"), "utf-8");
   for (const t of TOOLS) assert.ok(readme.includes("`" + t.name + "`"), `README does not name ${t.name}`);

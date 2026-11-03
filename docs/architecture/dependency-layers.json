@@ -219,7 +219,16 @@
             "module": "fs",
             "imports": [
               "readFileSync",
-              "writeFileSync"
+              "writeFileSync",
+              "renameSync"
+            ]
+          },
+          {
+            "module": "path",
+            "imports": [
+              "basename",
+              "dirname",
+              "join"
             ]
           }
         ],
@@ -330,7 +339,8 @@
             "imports": [
               "readFileSync",
               "writeFileSync",
-              "renameSync"
+              "renameSync",
+              "statSync"
             ]
           },
           {
@@ -346,6 +356,7 @@
         "internalDependencies": [],
         "workspaceDependencies": [],
         "exports": [
+          "RETRY_AFTER_CAP_MS",
           "httpText",
           "readInput",
           "deriveOutputPath",
@@ -361,6 +372,9 @@
           "deriveOutputPath",
           "writeOutput",
           "mapLimit"
+        ],
+        "constants": [
+          "RETRY_AFTER_CAP_MS"
         ]
       },
       "src/render-mermaid.ts": {

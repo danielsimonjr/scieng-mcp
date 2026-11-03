@@ -109,3 +109,9 @@ test("wavedrom source containing </script is rejected", () => {
     /must not contain/,
   );
 });
+
+test("wavedrom source with an opening script or comment is rejected (F30)", () => {
+  for (const source of ['{"name":"<!--<script>"}', '{"name":"<SCRIPT>"}', '{"name":"<!--"}']) {
+    assert.throws(() => buildHtml([{ type: "wavedrom", source }]), /wavedrom block/, source);
+  }
+});

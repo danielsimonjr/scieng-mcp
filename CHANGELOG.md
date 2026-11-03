@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `httpText` retries a failed response-body read, as it retries a network error.
+- `httpText` caps a Retry-After wait at 30 s (`RETRY_AFTER_CAP_MS`). A caller sets another cap with `maxRetryAfterMs`. An HTTP-date Retry-After value now sets the wait.
+- `mapLimit` runs every item. A failing item no longer stops its worker. The call rejects with an `AggregateError` that holds each error.
+- `readInput` checks the file size before it reads the file.
+- The `capabilities` tool refuses unknown arguments.
+- The WaveDrom guard of `render_html` refuses `<script`, `</script` and `<!--` in any case.
+- `ooxml_replace` writes the edited file through a temporary file and a rename.
+
 ## [0.6.0] - 2026-11-03
 
 ### Added

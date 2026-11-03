@@ -5,7 +5,7 @@
     "language": "typescript",
     "totalFiles": 25,
     "totalModules": 3,
-    "totalExports": 80
+    "totalExports": 81
   },
   "modules": {
     "src": {
@@ -142,7 +142,8 @@
       "src/ooxml-edit.ts": {
         "externalDependencies": [],
         "nodeDependencies": [
-          "node:fs"
+          "node:fs",
+          "node:path"
         ],
         "internalDependencies": [],
         "exports": [
@@ -221,6 +222,7 @@
         "exports": [
           "FetchLike",
           "HttpOptions",
+          "RETRY_AFTER_CAP_MS",
           "httpText",
           "readInput",
           "deriveOutputPath",
@@ -510,7 +512,8 @@
               "readInput",
               "writeOutput",
               "deriveOutputPath",
-              "mapLimit"
+              "mapLimit",
+              "*"
             ],
             "typeOnly": false
           }
@@ -570,8 +573,8 @@
     "totalTypeScriptFiles": 25,
     "totalSourceFiles": 25,
     "totalModules": 3,
-    "totalLinesOfCode": 3378,
-    "totalExports": 80,
+    "totalLinesOfCode": 3489,
+    "totalExports": 81,
     "entryRoots": 1,
     "reachableFiles": 9,
     "dormantFiles": 3,
@@ -581,7 +584,7 @@
     "typeOnlyCircularDeps": 0,
     "totalTypeOnlyImports": 0,
     "noImporterFileCount": 3,
-    "unusedExportsCount": 55,
+    "unusedExportsCount": 54,
     "circularDepsTruncated": false,
     "runtimeCyclicComponents": 0,
     "typeOnlyCyclicComponents": 0,
@@ -592,7 +595,7 @@
     "totalFunctions": 21,
     "totalTypeGuards": 0,
     "totalEnums": 0,
-    "totalConstants": 8,
+    "totalConstants": 9,
     "totalReExports": 0
   },
   "reachability": {

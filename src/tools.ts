@@ -192,6 +192,8 @@ function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: u
 const result = (path: string, content: string, extra: Record<string, unknown> = {}): string =>
   JSON.stringify({ path, bytes: Buffer.byteLength(content, "utf-8"), ...extra });
 
+const NoArgs = z.object({}).strict();
+
 const HtmlArgs = z.object({
   blocks: z.array(z.object({
     type: z.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
@@ -224,7 +226,10 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       const res = await renderDotSource(code, out, format);
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
-    capabilities: async () => JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) }),
+    capabilities: async (raw) => {
+      NoArgs.parse(raw ?? {});
+      return JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) });
+    },
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });

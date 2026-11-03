@@ -24,7 +24,8 @@ LIMITATIONS:
     documented XML patterns / comment.py instead.
 =============================================================================
 */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 
 /** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY declaration. This function refuses such a declaration.
  *  (defense-in-depth; this port does not use an entity-expanding parser). */
@@ -196,6 +197,11 @@ export function applyEdits(
     results.push({ find, replaced: r.replaced });
     if (r.replaced) { xml = r.xml; made++; }
   }
-  if (made > 0) writeFileSync(documentXmlPath, xml, "utf-8");
+  if (made > 0) {
+    // Write a temporary file in the same folder, then rename it over the target. A crash leaves the old file or the new one, never a half-written file.
+    const tmp = join(dirname(documentXmlPath), `.${basename(documentXmlPath)}.${process.pid}.tmp`);
+    writeFileSync(tmp, xml, "utf-8");
+    renameSync(tmp, documentXmlPath);
+  }
   return { results, replaced_count: made, written: made > 0 };
 }
