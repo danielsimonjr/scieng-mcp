@@ -31,7 +31,7 @@ export function extractBlocks(texSource: string): Block[] {
 
 /**
  * Stacks SVG images in one vertical SVG document on a white background.
- * An image without a width or height attribute counts as 400 by 50 units.
+ * A width or height that is not in single quotes is not read. The default is 400 units for a width and 50 units for a height.
  */
 export function combineSvgs(svgs: string[]): string {
   let totalHeight = 20;

@@ -6,8 +6,8 @@ OOXML DOCUMENT EDIT LIBRARY  (self-contained, zero-dependency)
 PURPOSE:
   Edit an *already-unpacked* Word document's word/document.xml while
   preserving each run's formatting (the <w:rPr> block). Run-level
-  find/replace: any <w:r> whose <w:t> text contains the search string has
-  only its text swapped; the <w:rPr> is left untouched.
+  find/replace: the first <w:r> whose <w:t> text contains the search string has
+  its whole text replaced; the <w:rPr> is left untouched.
 
 LIMITATIONS:
   - Matches at the run (<w:r>) level. If your search text is split across
@@ -31,8 +31,8 @@ export function assertNoDoctype(xml: string): void {
 const runText = (run: string): string =>
   [...run.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]).join("");
 
-/** Replace text in the FIRST <w:r> whose combined <w:t> contains `search`.
- *  The run's <w:rPr> is untouched; secondary <w:t> nodes are blanked. */
+/** Replace the text of the FIRST <w:r> whose combined <w:t> text contains `search`.
+ *  The whole text of that run becomes the replacement. The <w:rPr> is untouched. Secondary <w:t> nodes are blanked. `search` and `replacement` are XML text, so an ampersand must be written as &amp;. */
 export function replaceInRuns(
   xml: string,
   search: string,

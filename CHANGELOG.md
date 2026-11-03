@@ -5,6 +5,7 @@
 ### Changed
 
 - Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Only comments changed. The plugin bundle is byte-identical to the committed bundle.
+- Four doc comments in `src/` describe the code as it runs: the retry of a failed body read in `httpText`, the single-quote rule of `combineSvgs`, the whole-run replacement of `replaceInRuns`, and the header of `src/ooxml-edit.ts`. `TOOLS` in `src/tools.ts` has a doc comment, which the doc gate does not count. Only comments changed.
 
 ## [0.5.0] - 2026-11-02
 

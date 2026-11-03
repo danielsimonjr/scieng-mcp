@@ -84,7 +84,7 @@ const renderIo = {
   input_path: { type: "string" as const, description: INPUT_DESC },
   output_path: { type: "string" as const, description: OUTPUT_DESC },
 };
-
+/** The six MCP tools. Each entry holds the name, the description, the annotations and the input schema. */
 export const TOOLS: Tool[] = [
   {
     name: "render_mermaid",
