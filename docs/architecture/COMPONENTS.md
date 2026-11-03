@@ -232,9 +232,9 @@ Block rules:
 | Block type | Output in the page | Trust rule |
 |---|---|---|
 | `mermaid` | A `pre` element with class `mermaid`. | The source is HTML-escaped. |
-| `dot` | A `div`, and a script that calls `Viz.instance()`. | The source is a JSON string in the script. `<` is written as `<`. |
+| `dot` | A `div`, and a script that calls `Viz.instance()`. | The source is a JSON string in the script. `<` is written as the escape `\u003c`. |
 | `latex` | A `div` with class `latex-block`. | The source is HTML-escaped. A source with `\[`, `$$` or `\begin{` is not wrapped. Any other source is wrapped in `\[` and `\]`. |
-| `plotly` | A `div`, and a script that calls `Plotly.newPlot`. | The source must be JSON. `data` and `layout` are JSON values in the script. `<` is written as `<`. |
+| `plotly` | A `div`, and a script that calls `Plotly.newPlot`. | The source must be JSON. `data` and `layout` are JSON values in the script. `<` is written as the escape `\u003c`. |
 | `wavedrom` | A `div` with class `wavedrom-block` that holds a `script` element of type `WaveDrom`. | The source is verbatim. A source with `</script` in any letter case throws. |
 | `raw-html` | The source itself. | The source is verbatim. The caller owns its safety. |
 

@@ -76,7 +76,7 @@ Each decision gives the choice, the reason for the choice, the cost of the choic
 | Block type | Rule | Reason |
 |---|---|---|
 | `mermaid`, `latex` | HTML-escaped text. | Mermaid and KaTeX read the text of the element. The HTML parser decodes the escaped text. |
-| `dot`, `plotly` | A JSON value in a script. `<` is written as `<`. | Viz and Plotly read JavaScript values. The escape stops an embedded closing tag from ending the script early. |
+| `dot`, `plotly` | A JSON value in a script. `<` is written as the escape `\u003c`. | Viz and Plotly read JavaScript values. The escape stops an embedded closing tag from ending the script early. |
 | `wavedrom` | Verbatim text. The server refuses a source that contains `</script` in any letter case. | WaveDrom reads the text of its script element. Escaping would change the input that it reads. |
 | `raw-html` | Verbatim text. | The caller owns this content. |
 
