@@ -201,7 +201,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 69
+      "loc": 105
     },
     {
       "file": "test/tools.test.ts",

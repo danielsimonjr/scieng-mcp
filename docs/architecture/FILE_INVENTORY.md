@@ -69,7 +69,7 @@ This report lists each source file that the map census finds, with a disposition
 | `test/render-lib.test.ts` | (root) | tests | test | 167 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 27 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
-| `test/skill-cdn.test.ts` | (root) | tests | test | 69 |
+| `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
 | `test/tools.test.ts` | (root) | tests | test | 227 |
 
 ## Skipped links
