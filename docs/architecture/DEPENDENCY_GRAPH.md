@@ -109,7 +109,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/ooxml-edit.ts` - Applies each find pair, in order, to an unpacked word/document.xml file.
+### `src/ooxml-edit.ts` - Decodes the XML entities of a text node. An unknown named entity, or a numeric reference that
 
 **Node.js Built-in Dependencies:**
 | Module | Import |
@@ -324,7 +324,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 25 |
 | Subsystems | 4 |
-| Total Lines of Code | 2966 |
+| Total Lines of Code | 3196 |
 | Total Exports | 80 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |

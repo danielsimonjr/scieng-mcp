@@ -67,7 +67,7 @@ This flow makes no network request. The browser requests the pinned CDN files wh
 2. `applyEdits` reads the file as UTF-8 text. The file has no size limit.
 3. `assertNoDoctype` fails when the text holds a DOCTYPE or ENTITY declaration.
 4. `applyEdits` fails when the text holds no `<w:document` element.
-5. For each pair, in order, `replaceInRuns` changes the first matching run. `replaceInRuns` reports whether a run changed.
+5. For each pair, in order, `replaceInRuns` changes the matched text of the first matching run. `replaceInRuns` reports whether a run changed.
 6. `writeFileSync` writes the whole file in place when at least one pair changed a run. The write uses no temporary file.
 7. The result is `{"results", "replaced_count", "written"}`. Each entry in `results` holds `find` and `replaced`. The result holds no `path`.
 

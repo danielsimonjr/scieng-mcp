@@ -82,7 +82,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 88
+      "loc": 201
     },
     {
       "file": "src/render-dot.ts",
@@ -145,7 +145,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 70
+      "loc": 176
     },
     {
       "file": "test/plugin-content.test.ts",
@@ -194,7 +194,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 212
+      "loc": 223
     }
   ],
   "skippedLinks": [],

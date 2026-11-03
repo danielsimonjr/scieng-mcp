@@ -212,7 +212,7 @@
         ]
       },
       "src/ooxml-edit.ts": {
-        "description": "Applies each find pair, in order, to an unpacked word/document.xml file.",
+        "description": "Decodes the XML entities of a text node. An unknown named entity, or a numeric reference that",
         "externalDependencies": [],
         "nodeDependencies": [
           {

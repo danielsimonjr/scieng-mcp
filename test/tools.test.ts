@@ -210,3 +210,14 @@ test("ooxml_replace end-to-end", async () => {
   assert.equal(res.replaced_count, 1);
   assert.match(readFileSync(p, "utf-8"), />new</);
 });
+
+test("ooxml_replace refuses an empty find through dispatchTool and changes nothing", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-empty-"));
+  const p = join(dir, "document.xml");
+  const original = `<w:document><w:r><w:t>old</w:t></w:r></w:document>`;
+  writeFileSync(p, original);
+  const res = await dispatchTool(makeHandlers(), "ooxml_replace", { document_xml_path: p, replacements: [{ find: "", replace: "x" }] });
+  assert.equal(res.isError, true);
+  assert.match(res.content[0].text, /\[EMPTY_FIND\]/);
+  assert.equal(readFileSync(p, "utf-8"), original);
+});
