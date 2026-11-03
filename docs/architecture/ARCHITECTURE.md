@@ -37,7 +37,7 @@ The modules of `src/` form four layers. The table gives the imports of each laye
 | Renderers and builders | `src/render-mermaid.ts`, `src/render-latex.ts`, `src/render-dot.ts`, `src/render-html.ts`, `src/ooxml-edit.ts` | `src/render-lib.ts` and `src/engine-config.ts`, where each module needs them. `src/render-html.ts` and `src/ooxml-edit.ts` import nothing from `src/`. |
 | Utilities | `src/render-lib.ts`, `src/engine-config.ts` | None |
 
-Every import in the current code points down the table. The census finds no import cycle among the 25 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
+Every import points down the table. The census finds no import cycle among the 25 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
 
 ## Key design decisions
 
@@ -127,7 +127,7 @@ The server holds no data between calls. Each call reads its arguments, reads at 
 - **Output files.** The caller chooses each output path. The server writes to any path that the process may write. The server does not confine paths. The server creates no folder. A missing parent folder fails the call.
 - **Temporary files.** `writeOutput` uses `<output>.tmp` in the output folder.
 - **Input files.** The three render tools read `input_path` files of at most 524288 bytes. `ooxml_replace` reads `document_xml_path` with no size limit.
-- **Bundle files.** `plugin/bundle/` holds 14 files. Nine are modules: `index.mjs`, `entry.mjs`, `graph/backend-svg.mjs`, `graph/backend-png.mjs`, the four shared chunks `chunk-4KI3PA2R.mjs`, `chunk-AU2OYEUG.mjs`, `chunk-JFFRTQ6A.mjs` and `chunk-Y7HUHYVH.mjs`, and `viz-67LBFFRY.mjs`. Five are engine assets under `assets/`: `index_bg.wasm`, the font `fonts/LiberationSerif-Regular.ttf`, its license file `fonts/LiberationSerif-Regular.LICENSE.txt`, and the license texts `licenses/EPL-2.0.txt` and `licenses/MPL-2.0.txt`.
+- **Bundle files.** `plugin/bundle/` holds 14 files. Nine are modules: `index.mjs`, `entry.mjs`, `graph/backend-svg.mjs`, `graph/backend-png.mjs`, and five more modules whose names carry a content hash. Five are engine assets under `assets/`: `index_bg.wasm`, the font `fonts/LiberationSerif-Regular.ttf`, its license file `fonts/LiberationSerif-Regular.LICENSE.txt`, and the license texts `licenses/EPL-2.0.txt` and `licenses/MPL-2.0.txt`. For the exact file names, see `plugin/bundle/`. The build in `scripts/bundle.mjs` writes these files.
 
 ## Build and packaging
 
@@ -161,7 +161,7 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 - The two remote renderers wait on the network. Each attempt has a timeout of 20 seconds. A request makes up to four attempts (D8).
 - The LaTeX renderer sends up to four block requests at the same time.
 - The DOT renderer, the HTML builder and the Word edit make no network request.
-- The 524288-byte limit bounds the size of an `input_path` file. A request line of 10,485,760 bytes or more makes the MCP SDK close the connection, and the server process then ends. [plugin/README.md](../../plugin/README.md) states this limit.
+- The 524288-byte limit bounds the size of an `input_path` file. A request line of 10,485,760 bytes or more, not counting the line feed, makes the server stop answering requests. The server writes `scieng-mcp: ReadBuffer exceeded maximum size of 10485760 bytes` to standard error. The process stays alive until the client closes standard input. The process then exits with code 0. [plugin/README.md](../../plugin/README.md) states the 10,485,760-byte limit.
 
 ## Security architecture
 

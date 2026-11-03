@@ -180,7 +180,7 @@ Behaviour:
 - Then `extractBlocks` returns one block for each `\[ ... \]` display. The label of each display block is `display`.
 - Each block gets the `\newcommand` and `\DeclareMathOperator` definitions of the preamble before its source.
 - A document with no block returns one block with the label `document`.
-- `combineSvgs` stacks the SVG images on a white rectangle. `combineSvgs` leaves 20 units between images. The width is the largest image width plus 40 units.
+- `combineSvgs` stacks the SVG images on a white rectangle. `combineSvgs` leaves 20 units between images only when it reads each height in single quotes. A height in double quotes gets the default of 50 units. The width is the largest image width plus 40 units.
 - `combineSvgs` reads a width or a height only when its value is in single quotes. The default is 400 units for a width and 50 units for a height.
 - `renderLatexSource` requests `https://latex.codecogs.com/svg.image?\dpi{<dpi>}<encoded block>` for each block. The default DPI is 200. At most four requests run at the same time.
 - A block that fails goes into `failures`. Each entry holds the block index, the label and the message.
@@ -238,15 +238,7 @@ Block rules:
 | `wavedrom` | A `div` with class `wavedrom-block` that holds a `script` element of type `WaveDrom`. | The source is verbatim. A source with `</script` in any letter case throws. |
 | `raw-html` | The source itself. | The source is verbatim. The caller owns its safety. |
 
-Pinned files:
-
-| Block type | Host | Files | Version |
-|---|---|---|---|
-| `mermaid` | `cdn.jsdelivr.net` | `mermaid.min.js` | 11.16.0 |
-| `dot` | `cdn.jsdelivr.net` | `viz-global.min.js` of `@viz-js/viz` | 3.28.0 |
-| `latex` | `cdn.jsdelivr.net` | `katex.min.css`, `katex.min.js`, `contrib/auto-render.min.js` | 0.16.21 |
-| `plotly` | `cdn.plot.ly` | `plotly-2.35.2.min.js` | 2.35.2 |
-| `wavedrom` | `cdnjs.cloudflare.com` | `skins/default.js`, `wavedrom.min.js` | 3.1.0 |
+Pinned files: the `HEAD_IMPORTS` constant in `src/render-html.ts` lists the pinned files, with each host, version and hash.
 
 Behaviour:
 

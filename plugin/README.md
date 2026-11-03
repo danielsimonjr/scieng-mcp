@@ -40,7 +40,7 @@ The plugin needs Node.js 24 or later. The engine declares Node.js 22 or later. T
 
 ## Limits
 
-- An inline `source` must fit in a request line of less than 10,485,760 bytes (10 MiB). The JSON escaping of the source counts in the line. A larger request makes the MCP SDK close the connection. The server process then ends. The tool does not run.
+- An inline `source` must fit in a request line of less than 10,485,760 bytes (10 MiB), not counting the line feed. The JSON escaping of the source counts in the line. A request line of 10,485,760 bytes or more, not counting the line feed, makes the server stop answering requests. The server writes `scieng-mcp: ReadBuffer exceeded maximum size of 10485760 bytes` to standard error. The process stays alive until the client closes standard input. The process then exits with code 0. The tool does not run.
 - An `input_path` file must be 512 KiB (524,288 bytes) or smaller. A larger file gives an error that starts with `input too large`.
 
 ## Third-party assets

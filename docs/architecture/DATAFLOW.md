@@ -5,7 +5,7 @@ This document traces one tool call from the request to the result. This document
 ## Common path
 
 1. The client writes one JSON request line to standard input. The request method is `tools/call`. The request holds `name` and `arguments`.
-2. The MCP SDK reads the line. A line of 10,485,760 bytes or more makes the SDK close the connection, and the server process ends. [plugin/README.md](../../plugin/README.md) states this limit.
+2. The MCP SDK reads the line. A line of 10,485,760 bytes or more, not counting the line feed, makes the server stop answering requests. The server writes `scieng-mcp: ReadBuffer exceeded maximum size of 10485760 bytes` to standard error. The process stays alive until the client closes standard input. The process then exits with code 0. [plugin/README.md](../../plugin/README.md) states this limit.
 3. The `tools/call` handler in `src/index.ts` passes `name` and `arguments` to `dispatchTool`.
 4. `dispatchTool` checks that `name` is an own property of the handler table. An unknown name returns an error result at once. The error text is `unknown tool '<name>'`.
 5. `dispatchTool` calls the handler with `arguments`. A missing argument becomes an empty object.
