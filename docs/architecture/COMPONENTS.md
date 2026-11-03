@@ -180,8 +180,7 @@ Behaviour:
 - Then `extractBlocks` returns one block for each `\[ ... \]` display. The label of each display block is `display`.
 - Each block gets the `\newcommand` and `\DeclareMathOperator` definitions of the preamble before its source.
 - A document with no block returns one block with the label `document`.
-- `combineSvgs` stacks the SVG images on a white rectangle. `combineSvgs` leaves 20 units between images only when it reads each height in single quotes. A height in double quotes gets the default of 50 units. The width is the largest image width plus 40 units.
-- `combineSvgs` reads a width or a height only when its value is in single quotes. The default is 400 units for a width and 50 units for a height.
+- `combineSvgs` stacks the SVG images on a white rectangle. The function reads a width or a height only when the value is in single quotes. The default is 400 units for a width and 50 units for a height. The gap between images is 20 units only when the function reads each height. The width is the largest image width plus 40 units.
 - `renderLatexSource` requests `https://latex.codecogs.com/svg.image?\dpi{<dpi>}<encoded block>` for each block. The default DPI is 200. At most four requests run at the same time.
 - A block that fails goes into `failures`. Each entry holds the block index, the label and the message.
 - When one block renders, the result is its SVG text. When more blocks render, the result is `combineSvgs` of the valid SVG texts.
