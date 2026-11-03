@@ -28,16 +28,33 @@ bun run smoke     # spawn the bundle, send an MCP initialize handshake, expect s
 
 The committed `plugin/bundle/` folder is what the plugin actually launches. After changing anything under `src/`, re-run `bun run bundle`. Commit the regenerated files alongside the source change.
 
+## Quick Start
+
+1. Add the marketplace in Claude Code:
+
+   ```
+   /plugin marketplace add danielsimonjr/skills
+   ```
+
+2. Enable `scieng-mcp` in the plugin list.
+3. Run one command. Example:
+
+   ```
+   /scieng-mcp:mermaid a sequence diagram of an OAuth login with a browser, an app and an identity provider
+   ```
+
+The command writes an SVG file to `./diagrams`. `plugin/README.md` lists the other commands and their arguments.
+
 ## Plugin install
 
-Add the marketplace and enable the plugin:
-
-```
-/plugin marketplace add danielsimonjr/skills
-```
-
-Then enable `scieng-mcp` from the plugin list. The plugin also ships with the
+Add the marketplace and enable the plugin, as in Quick Start. The plugin also ships with the
 `scieng` authoring skill, which guides Claude in using these tools together.
+
+## License
+
+scieng-mcp is licensed under the MIT License. See [LICENSE](LICENSE).
+
+The bundled engine assets keep the licence of their own projects. The Third-party assets table in `plugin/README.md` lists each asset and its licence.
 
 ## Documentation
 

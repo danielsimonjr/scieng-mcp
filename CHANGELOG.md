@@ -5,6 +5,7 @@
 ### Added
 
 - `LICENSE` at the repository root holds the MIT licence. `package.json` declares `"license": "MIT"`.
+- `README.md` has a Quick Start section, with the marketplace command and one example command. It has a License section that links `LICENSE` and the Third-party assets table of `plugin/README.md`.
 - `test/repo-metadata.test.ts` fails when `package.json` and `plugin/.claude-plugin/plugin.json` declare different versions. `AGENTS.md` names the test in the release rule.
 
 ### Fixed

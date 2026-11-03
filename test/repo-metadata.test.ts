@@ -27,3 +27,20 @@ test("package.json and plugin/.claude-plugin/plugin.json declare the same versio
   assert.equal(typeof pkg, "string");
   assert.equal(plugin, pkg, `package.json has ${String(pkg)} and plugin.json has ${String(plugin)}`);
 });
+
+test("the README has a Quick Start section with the marketplace command and one example command", () => {
+  const readme = readFileSync(join(ROOT, "README.md"), "utf-8");
+  assert.match(readme, /^## Quick Start$/m);
+  const section = readme.slice(readme.search(/^## Quick Start$/m));
+  assert.match(section, /\/plugin marketplace add danielsimonjr\/skills/);
+  assert.match(section, /\/scieng-mcp:mermaid /);
+});
+
+test("the README has a License section that links LICENSE and names the third-party assets table", () => {
+  const readme = readFileSync(join(ROOT, "README.md"), "utf-8");
+  assert.match(readme, /^## License$/m);
+  const section = readme.slice(readme.search(/^## License$/m));
+  assert.match(section, /\[LICENSE\]\(LICENSE\)/);
+  assert.match(section, /plugin\/README\.md/);
+  assert.match(section, /Third-party assets/);
+});
