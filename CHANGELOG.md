@@ -15,6 +15,8 @@
 
 ### Fixed
 
+- `render_latex` stacks blocks without overlap. `combineSvgs` reads the width and the height with double quotes or single quotes. The function converts a px value and a unitless value to pt. The function uses the viewBox when a width or a height is missing. `combineSvgs` also uses the viewBox when the unit is ex or em.
+- `render_latex` lists the failed blocks in input order, not in the order in which the requests finish.
 - `ooxml_replace` replaces only the matched text of a run. The tool keeps the text before and after the match. The tool keeps the run formatting.
 - `ooxml_replace` refuses an empty `find`. The tool returns the error `[EMPTY_FIND]`. The tool does not change the file.
 - `ooxml_replace` escapes `&`, `<` and `>` in `replace`. The written `word/document.xml` stays well-formed.

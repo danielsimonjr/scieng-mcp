@@ -30,17 +30,57 @@ export function extractBlocks(texSource: string): Block[] {
 }
 
 /**
+ * Reads the attributes of the first svg root tag of an SVG text.
+ * Accepts a value in double quotes or in single quotes.
+ */
+function readRootAttributes(svg: string): Map<string, string> {
+  const tagMatch = svg.match(/<svg\b[^>]*>/i);
+  const tag = tagMatch === null ? "" : tagMatch[0];
+  const attributes = new Map<string, string>();
+  const attributePattern = /\s([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let attributeMatch: RegExpExecArray | null;
+  while ((attributeMatch = attributePattern.exec(tag)) !== null) {
+    attributes.set(attributeMatch[1] ?? "", attributeMatch[2] ?? attributeMatch[3] ?? "");
+  }
+  return attributes;
+}
+
+/**
+ * Converts an SVG length to pt.
+ * A pt value stays as it is. A px value and a unitless value are multiplied by 0.75.
+ * An ex value, an em value and any other text return null, because the font size is unknown.
+ */
+function parseLengthToPt(value: string): number | null {
+  const match = value.trim().match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*(pt|px|ex|em)?$/i);
+  if (match === null) return null;
+  const amount = parseFloat(match[1] ?? "");
+  const unit = (match[2] ?? "").toLowerCase();
+  if (unit === "ex" || unit === "em") return null;
+  if (unit === "pt") return amount;
+  return amount * 0.75;
+}
+
+/**
  * Stacks SVG images in one vertical SVG document on a white background.
- * The function does not read a width or height that is not in single quotes. The default is 400 units for a width and 50 units for a height.
+ * All sizes are in pt. The width and the height come from the root svg tag of each image.
+ * When a width or a height is missing or unusable, the function uses the viewBox number of that dimension, read as pt.
+ * When no viewBox is usable either, the width is 400 and the height is 50.
  */
 export function combineSvgs(svgs: string[]): string {
+  const resolve = (attributes: Map<string, string>, name: "width" | "height", viewBoxIndex: number, fallback: number): number => {
+    const parsed = attributes.has(name) ? parseLengthToPt(attributes.get(name) ?? "") : null;
+    if (parsed !== null) return parsed;
+    const viewBox = attributes.get("viewBox");
+    const fromViewBox = viewBox === undefined ? NaN : parseFloat(viewBox.trim().split(/[\s,]+/)[viewBoxIndex] ?? "");
+    return Number.isFinite(fromViewBox) ? fromViewBox : fallback;
+  };
+
   let totalHeight = 20;
   const info: { svg: string; w: number; h: number; y: number }[] = [];
   for (const svg of svgs) {
-    const hMatch = svg.match(/height='([^']+?)(?:pt|px)?'/);
-    const wMatch = svg.match(/width='([^']+?)(?:pt|px)?'/);
-    const h = hMatch ? parseFloat(hMatch[1]) : 50;
-    const w = wMatch ? parseFloat(wMatch[1]) : 400;
+    const attributes = readRootAttributes(svg);
+    const h = resolve(attributes, "height", 3, 50);
+    const w = resolve(attributes, "width", 2, 400);
     info.push({ svg, w, h, y: totalHeight });
     totalHeight += h + 20;
   }
@@ -63,7 +103,7 @@ export function combineSvgs(svgs: string[]): string {
 /**
  * Renders each block of a LaTeX source through the codecogs service, and writes the SVG to the output path.
  * The source goes to that service in the request URL. The default dpi is 200. Up to four blocks run at once.
- * The call lists a failed block in failures. The call throws only when no block renders.
+ * The call lists the failed blocks in failures, in input order. The call rejects with "no blocks rendered" when no block renders. A failed block does not reject the call.
  */
 export async function renderLatexSource(
   texSource: string,
@@ -72,20 +112,18 @@ export async function renderLatexSource(
 ): Promise<{ svg: string; failures: { index: number; label: string; message: string }[] }> {
   const { dpi = 200, fetchImpl } = opts;
   const blocks = extractBlocks(texSource);
-  const failures: { index: number; label: string; message: string }[] = [];
-  const rendered = await mapLimit(blocks, 4, async (block, i) => {
+  const results = await mapLimit(blocks, 4, async (block, i): Promise<{ svg: string | null; failure: { index: number; label: string; message: string } | null }> => {
     const url = `https://latex.codecogs.com/svg.image?\\dpi{${dpi}}${encodeURIComponent(block.tex)}`;
     try {
       const svg = await httpText(url, { headers: { "User-Agent": "Node.js" }, fetchImpl });
-      if (svg.includes("<svg")) return svg;
-      failures.push({ index: i, label: block.label, message: "no SVG in response" });
-      return null;
+      if (svg.includes("<svg")) return { svg, failure: null };
+      return { svg: null, failure: { index: i, label: block.label, message: "no SVG in response" } };
     } catch (err) {
-      failures.push({ index: i, label: block.label, message: (err as Error).message });
-      return null;
+      return { svg: null, failure: { index: i, label: block.label, message: (err as Error).message } };
     }
   });
-  const valid = rendered.filter((r): r is string => r !== null);
+  const valid = results.flatMap((r) => (r.svg === null ? [] : [r.svg]));
+  const failures = results.flatMap((r) => (r.failure === null ? [] : [r.failure]));
   if (valid.length === 0) throw new Error("no blocks rendered");
   const out = valid.length === 1 ? valid[0] : combineSvgs(valid);
   writeOutput(output, out);
