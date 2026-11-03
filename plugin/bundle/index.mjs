@@ -35349,19 +35349,38 @@ function capabilities(config2) {
 }
 
 // src/render-lib.ts
-import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
 import { dirname, join, basename, extname as extname3 } from "node:path";
+var RETRY_AFTER_CAP_MS = 3e4;
 var TRANSIENT = /* @__PURE__ */ new Set([429, 500, 502, 503, 504]);
 var sleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
+function parseRetryAfterMs(raw) {
+  const value = raw.trim();
+  if (value === "") return null;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return seconds * 1e3;
+  const at = Date.parse(value);
+  return Number.isNaN(at) ? null : at - Date.now();
+}
 async function httpText(url2, opts = {}) {
-  const { method = "GET", body, headers = {}, timeoutMs = 2e4, retries = 3, fetchImpl = fetch } = opts;
+  const {
+    method = "GET",
+    body,
+    headers = {},
+    timeoutMs = 2e4,
+    retries = 3,
+    maxRetryAfterMs = RETRY_AFTER_CAP_MS,
+    fetchImpl = fetch
+  } = opts;
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), timeoutMs);
     let res;
+    let text;
     try {
       res = await fetchImpl(url2, { method, body, headers, signal: ac.signal, redirect: "follow" });
+      text = await res.text();
     } catch (e) {
       clearTimeout(timer);
       lastErr = e;
@@ -35369,24 +35388,24 @@ async function httpText(url2, opts = {}) {
       await sleep2(2 ** attempt * 500);
       continue;
     }
-    const text = await res.text();
     clearTimeout(timer);
     if (res.ok) return text;
     if (!TRANSIENT.has(res.status) || attempt === retries) {
       throw new Error(`HTTP ${res.status} from ${new URL(url2).host}: ${text.slice(0, 500)}`);
     }
     const raHeader = res.headers.get("retry-after");
-    const ra = raHeader === null ? NaN : Number(raHeader);
-    await sleep2(Number.isFinite(ra) && ra >= 0 ? ra * 1e3 : 2 ** attempt * 500);
+    const parsedMs = raHeader === null ? null : parseRetryAfterMs(raHeader);
+    const waitMs = parsedMs !== null && parsedMs >= 0 ? Math.min(parsedMs, maxRetryAfterMs) : 2 ** attempt * 500;
+    await sleep2(waitMs);
   }
   throw lastErr instanceof Error ? lastErr : new Error(`request failed: ${url2}`);
 }
 function readInput(path, maxBytes = 512 * 1024) {
-  const buf = readFileSync(path);
-  if (buf.byteLength > maxBytes) {
-    throw new Error(`input too large: ${buf.byteLength} bytes (max ${maxBytes})`);
+  const size = statSync(path).size;
+  if (size > maxBytes) {
+    throw new Error(`input too large: ${size} bytes (max ${maxBytes})`);
   }
-  return buf.toString("utf-8");
+  return readFileSync(path).toString("utf-8");
 }
 function deriveOutputPath(input2, ext = ".svg") {
   return join(dirname(input2), basename(input2, extname3(input2)) + ext);
@@ -35398,15 +35417,27 @@ function writeOutput(path, content) {
 }
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
+  const failures = [];
   let next = 0;
   async function worker() {
     while (next < items.length) {
       const i = next++;
-      results[i] = await fn(items[i], i);
+      try {
+        results[i] = await fn(items[i], i);
+      } catch (error62) {
+        failures.push({ index: i, error: error62 });
+      }
     }
   }
   const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
   await Promise.all(workers);
+  if (failures.length > 0) {
+    failures.sort((a, b) => a.index - b.index);
+    throw new AggregateError(
+      failures.map((f) => f.error),
+      `${failures.length} of ${items.length} items failed`
+    );
+  }
   return results;
 }
 
@@ -35608,8 +35639,9 @@ function renderBlock(b, i) {
 <script>Plotly.newPlot("plotly-${i}", ${jsEmbed(spec.data ?? [])}, ${jsEmbed(spec.layout ?? {})});</script>`;
     }
     case "wavedrom":
-      if (/<\/script/i.test(b.source)) {
-        throw new Error(`wavedrom block ${i}: source must not contain "</script"`);
+      const refused = /<\/?script|<!--/i.exec(b.source);
+      if (refused) {
+        throw new Error(`wavedrom block ${i}: source contains "${refused[0]}", which can open a script context in the page`);
       }
       return `<div class="wavedrom-block"><script type="WaveDrom">${b.source}</script></div>`;
     case "raw-html":
@@ -35658,7 +35690,8 @@ ${inits.join("\n")}
 }
 
 // src/ooxml-edit.ts
-import { readFileSync as readFileSync2, writeFileSync as writeFileSync2 } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2, rmSync } from "node:fs";
+import { basename as basename2, dirname as dirname2, join as join2 } from "node:path";
 function assertNoDoctype(xml) {
   const low = xml.toLowerCase();
   if (low.includes("<!doctype") || low.includes("<!entity")) {
@@ -35779,7 +35812,16 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
       made++;
     }
   }
-  if (made > 0) writeFileSync2(documentXmlPath, xml, "utf-8");
+  if (made > 0) {
+    const tmp = join2(dirname2(documentXmlPath), `.${basename2(documentXmlPath)}.${process.pid}.tmp`);
+    try {
+      writeFileSync2(tmp, xml, "utf-8");
+      renameSync2(tmp, documentXmlPath);
+    } catch (err) {
+      rmSync(tmp, { force: true });
+      throw err;
+    }
+  }
   return { results, replaced_count: made, written: made > 0 };
 }
 
@@ -35925,6 +35967,7 @@ function resolveRenderIo(raw, extra, ext = ".svg") {
   return { code: readInput(a.input_path), out: a.output_path ?? deriveOutputPath(a.input_path, ext), args: a };
 }
 var result = (path, content, extra = {}) => JSON.stringify({ path, bytes: Buffer.byteLength(content, "utf-8"), ...extra });
+var NoArgs = external_exports.object({}).strict();
 var HtmlArgs = external_exports.object({
   blocks: external_exports.array(external_exports.object({
     type: external_exports.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
@@ -35951,7 +35994,10 @@ function makeHandlers(fetchImpl = fetch) {
       const res = await renderDotSource(code, out, format);
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
-    capabilities: async () => JSON.stringify({ capabilities: await capabilities(engineConfig()) }),
+    capabilities: async (raw) => {
+      NoArgs.parse(raw ?? {});
+      return JSON.stringify({ capabilities: await capabilities(engineConfig()) });
+    },
     render_latex: async (raw) => {
       const { code, out, args } = resolveRenderIo(raw, { dpi: external_exports.number().optional() });
       const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi, fetchImpl });

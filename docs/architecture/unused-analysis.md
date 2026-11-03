@@ -10,9 +10,9 @@
 - **Dormant files**: 3
   - **Orphaned (reachable from nothing)**: 3
   - **Test-only (only a test reaches them)**: 0
-- **Potentially unused exports**: 55
+- **Potentially unused exports**: 54
   - **Unreferenced anywhere**: 19
-  - **Referenced in their own module**: 36
+  - **Referenced in their own module**: 35
   - **Not classified**: 0
 
 ## Caveats
@@ -81,7 +81,6 @@ No other file imports these names, but their own module uses them.
 - `src/ooxml-edit.ts`: `EditResult`
 - `src/render-html.ts`: `BlockType`
 - `src/render-latex.ts`: `Block`
-- `src/render-lib.ts`: `HttpOptions`
 - `src/tools.ts`: `ToolResult`
 
 ## Exports not classified

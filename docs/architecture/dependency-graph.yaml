@@ -4,7 +4,7 @@ metadata:
   language: typescript
   totalFiles: 25
   totalModules: 3
-  totalExports: 80
+  totalExports: 81
 modules:
   src:
     plugin/skills/scieng/engineering-patterns.ts:
@@ -114,6 +114,7 @@ modules:
       externalDependencies: []
       nodeDependencies:
         - node:fs
+        - node:path
       internalDependencies: []
       exports:
         - assertNoDoctype
@@ -170,6 +171,7 @@ modules:
       exports:
         - FetchLike
         - HttpOptions
+        - RETRY_AFTER_CAP_MS
         - httpText
         - readInput
         - deriveOutputPath
@@ -293,6 +295,7 @@ modules:
       nodeDependencies:
         - node:assert/strict
         - node:fs
+        - node:module
         - node:os
         - node:path
         - node:test
@@ -365,6 +368,7 @@ modules:
       nodeDependencies:
         - node:assert/strict
         - node:fs
+        - node:module
         - node:os
         - node:path
         - node:test
@@ -376,6 +380,7 @@ modules:
             - writeOutput
             - deriveOutputPath
             - mapLimit
+            - '*'
           typeOnly: false
       exports: []
     test/render-mermaid.test.ts:
@@ -416,8 +421,8 @@ statistics:
   totalTypeScriptFiles: 25
   totalSourceFiles: 25
   totalModules: 3
-  totalLinesOfCode: 3378
-  totalExports: 80
+  totalLinesOfCode: 3548
+  totalExports: 81
   entryRoots: 1
   reachableFiles: 9
   dormantFiles: 3
@@ -427,7 +432,7 @@ statistics:
   typeOnlyCircularDeps: 0
   totalTypeOnlyImports: 0
   noImporterFileCount: 3
-  unusedExportsCount: 55
+  unusedExportsCount: 54
   circularDepsTruncated: false
   runtimeCyclicComponents: 0
   typeOnlyCyclicComponents: 0
@@ -438,7 +443,7 @@ statistics:
   totalFunctions: 21
   totalTypeGuards: 0
   totalEnums: 0
-  totalConstants: 8
+  totalConstants: 9
   totalReExports: 0
 reachability:
   roots:

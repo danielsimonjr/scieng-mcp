@@ -52,23 +52,23 @@ This report lists each source file that the map census finds, with a disposition
 | `smoke/render.smoke.ts` | (root) | src | orphan | 67 |
 | `src/engine-config.ts` | scieng-mcp | src | reachable | 23 |
 | `src/index.ts` | scieng-mcp | src | build-entry | 34 |
-| `src/ooxml-edit.ts` | scieng-mcp | src | reachable | 201 |
+| `src/ooxml-edit.ts` | scieng-mcp | src | reachable | 213 |
 | `src/render-dot.ts` | scieng-mcp | src | reachable | 16 |
-| `src/render-html.ts` | scieng-mcp | src | reachable | 134 |
+| `src/render-html.ts` | scieng-mcp | src | reachable | 136 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 173 |
-| `src/render-lib.ts` | scieng-mcp | src | reachable | 100 |
+| `src/render-lib.ts` | scieng-mcp | src | reachable | 139 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 26 |
-| `src/tools.ts` | scieng-mcp | src | reachable | 244 |
+| `src/tools.ts` | scieng-mcp | src | reachable | 249 |
 | `test/bundle-gate.test.ts` | (root) | tests | test | 181 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
-| `test/ooxml-edit.test.ts` | (root) | tests | test | 176 |
+| `test/ooxml-edit.test.ts` | (root) | tests | test | 199 |
 | `test/plugin-content.test.ts` | (root) | tests | test | 131 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
-| `test/render-html.test.ts` | (root) | tests | test | 111 |
+| `test/render-html.test.ts` | (root) | tests | test | 126 |
 | `test/render-latex.test.ts` | (root) | tests | test | 210 |
-| `test/render-lib.test.ts` | (root) | tests | test | 97 |
+| `test/render-lib.test.ts` | (root) | tests | test | 167 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 27 |
-| `test/tools.test.ts` | (root) | tests | test | 223 |
+| `test/tools.test.ts` | (root) | tests | test | 227 |
 
 ## Skipped links
 

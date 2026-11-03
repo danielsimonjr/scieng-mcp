@@ -106,6 +106,21 @@ test("script-context sources cannot break out of their tags", () => {
 test("wavedrom source containing </script is rejected", () => {
   assert.throws(
     () => buildHtml([{ type: "wavedrom", source: '{"signal":[{"name":"</script>"}]}' }]),
-    /must not contain/,
+    /can open a script context in the page/,
   );
+});
+
+test("wavedrom guard names the refused token and the reason (F30)", () => {
+  const cases: [string, string][] = [
+    ['{"name":"<!--<script>"}', "<!--"],
+    ['{"name":"<SCRIPT>"}', "<SCRIPT"],
+    ['{"name":"<!--"}', "<!--"],
+  ];
+  for (const [source, token] of cases) {
+    assert.throws(
+      () => buildHtml([{ type: "wavedrom", source }]),
+      (err: Error) => err.message.includes(`"${token}"`) && /can open a script context in the page/.test(err.message),
+      source,
+    );
+  }
 });

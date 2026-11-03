@@ -114,7 +114,8 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync` |
+| `fs` | `readFileSync, writeFileSync, renameSync, rmSync` |
+| `path` | `basename, dirname, join` |
 
 **Exports:**
 - Interfaces: `EditResult`
@@ -167,13 +168,14 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync, renameSync` |
+| `fs` | `readFileSync, writeFileSync, renameSync, statSync` |
 | `path` | `dirname, join, basename, extname` |
 
 **Exports:**
 - Interfaces: `HttpOptions`
 - Types: `FetchLike`
 - Functions: `httpText`, `readInput`, `deriveOutputPath`, `writeOutput`, `mapLimit`
+- Constants: `RETRY_AFTER_CAP_MS`
 
 ---
 
@@ -324,8 +326,8 @@ graph TD
 |----------|-------|
 | Total Source Files | 25 |
 | Subsystems | 4 |
-| Total Lines of Code | 3378 |
-| Total Exports | 80 |
+| Total Lines of Code | 3548 |
+| Total Exports | 81 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
 | Total Interfaces | 5 |
