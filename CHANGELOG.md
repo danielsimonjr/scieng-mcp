@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Each exported symbol of `src/` has a doc comment, and `repo-tools docs check src` passes. Only comments changed. The plugin bundle is byte-identical to the committed bundle.
+
 ## [0.5.0] - 2026-11-02
 
 ### Changed

@@ -1,7 +1,13 @@
 import { readInput, writeOutput, httpText, mapLimit, type FetchLike } from "./render-lib.ts";
 
+/** One block of a LaTeX source. The label names the kind of block, and tex holds its source. */
 export interface Block { label: string; tex: string; }
 
+/**
+ * Splits a LaTeX source into blocks.
+ * A bare math source gives one block. A document gives one block for each equation, align, gather, multline, array, cases and display block.
+ * Each block gets the \newcommand and \DeclareMathOperator definitions of the preamble. A document with no such block gives one block for the whole source.
+ */
 export function extractBlocks(texSource: string): Block[] {
   const isDocument = texSource.includes("\\documentclass") || texSource.includes("\\begin{document}");
   if (!isDocument) return [{ label: "math", tex: texSource.trim() }];
@@ -23,6 +29,10 @@ export function extractBlocks(texSource: string): Block[] {
   return blocks;
 }
 
+/**
+ * Stacks SVG images in one vertical SVG document on a white background.
+ * An image without a width or height attribute counts as 400 by 50 units.
+ */
 export function combineSvgs(svgs: string[]): string {
   let totalHeight = 20;
   const info: { svg: string; w: number; h: number; y: number }[] = [];
@@ -50,6 +60,11 @@ export function combineSvgs(svgs: string[]): string {
   return parts.join("\n");
 }
 
+/**
+ * Renders each block of a LaTeX source through the codecogs service, and writes the SVG to the output path.
+ * The source goes to that service in the request URL. The default dpi is 200. Up to four blocks run at once.
+ * The call lists a failed block in failures. The call throws only when no block renders.
+ */
 export async function renderLatexSource(
   texSource: string,
   output: string,
@@ -77,6 +92,10 @@ export async function renderLatexSource(
   return { svg: out, failures };
 }
 
+/**
+ * Reads a LaTeX source file, renders it with renderLatexSource, and writes the SVG to the output path.
+ * The function returns the SVG text.
+ */
 export async function renderLatex(
   input: string,
   output: string,

@@ -9,14 +9,21 @@ import { renderLatexSource } from "./render-latex.ts";
 import { buildHtml, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
 
+/** A tool handler. The handler takes the raw arguments of a call and returns the JSON text of the result. */
 export type ToolHandler = (raw: unknown) => Promise<string>;
 
+/** The MCP result of a tool call. Its content holds the text of the result, and isError is true when the call fails. */
 export interface ToolResult {
   [x: string]: unknown;
   content: { type: "text"; text: string }[];
   isError?: boolean;
 }
 
+/**
+ * Runs the handler of the named tool, and returns the MCP result.
+ * An unknown name gives an error result. A handler that throws also gives an error result.
+ * The text of an error result is a JSON object with status set to error.
+ */
 export async function dispatchTool(
   handlers: Record<string, ToolHandler>,
   name: string,
@@ -43,8 +50,8 @@ interface EngineFailure {
 }
 
 /**
- * Reads an error of the sciengjs engine. The check matches the name and the code, not the class,
- * because a bundle can hold a second copy of the engine's errors module.
+ * Reads an error of the sciengjs engine.
+ * The check matches the name and the code, not the class. A bundle can hold a second copy of the engine's errors module.
  */
 function engineFailure(err: unknown): EngineFailure | undefined {
   if (!(err instanceof Error) || err.name !== "RenderError") return undefined;
@@ -201,6 +208,10 @@ const OoxmlArgs = z.object({
   preserve_space: z.boolean().optional(),
 }).strict();
 
+/**
+ * Creates the handler of each tool, keyed by the tool name.
+ * The fetchImpl parameter replaces the global fetch for the two remote renderers, Mermaid and LaTeX.
+ */
 export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolHandler> {
   return {
     render_mermaid: async (raw) => {

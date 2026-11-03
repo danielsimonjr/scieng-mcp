@@ -19,7 +19,7 @@ LIMITATIONS:
 */
 import { readFileSync, writeFileSync } from "node:fs";
 
-/** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY; refuse it
+/** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY declaration. This function refuses such a declaration.
  *  (defense-in-depth; this port does not use an entity-expanding parser). */
 export function assertNoDoctype(xml: string): void {
   const low = xml.toLowerCase();
@@ -58,8 +58,14 @@ export function replaceInRuns(
   return { xml, replaced: false };
 }
 
+/** The result of one find pair. The field replaced is true when a run takes the replacement. */
 export interface EditResult { find: string; replaced: boolean }
 
+/**
+ * Applies each find pair, in order, to an unpacked word/document.xml file.
+ * The call writes the file only when at least one pair replaces a run.
+ * The result reports each pair, and the number of pairs that replaced a run.
+ */
 export function applyEdits(
   documentXmlPath: string,
   replacements: { find: string; replace: string }[],
