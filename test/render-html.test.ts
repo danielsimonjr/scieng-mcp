@@ -305,6 +305,11 @@ for (const [name, bad] of [
   });
 }
 
+test("a static plotly block keeps text that only looks like an attribute or a URL", () => {
+  const svg = '<svg><text x="1">gain only=5, see javascript: notes</text></svg>';
+  assert.match(buildHtml([{ type: "plotly", static: true, source: "{}", svg }]), /gain only=5, see javascript: notes/);
+});
+
 test("static: true on a block that is not plotly is refused", () => {
   assert.throws(() => buildHtml([{ type: "mermaid", static: true, source: "graph TD" }]),
     (err: Error & { code?: string }) => err.code === "E_INPUT" && /mermaid block 0/.test(err.message) && /static/.test(err.message));

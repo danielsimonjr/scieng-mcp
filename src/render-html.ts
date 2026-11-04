@@ -83,8 +83,10 @@ const decodeRefs = (s: string): string =>
 function unsafeSvg(svg: string): string | undefined {
   if (/<script/i.test(svg)) return "a script tag";
   if (/<foreignObject/i.test(svg)) return "a foreignObject element";
-  if (/[\s/"']on\w+\s*=/i.test(svg)) return "an event-handler attribute";
-  if (/javascript:/i.test(decodeRefs(svg).replace(/[\s\x00-\x1f]/g, ""))) return "a javascript: URL";
+  // Attributes live only inside tags. Text nodes are outside them, because the engine escapes "<" and ">" in text.
+  const tags = (svg.match(/<[^>]*>/g) ?? []).join("");
+  if (/[\s/"']on\w+\s*=/i.test(tags)) return "an event-handler attribute";
+  if (/javascript:/i.test(decodeRefs(tags).replace(/[\s\x00-\x1f]/g, ""))) return "a javascript: URL";
   return undefined;
 }
 
