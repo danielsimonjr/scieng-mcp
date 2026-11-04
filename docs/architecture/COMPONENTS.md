@@ -54,7 +54,7 @@ export async function dispatchTool(
 
 export const TOOLS: Tool[];
 
-export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolHandler>;
+export function makeHandlers(): Record<string, ToolHandler>;
 ```
 
 Behaviour:
@@ -63,7 +63,7 @@ Behaviour:
 - `dispatchTool` calls the handler with the arguments. A missing argument becomes an empty object.
 - A successful handler returns its text in one text item of the result.
 - A handler that throws writes one line to standard error. The result holds a JSON body with `status` set to `error`.
-- `makeHandlers` returns one handler for each tool name. The `fetchImpl` parameter replaces the global `fetch` in `render_latex`.
+- `makeHandlers` returns one handler for each tool name.
 - `TOOLS` holds the seven tool definitions. Each definition holds a name, a description, the annotations and the JSON Schema of its input. [API.md](API.md) lists the schemas.
 
 Internal parts:
@@ -166,21 +166,22 @@ export function combineSvgs(svgs: string[]): string;
 export async function renderLatexSource(
   texSource: string,
   output: string,
-  opts: { dpi?: number; fetchImpl?: FetchLike } = {},
-): Promise<{ svg: string; failures: { index: number; label: string; message: string }[] }>;
+  opts: { format?: LatexFormat; scale?: number } = {},
+): Promise<{ svg: string; bytes: number; failures: LatexFailure[] }>;
 
 export async function renderLatex(
   input: string,
   output: string,
-  opts: { dpi?: number; fetchImpl?: FetchLike } = {},
+  opts: { format?: LatexFormat; scale?: number } = {},
 ): Promise<string>;
 ```
 
 Behaviour:
 
 - `extractBlocks` returns one block with the label `math` when the source has no `\documentclass` and no `\begin{document}`.
-- For a document, `extractBlocks` returns one block for each `align`, `equation`, `gather`, `multline`, `array` or `cases` environment. `extractBlocks` includes the starred forms. These blocks come first, in source order.
-- Then `extractBlocks` returns one block for each `\[ ... \]` display. The label of each display block is `display`.
+- For a document, `extractBlocks` returns one block for each `align`, `equation`, `gather`, `multline`, `array` or `cases` environment. `extractBlocks` includes the starred forms.
+- `extractBlocks` also returns one block for each `\[ ... \]` display. The label of each display block is `display`.
+- `extractBlocks` sorts all blocks by their position in the source.
 - Each block gets the `\newcommand` and `\DeclareMathOperator` definitions of the preamble before its source.
 - A document with no block returns one block with the label `document`.
 - `combineSvgs` stacks the SVG images on a white rectangle. The function reads a width or a height only when the value is in single quotes. The default is 400 units for a width and 50 units for a height. The gap between images is 20 units only when the function reads each height. The width is the largest image width plus 40 units.

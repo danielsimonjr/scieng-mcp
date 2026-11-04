@@ -56,9 +56,9 @@ This document describes the public surface of the server. The surface holds seve
 ### render_latex
 
 - Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG, PNG or PDF file on this machine, through the sciengjs engine.
-- Arguments: the shared render arguments, and `dpi`. The value of `dpi` is a number. The default is 200.
-- Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string}]}`. A block that fails appears in `failures`. The call does not fail for one failed block. The `failures` list holds the failures in completion order. Each entry keeps the block index.
-- Errors: an argument error, `input too large`, or `no blocks rendered`, which means that every block failed.
+- Arguments: the shared render arguments, `format`, `scale` and `dpi`. `format` is `svg` (the default), `png` or `pdf`. A png or pdf takes one block. `scale` is a number that applies to png only. `dpi` is a deprecated alias. For png with no `scale`, the scale is `dpi`/100 (200 gives 2). svg and pdf ignore `scale` and `dpi`. svg and pdf add a warning. For png or pdf, an `output_path` that ends in `.svg` gets the `.png` or `.pdf` extension. The call keeps any other extension.
+- Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string, "code"?: string}], "warnings": string[]}`. A failed block goes into `failures` in block order with the block index, label, message and engine code. The call does not fail for one failed block.
+- Errors: an argument error, `input too large`, or an engine error. When every block fails, the call rejects with the engine error of the first block. A png or pdf source with more than one block rejects with `E_UNSUPPORTED`.
 
 ### render_html
 
@@ -144,7 +144,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 | `ToolResult` | Interface | `{ content, isError? }` | The MCP result of a tool call. |
 | `dispatchTool` | Function | `(handlers, name, args) => Promise<ToolResult>` | Runs the named handler and returns the MCP result. |
 | `TOOLS` | Constant | `Tool[]` | The seven tool definitions. |
-| `makeHandlers` | Function | `(fetchImpl?) => Record<string, ToolHandler>` | Returns one handler for each tool name. |
+| `makeHandlers` | Function | `() => Record<string, ToolHandler>` | Returns one handler for each tool name. |
 
 ### src/render-lib.ts
 

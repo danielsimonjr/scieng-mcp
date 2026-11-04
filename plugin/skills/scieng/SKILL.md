@@ -23,7 +23,7 @@ Each command makes one type of diagram from a description or from a source file.
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 
-`--local` on mermaid, dot and latex makes an HTML page that renders in the browser.
+The default render of mermaid, dot and latex keeps the source on this machine. `--local` makes an HTML page that loads pinned CDN files and renders in the browser.
 
 ## Privacy
 
