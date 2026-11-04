@@ -1,4 +1,11 @@
-import { readInput, writeOutput, httpText, mapLimit, type FetchLike } from "./render-lib.ts";
+import { render, RenderError } from "@danielsimonjr/sciengjs";
+import { readInput, writeOutput } from "./render-lib.ts";
+import { engineConfig } from "./engine-config.ts";
+
+/** The output formats of a LaTeX render. A PNG or a PDF takes one block only. */
+export const LATEX_FORMATS = ["svg", "png", "pdf"] as const;
+/** The output format of a LaTeX render. */
+export type LatexFormat = (typeof LATEX_FORMATS)[number];
 
 /** One block of a LaTeX source. The label names the kind of block, and tex holds its source. */
 export interface Block { label: string; tex: string; }
@@ -130,34 +137,51 @@ export function combineSvgs(svgs: string[]): string {
   ].join("\n");
 }
 
+/** The failure of one block: its position, its label and the engine error text and code. */
+export interface LatexFailure { index: number; label: string; message: string; code?: string; }
+
 /**
- * Renders each block of a LaTeX source through the codecogs service, and writes the SVG to the output path.
- * The source goes to that service in the request URL. The default dpi is 200. Up to four blocks run at once.
- * The call lists the failed blocks in failures, in input order. The call rejects with "no blocks rendered" when no block renders. A failed block does not reject the call.
+ * Renders each block of a LaTeX source through the sciengjs engine, on this machine, and writes the file.
+ * An svg render stacks all blocks in one SVG. A png or pdf render takes one block: a source with more blocks
+ * rejects with E_UNSUPPORTED. A failed block goes into failures in input order. When every block fails, the
+ * call rejects with the engine error of the first block, so the code (for example E_INPUT) reaches the caller.
  */
 export async function renderLatexSource(
   texSource: string,
   output: string,
-  opts: { dpi?: number; fetchImpl?: FetchLike } = {},
-): Promise<{ svg: string; failures: { index: number; label: string; message: string }[] }> {
-  const { dpi = 200, fetchImpl } = opts;
+  opts: { format?: LatexFormat; scale?: number } = {},
+): Promise<{ svg: string; bytes: number; failures: LatexFailure[] }> {
+  const format: LatexFormat = opts.format ?? "svg";
   const blocks = extractBlocks(texSource);
-  const results = await mapLimit(blocks, 4, async (block, i): Promise<{ svg: string | null; failure: { index: number; label: string; message: string } | null }> => {
-    const url = `https://latex.codecogs.com/svg.image?\\dpi{${dpi}}${encodeURIComponent(block.tex)}`;
+  if (format !== "svg" && blocks.length > 1) {
+    throw Object.assign(new Error(`${format} takes one block; this source has ${blocks.length}. Use svg for a document.`), { code: "E_UNSUPPORTED" });
+  }
+  const config = engineConfig();
+  const results = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
     try {
-      const svg = await httpText(url, { headers: { "User-Agent": "Node.js" }, fetchImpl });
-      if (svg.includes("<svg")) return { svg, failure: null };
-      return { svg: null, failure: { index: i, label: block.label, message: "no SVG in response" } };
+      const req = opts.scale === undefined
+        ? { type: "math" as const, format, source: block.tex }
+        : { type: "math" as const, format, source: block.tex, options: { scale: opts.scale } };
+      results.push({ ok: true as const, bytes: (await render(req, config)).bytes });
     } catch (err) {
-      return { svg: null, failure: { index: i, label: block.label, message: (err as Error).message } };
+      const code = err instanceof RenderError ? err.code : undefined;
+      results.push({ ok: false as const, failure: { index: i, label: block.label, message: (err as Error).message, code }, err });
     }
-  });
-  const valid = results.flatMap((r) => (r.svg === null ? [] : [r.svg]));
-  const failures = results.flatMap((r) => (r.failure === null ? [] : [r.failure]));
-  if (valid.length === 0) throw new Error("no blocks rendered");
-  const out = valid.length === 1 ? valid[0] : combineSvgs(valid);
+  }
+  const failures = results.flatMap((r) => (r.ok ? [] : [r.failure]));
+  const firstError = results.find((r) => !r.ok);
+  if (results.every((r) => !r.ok) && firstError && !firstError.ok) throw firstError.err;
+  const valid = results.flatMap((r) => (r.ok ? [r.bytes] : []));
+  if (format !== "svg") {
+    writeOutput(output, valid[0]);
+    return { svg: "", bytes: valid[0].byteLength, failures };
+  }
+  const svgs = valid.map((b) => Buffer.from(b).toString("utf-8"));
+  const out = svgs.length === 1 ? svgs[0] : combineSvgs(svgs);
   writeOutput(output, out);
-  return { svg: out, failures };
+  return { svg: out, bytes: Buffer.byteLength(out, "utf-8"), failures };
 }
 
 /**
@@ -167,7 +191,7 @@ export async function renderLatexSource(
 export async function renderLatex(
   input: string,
   output: string,
-  opts: { dpi?: number; fetchImpl?: FetchLike } = {},
+  opts: { format?: LatexFormat; scale?: number } = {},
 ): Promise<string> {
   return (await renderLatexSource(readInput(input), output, opts)).svg;
 }

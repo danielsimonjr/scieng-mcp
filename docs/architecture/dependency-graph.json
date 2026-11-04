@@ -5,7 +5,7 @@
     "language": "typescript",
     "totalFiles": 29,
     "totalModules": 3,
-    "totalExports": 83
+    "totalExports": 86
   },
   "modules": {
     "src": {
@@ -215,25 +215,34 @@
         ]
       },
       "src/render-latex.ts": {
-        "externalDependencies": [],
+        "externalDependencies": [
+          "@danielsimonjr/sciengjs"
+        ],
         "nodeDependencies": [],
         "internalDependencies": [
           {
             "file": "src/render-lib.ts",
             "imports": [
               "readInput",
-              "writeOutput",
-              "httpText",
-              "mapLimit",
-              "FetchLike"
+              "writeOutput"
+            ],
+            "typeOnly": false
+          },
+          {
+            "file": "src/engine-config.ts",
+            "imports": [
+              "engineConfig"
             ],
             "typeOnly": false
           }
         ],
         "exports": [
+          "LATEX_FORMATS",
+          "LatexFormat",
           "Block",
           "extractBlocks",
           "combineSvgs",
+          "LatexFailure",
           "renderLatexSource",
           "renderLatex"
         ]
@@ -296,8 +305,7 @@
             "imports": [
               "readInput",
               "deriveOutputPath",
-              "writeOutput",
-              "FetchLike"
+              "writeOutput"
             ],
             "typeOnly": false
           },
@@ -333,7 +341,8 @@
           {
             "file": "src/render-latex.ts",
             "imports": [
-              "renderLatexSource"
+              "renderLatexSource",
+              "LATEX_FORMATS"
             ],
             "typeOnly": false
           },
@@ -538,7 +547,8 @@
           "node:fs",
           "node:os",
           "node:path",
-          "node:test"
+          "node:test",
+          "node:url"
         ],
         "internalDependencies": [
           {
@@ -663,8 +673,8 @@
     "totalTypeScriptFiles": 29,
     "totalSourceFiles": 29,
     "totalModules": 3,
-    "totalLinesOfCode": 4005,
-    "totalExports": 83,
+    "totalLinesOfCode": 4051,
+    "totalExports": 86,
     "entryRoots": 1,
     "reachableFiles": 10,
     "dormantFiles": 3,
@@ -674,18 +684,18 @@
     "typeOnlyCircularDeps": 0,
     "totalTypeOnlyImports": 0,
     "noImporterFileCount": 3,
-    "unusedExportsCount": 55,
+    "unusedExportsCount": 57,
     "circularDepsTruncated": false,
     "runtimeCyclicComponents": 0,
     "typeOnlyCyclicComponents": 0,
     "runtimeFilesInCycles": 0,
     "typeOnlyFilesInCycles": 0,
     "totalClasses": 12,
-    "totalInterfaces": 6,
+    "totalInterfaces": 7,
     "totalFunctions": 20,
     "totalTypeGuards": 0,
     "totalEnums": 0,
-    "totalConstants": 10,
+    "totalConstants": 11,
     "totalReExports": 0
   },
   "reachability": {

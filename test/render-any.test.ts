@@ -25,7 +25,7 @@ test("renderAny passes per-type options to the engine", async () => {
 });
 
 test("renderAny propagates the engine error code for an unsupported pair", async () => {
-  await assert.rejects(renderAny("math", "svg", "E = mc^2", join(scratch(), "x.svg")), (err: unknown) => {
+  await assert.rejects(renderAny("tikz", "svg", "x", join(scratch(), "x.svg")), (err: unknown) => {
     assert.equal((err as { code?: string }).code, "E_UNSUPPORTED");
     return true;
   });

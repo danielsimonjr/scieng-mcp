@@ -1,12 +1,12 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
-import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
+import { readInput, deriveOutputPath, writeOutput } from "./render-lib.ts";
 import { renderMermaidSource, MERMAID_FORMATS } from "./render-mermaid.ts";
 import { renderAny } from "./render-any.ts";
 import { renderDotSource } from "./render-dot.ts";
 import { engineConfig } from "./engine-config.ts";
-import { renderLatexSource } from "./render-latex.ts";
+import { renderLatexSource, LATEX_FORMATS } from "./render-latex.ts";
 import { buildHtml, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
 
@@ -131,11 +131,15 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "render_latex",
-    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG file via latex.codecogs.com. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
+    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf; a png or pdf takes one block. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
-      properties: { ...renderIo, dpi: { type: "number", description: "Render DPI (default 200)." } },
+      properties: {
+        ...renderIo,
+        format: { type: "string", enum: [...LATEX_FORMATS], description: "Output format (default svg)." },
+        scale: { type: "number", description: "Scale of a png or pdf render, passed to the engine." },
+      },
       additionalProperties: false,
     },
   },
@@ -239,9 +243,8 @@ const OoxmlArgs = z.object({
 
 /**
  * Creates the handler of each tool, keyed by the tool name.
- * The fetchImpl parameter replaces the global fetch for the remote renderer, LaTeX.
  */
-export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolHandler> {
+export function makeHandlers(): Record<string, ToolHandler> {
   return {
     render_mermaid: async (raw) => {
       const format = MermaidFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
@@ -266,9 +269,11 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       return JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) });
     },
     render_latex: async (raw) => {
-      const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
-      const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });
-      return result(out, svg, { failures });
+      const { code, out, args } = resolveRenderIo(raw, { format: z.enum(LATEX_FORMATS).optional(), scale: z.number().optional() }, ".svg");
+      const format = (args.format as (typeof LATEX_FORMATS)[number] | undefined) ?? "svg";
+      const outPath = format === "svg" ? out : out.replace(/\.svg$/i, `.${format}`);
+      const { bytes, failures } = await renderLatexSource(code, outPath, { format, scale: args.scale as number | undefined });
+      return JSON.stringify({ path: outPath, bytes, failures });
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});

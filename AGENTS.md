@@ -11,7 +11,7 @@ scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has 
 | `render_mermaid` | Mermaid source to an SVG, PNG or PDF file, drawn on this machine by the sciengjs engine |
 | `render` | any input type and output format of the sciengjs engine, drawn on this machine, with the engine options and error codes |
 | `render_dot` | Graphviz DOT source to an SVG or PNG file, drawn on this machine by the sciengjs engine |
-| `render_latex` | LaTeX math to an SVG file, through latex.codecogs.com |
+| `render_latex` | LaTeX math to an SVG, PNG or PDF file, drawn on this machine by the sciengjs engine |
 | `render_html` | typed blocks to one self-contained HTML page with pinned CDN imports |
 | `ooxml_replace` | find and replace in an unpacked `word/document.xml`, with the run formatting kept |
 | `capabilities` | the render pairs of the engine (type and format) with their readiness. Read-only |

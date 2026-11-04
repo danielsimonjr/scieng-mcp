@@ -3,7 +3,7 @@
  * Live-API smoke test — NOT part of the `node --test` unit suite.
  *
  * Run on demand: `node render.smoke.ts`
- * Requires network access for the LaTeX case only, which hits latex.codecogs.com. The DOT and Mermaid
+ * The LaTeX case, like the DOT and Mermaid
  * cases render through the local engine. It asserts each renderer
  * returns a response containing "<svg". Intentionally named `*.smoke.ts`
  * (not `*.test.ts`) so Node's test runner skips it and it is never run in
@@ -36,7 +36,7 @@ async function main(): Promise<void> {
       },
     },
     {
-      name: "renderLatex (latex.codecogs.com)",
+      name: "renderLatex (sciengjs engine)",
       run: () => {
         const inp = join(dir, "e.tex");
         writeFileSync(inp, "E = mc^2");

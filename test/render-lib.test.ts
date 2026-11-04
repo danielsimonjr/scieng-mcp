@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { httpText, readInput, writeOutput, deriveOutputPath, mapLimit } from "../src/render-lib.ts";
@@ -43,6 +43,14 @@ test("writeOutput is atomic (no .tmp left behind)", () => {
   writeOutput(f, "<svg/>");
   assert.equal(readFileSync(f, "utf-8"), "<svg/>");
   assert.throws(() => readFileSync(f + ".tmp", "utf-8"));
+});
+
+test("writeOutput creates a missing parent folder (no ENOENT on the .tmp file)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "scieng-"));
+  const f = join(dir, "deep", "nested", "o.svg");
+  writeOutput(f, "<svg/>");
+  assert.equal(readFileSync(f, "utf-8"), "<svg/>");
+  assert.equal(existsSync(f + ".tmp"), false);
 });
 
 test("writeOutput writes bytes exactly", () => {

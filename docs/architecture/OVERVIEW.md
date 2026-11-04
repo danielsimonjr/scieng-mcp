@@ -15,8 +15,8 @@ The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
 | `totalSourceFiles` | 29 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 4005 | The census. | `dependency-graph.json` |
-| `totalExports` | 83 | The census: 33 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
+| `totalLinesOfCode` | 4051 | The census. | `dependency-graph.json` |
+| `totalExports` | 86 | The census. See `dependency-graph.json` for the count per file. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
 | Tools | 6 | The `TOOLS` array in `src/tools.ts`. | Direct search. Not a `repo-tools` metric. |
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4005. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4051. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -55,7 +55,7 @@ The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` 
 | `render_mermaid` | One SVG, PNG or PDF file | sciengjs engine, local | Renders Mermaid diagram source. |
 | `render` | One file of any supported type and format | sciengjs engine, local | Renders any input type the engine supports. |
 | `render_dot` | One SVG or PNG file | None. The engine runs on this machine. | Renders Graphviz DOT source. |
-| `render_latex` | One SVG file | latex.codecogs.com | Renders LaTeX math and the math blocks of a document. |
+| `render_latex` | One SVG, PNG or PDF file | The sciengjs engine, on this machine | Renders LaTeX math and the math blocks of a document. |
 | `render_html` | One HTML file | None at render time. The browser loads the pinned files when the page opens. | Builds one page from typed blocks. |
 | `ooxml_replace` | The `word/document.xml` file, in place | None | Replaces text in runs and keeps the run formatting. |
 | `capabilities` | Nothing | None | Lists the render pairs of the engine and their readiness. |
@@ -115,7 +115,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 29 | dependency-graph.json |
-| totalLinesOfCode | 4005 | dependency-graph.json |
-| totalExports | 83 | dependency-graph.json |
+| totalLinesOfCode | 4051 | dependency-graph.json |
+| totalExports | 86 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-AQT2E3NM.mjs";
+} from "./chunk-CBVLJN63.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35171,6 +35171,9 @@ function backendUrl(name) {
 var DEFAULT_REGISTRY = {
   "dot:svg": { backend: "graph/viz", moduleUrl: backendUrl("graph/backend-svg") },
   "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") },
+  "math:svg": { backend: "math/mathjax", moduleUrl: backendUrl("math/backend-svg") },
+  "math:png": { backend: "math/mathjax+raster/resvg", moduleUrl: backendUrl("math/backend-png") },
+  "math:pdf": { backend: "math/mathjax+browser/chromium", moduleUrl: backendUrl("math/backend-pdf") },
   "mermaid:svg": { backend: "mermaid/native", moduleUrl: backendUrl("mermaid/backend-svg") },
   "mermaid:png": { backend: "mermaid/native+raster/resvg", moduleUrl: backendUrl("mermaid/backend-png") },
   "dot:pdf": { backend: "graph/viz+browser/chromium", moduleUrl: backendUrl("graph/backend-pdf") },
@@ -35398,57 +35401,8 @@ function capabilities(config2) {
 }
 
 // src/render-lib.ts
-import { readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync } from "node:fs";
 import { dirname, join, basename, extname as extname3 } from "node:path";
-var RETRY_AFTER_CAP_MS = 3e4;
-var TRANSIENT = /* @__PURE__ */ new Set([429, 500, 502, 503, 504]);
-var sleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
-function parseRetryAfterMs(raw) {
-  const value = raw.trim();
-  if (value === "") return null;
-  const seconds = Number(value);
-  if (Number.isFinite(seconds)) return seconds * 1e3;
-  const at = Date.parse(value);
-  return Number.isNaN(at) ? null : at - Date.now();
-}
-async function httpText(url2, opts = {}) {
-  const {
-    method = "GET",
-    body,
-    headers = {},
-    timeoutMs = 2e4,
-    retries = 3,
-    maxRetryAfterMs = RETRY_AFTER_CAP_MS,
-    fetchImpl = fetch
-  } = opts;
-  let lastErr;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), timeoutMs);
-    let res;
-    let text;
-    try {
-      res = await fetchImpl(url2, { method, body, headers, signal: ac.signal, redirect: "follow" });
-      text = await res.text();
-    } catch (e) {
-      clearTimeout(timer);
-      lastErr = e;
-      if (attempt === retries) break;
-      await sleep2(2 ** attempt * 500);
-      continue;
-    }
-    clearTimeout(timer);
-    if (res.ok) return text;
-    if (!TRANSIENT.has(res.status) || attempt === retries) {
-      throw new Error(`HTTP ${res.status} from ${new URL(url2).host}: ${text.slice(0, 500)}`);
-    }
-    const raHeader = res.headers.get("retry-after");
-    const parsedMs = raHeader === null ? null : parseRetryAfterMs(raHeader);
-    const waitMs = parsedMs !== null && parsedMs >= 0 ? Math.min(parsedMs, maxRetryAfterMs) : 2 ** attempt * 500;
-    await sleep2(waitMs);
-  }
-  throw lastErr instanceof Error ? lastErr : new Error(`request failed: ${url2}`);
-}
 function readInput(path, maxBytes = 512 * 1024) {
   const size = statSync(path).size;
   if (size > maxBytes) {
@@ -35460,34 +35414,10 @@ function deriveOutputPath(input2, ext = ".svg") {
   return join(dirname(input2), basename(input2, extname3(input2)) + ext);
 }
 function writeOutput(path, content) {
+  mkdirSync(dirname(path), { recursive: true });
   const tmp = path + ".tmp";
   writeFileSync(tmp, content, "utf-8");
   renameSync(tmp, path);
-}
-async function mapLimit(items, limit, fn) {
-  const results = new Array(items.length);
-  const failures = [];
-  let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const i = next++;
-      try {
-        results[i] = await fn(items[i], i);
-      } catch (error62) {
-        failures.push({ index: i, error: error62 });
-      }
-    }
-  }
-  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
-  await Promise.all(workers);
-  if (failures.length > 0) {
-    failures.sort((a, b) => a.index - b.index);
-    throw new AggregateError(
-      failures.map((f) => f.error),
-      `${failures.length} of ${items.length} items failed`
-    );
-  }
-  return results;
 }
 
 // src/engine-config.ts
@@ -35525,6 +35455,7 @@ async function renderDotSource(source, output2, format) {
 }
 
 // src/render-latex.ts
+var LATEX_FORMATS = ["svg", "png", "pdf"];
 function extractBlocks(texSource) {
   const isDocument = texSource.includes("\\documentclass") || texSource.includes("\\begin{document}");
   if (!isDocument) return [{ label: "math", tex: texSource.trim() }];
@@ -35613,24 +35544,35 @@ function combineSvgs(svgs) {
   ].join("\n");
 }
 async function renderLatexSource(texSource, output2, opts = {}) {
-  const { dpi = 200, fetchImpl } = opts;
+  const format = opts.format ?? "svg";
   const blocks = extractBlocks(texSource);
-  const results = await mapLimit(blocks, 4, async (block, i) => {
-    const url2 = `https://latex.codecogs.com/svg.image?\\dpi{${dpi}}${encodeURIComponent(block.tex)}`;
+  if (format !== "svg" && blocks.length > 1) {
+    throw Object.assign(new Error(`${format} takes one block; this source has ${blocks.length}. Use svg for a document.`), { code: "E_UNSUPPORTED" });
+  }
+  const config2 = engineConfig();
+  const results = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
     try {
-      const svg = await httpText(url2, { headers: { "User-Agent": "Node.js" }, fetchImpl });
-      if (svg.includes("<svg")) return { svg, failure: null };
-      return { svg: null, failure: { index: i, label: block.label, message: "no SVG in response" } };
+      const req = opts.scale === void 0 ? { type: "math", format, source: block.tex } : { type: "math", format, source: block.tex, options: { scale: opts.scale } };
+      results.push({ ok: true, bytes: (await render(req, config2)).bytes });
     } catch (err) {
-      return { svg: null, failure: { index: i, label: block.label, message: err.message } };
+      const code = err instanceof RenderError ? err.code : void 0;
+      results.push({ ok: false, failure: { index: i, label: block.label, message: err.message, code }, err });
     }
-  });
-  const valid = results.flatMap((r) => r.svg === null ? [] : [r.svg]);
-  const failures = results.flatMap((r) => r.failure === null ? [] : [r.failure]);
-  if (valid.length === 0) throw new Error("no blocks rendered");
-  const out = valid.length === 1 ? valid[0] : combineSvgs(valid);
+  }
+  const failures = results.flatMap((r) => r.ok ? [] : [r.failure]);
+  const firstError = results.find((r) => !r.ok);
+  if (results.every((r) => !r.ok) && firstError && !firstError.ok) throw firstError.err;
+  const valid = results.flatMap((r) => r.ok ? [r.bytes] : []);
+  if (format !== "svg") {
+    writeOutput(output2, valid[0]);
+    return { svg: "", bytes: valid[0].byteLength, failures };
+  }
+  const svgs = valid.map((b) => Buffer.from(b).toString("utf-8"));
+  const out = svgs.length === 1 ? svgs[0] : combineSvgs(svgs);
   writeOutput(output2, out);
-  return { svg: out, failures };
+  return { svg: out, bytes: Buffer.byteLength(out, "utf-8"), failures };
 }
 
 // src/render-html.ts
@@ -35961,11 +35903,15 @@ var TOOLS = [
   },
   {
     name: "render_latex",
-    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG file via latex.codecogs.com. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
+    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf; a png or pdf takes one block. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
-      properties: { ...renderIo, dpi: { type: "number", description: "Render DPI (default 200)." } },
+      properties: {
+        ...renderIo,
+        format: { type: "string", enum: [...LATEX_FORMATS], description: "Output format (default svg)." },
+        scale: { type: "number", description: "Scale of a png or pdf render, passed to the engine." }
+      },
       additionalProperties: false
     }
   },
@@ -36060,7 +36006,7 @@ var OoxmlArgs = external_exports.object({
   replacements: external_exports.array(external_exports.object({ find: external_exports.string(), replace: external_exports.string() }).strict()).min(1),
   preserve_space: external_exports.boolean().optional()
 }).strict();
-function makeHandlers(fetchImpl = fetch) {
+function makeHandlers() {
   return {
     render_mermaid: async (raw) => {
       const format = MermaidFormat.parse(raw?.format ?? "svg");
@@ -36085,9 +36031,11 @@ function makeHandlers(fetchImpl = fetch) {
       return JSON.stringify({ capabilities: await capabilities(engineConfig()) });
     },
     render_latex: async (raw) => {
-      const { code, out, args } = resolveRenderIo(raw, { dpi: external_exports.number().optional() });
-      const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi, fetchImpl });
-      return result(out, svg, { failures });
+      const { code, out, args } = resolveRenderIo(raw, { format: external_exports.enum(LATEX_FORMATS).optional(), scale: external_exports.number().optional() }, ".svg");
+      const format = args.format ?? "svg";
+      const outPath = format === "svg" ? out : out.replace(/\.svg$/i, `.${format}`);
+      const { bytes, failures } = await renderLatexSource(code, outPath, { format, scale: args.scale });
+      return JSON.stringify({ path: outPath, bytes, failures });
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});

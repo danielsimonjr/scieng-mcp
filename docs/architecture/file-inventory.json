@@ -110,14 +110,14 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 173
+      "loc": 197
     },
     {
       "file": "src/render-lib.ts",
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 139
+      "loc": 140
     },
     {
       "file": "src/render-mermaid.ts",
@@ -131,7 +131,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 284
+      "loc": 289
     },
     {
       "file": "test/bundle-gate.test.ts",
@@ -159,7 +159,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 144
+      "loc": 141
     },
     {
       "file": "test/render-any.test.ts",
@@ -187,14 +187,14 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 210
+      "loc": 200
     },
     {
       "file": "test/render-lib.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 167
+      "loc": 175
     },
     {
       "file": "test/render-mermaid.test.ts",
@@ -222,7 +222,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 291
+      "loc": 312
     }
   ],
   "skippedLinks": [],

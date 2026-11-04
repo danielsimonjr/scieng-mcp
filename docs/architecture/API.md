@@ -16,7 +16,7 @@ This document describes the public surface of the server. The surface holds seve
 | `render_mermaid` | One SVG, PNG or PDF file | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
 | `render` | One file of any type and format that the engine supports | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
 | `render_dot` | One SVG or PNG file | A source file, when `input_path` is given | None | Not read-only. Not destructive. |
-| `render_latex` | One SVG file | A source file, when `input_path` is given | `latex.codecogs.com` | Not read-only. Not destructive. |
+| `render_latex` | One file: SVG, PNG or PDF | A source file, when `input_path` is given | The sciengjs engine, on this machine | Not read-only. Not destructive. |
 | `render_html` | One HTML file | None | None | Not read-only. Not destructive. |
 | `ooxml_replace` | `word/document.xml`, in place | `word/document.xml` | None | Not read-only. Destructive. |
 | `capabilities` | Nothing | Nothing | None | Read-only. Not destructive. |
@@ -55,7 +55,7 @@ This document describes the public surface of the server. The surface holds seve
 
 ### render_latex
 
-- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG file through latex.codecogs.com.
+- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG, PNG or PDF file on this machine, through the sciengjs engine.
 - Arguments: the shared render arguments, and `dpi`. The value of `dpi` is a number. The default is 200.
 - Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string}]}`. A block that fails appears in `failures`. The call does not fail for one failed block. The `failures` list holds the failures in completion order. Each entry keeps the block index.
 - Errors: an argument error, `input too large`, or `no blocks rendered`, which means that every block failed.
@@ -230,6 +230,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 29 | dependency-graph.json |
-| totalExports | 83 | dependency-graph.json |
+| totalExports | 86 | dependency-graph.json |
 
 The census counts 80 exports. Thirty are in `src/`. The other 50 are in two reference files of the skill, which the server does not load.

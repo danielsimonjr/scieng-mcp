@@ -339,35 +339,51 @@
       },
       "src/render-latex.ts": {
         "description": "Splits a LaTeX source into blocks.",
-        "externalDependencies": [],
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "render",
+              "RenderError"
+            ]
+          }
+        ],
         "nodeDependencies": [],
         "internalDependencies": [
           {
             "file": "./render-lib.ts",
             "imports": [
               "readInput",
-              "writeOutput",
-              "httpText",
-              "mapLimit",
-              "FetchLike"
+              "writeOutput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
             ]
           }
         ],
         "workspaceDependencies": [],
         "exports": [
+          "LATEX_FORMATS",
           "extractBlocks",
           "combineSvgs",
           "renderLatexSource",
           "renderLatex"
         ],
         "interfaces": [
-          "Block"
+          "Block",
+          "LatexFailure"
         ],
         "functions": [
           "extractBlocks",
           "combineSvgs",
           "renderLatexSource",
           "renderLatex"
+        ],
+        "constants": [
+          "LATEX_FORMATS"
         ]
       },
       "src/render-lib.ts": {
@@ -380,7 +396,8 @@
               "readFileSync",
               "writeFileSync",
               "renameSync",
-              "statSync"
+              "statSync",
+              "mkdirSync"
             ]
           },
           {
@@ -486,8 +503,7 @@
             "imports": [
               "readInput",
               "deriveOutputPath",
-              "writeOutput",
-              "FetchLike"
+              "writeOutput"
             ]
           },
           {
@@ -518,7 +534,8 @@
           {
             "file": "./render-latex.ts",
             "imports": [
-              "renderLatexSource"
+              "renderLatexSource",
+              "LATEX_FORMATS"
             ]
           },
           {

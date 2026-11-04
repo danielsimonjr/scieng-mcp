@@ -34,7 +34,7 @@ test("render_mermaid renders locally: an injected fetch is never called", async 
   let calls = 0;
   const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "local.svg");
-  await makeHandlers(refuse).render_mermaid({ source: "classDiagram\nclass A", output_path: out });
+  await makeHandlers().render_mermaid({ source: "classDiagram\nclass A", output_path: out });
   assert.equal(calls, 0);
 });
 
@@ -77,7 +77,7 @@ test("render: the type and format enums are the engine lists, not a copy", () =>
 test("render: an unsupported pair returns the engine code in the error result", async () => {
   const h = makeHandlers();
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "x.svg");
-  const res = await dispatchTool(h, "render", { type: "math", format: "svg", source: "E = mc^2", output_path: out });
+  const res = await dispatchTool(h, "render", { type: "tikz", format: "svg", source: "x", output_path: out });
   assert.equal(res.isError, true);
   assert.equal(JSON.parse(res.content[0]!.text).code, "E_UNSUPPORTED");
 });
@@ -112,7 +112,7 @@ test("render_dot renders locally: an injected fetch is never called", async () =
   const out = join(dir, "local.svg");
   let calls = 0;
   const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
-  const res = JSON.parse(await makeHandlers(refuse).render_dot({ source: "digraph { a -> b }", output_path: out }));
+  const res = JSON.parse(await makeHandlers().render_dot({ source: "digraph { a -> b }", output_path: out }));
   assert.equal(res.path, out);
   assert.equal(res.bytes, readFileSync(out).length);
   assert.match(readFileSync(out, "utf-8"), /<svg/);
@@ -179,10 +179,31 @@ test("the README names every tool", () => {
 
 test("render_latex reports failures array", async () => {
   const dir = mkdtempSync(join(tmpdir(), "tool-"));
-  const fake: typeof fetch = async () => new Response("<svg id='l'/>", { status: 200 });
-  const res = JSON.parse(await makeHandlers(fake).render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg") }));
+  let calls = 0;
+  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
+  const res = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg") }));
   assert.deepEqual(res.failures, []);
   assert.ok(res.bytes > 0);
+  assert.equal(calls, 0, "render_latex made a network request");
+});
+
+test("every tool that writes creates a missing output folder", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const cases: [string, Record<string, unknown>, string][] = [
+    ["render_mermaid", { source: "classDiagram\nclass A", output_path: "m1/a.svg" }, "m1/a.svg"],
+    ["render_dot", { source: "digraph { a -> b }", output_path: "d1/a.svg" }, "d1/a.svg"],
+    ["render", { type: "dot", format: "svg", source: "digraph { a -> b }", output_path: "r1/a.svg" }, "r1/a.svg"],
+    ["render_latex", { source: "E=mc^2", output_path: "l1/a.svg" }, "l1/a.svg"],
+    ["render_latex", { source: "E=mc^2", format: "png", output_path: "l2/a.png" }, "l2/a.png"],
+    ["render_html", { title: "T", blocks: [{ type: "mermaid", source: "graph TD\n A-->B" }], output_path: "p1/a.html" }, "p1/a.html"],
+  ];
+  for (const [tool, args, rel] of cases) {
+    const out = join(dir, rel);
+    const res = JSON.parse(await (h as Record<string, (a: unknown) => Promise<string>>)[tool]({ ...args, output_path: out }));
+    assert.equal(res.path, out, `${tool} did not report its path`);
+    assert.ok(existsSync(out), `${tool} did not write ${rel}`);
+  }
 });
 
 test("render_html builds a playground from blocks", async () => {

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync } from "node:fs";
 import { dirname, join, basename, extname } from "node:path";
 
 /** The type of a fetch function. The render modules accept a fetch function to replace the global fetch. */
@@ -99,6 +99,7 @@ export function deriveOutputPath(input: string, ext = ".svg"): string {
  * The rename replaces an existing file.
  */
 export function writeOutput(path: string, content: string | Uint8Array): void {
+  mkdirSync(dirname(path), { recursive: true });
   const tmp = path + ".tmp";
   writeFileSync(tmp, content, "utf-8");
   renameSync(tmp, path);
