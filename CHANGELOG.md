@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-04
+
 ### Added
 
 - `render_html` takes `static: true` on a `plotly` block. The engine draws that block as inline SVG, and the block loads no Plotly script. A page loads Plotly only when a non-static `plotly` block is present.

@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.8.0
+**Version**: 0.9.0
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -364,7 +364,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 31 |
 | Subsystems | 4 |
-| Total Lines of Code | 4420 |
+| Total Lines of Code | 4427 |
 | Total Exports | 88 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
@@ -380,4 +380,4 @@ graph TD
 
 ---
 
-*Version*: 0.8.0
+*Version*: 0.9.0

@@ -36124,7 +36124,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.8.0" : "0.0.0-dev";
+var VERSION = true ? "0.9.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }
