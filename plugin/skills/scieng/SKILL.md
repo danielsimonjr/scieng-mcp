@@ -19,7 +19,7 @@ Each command makes one type of diagram from a description or from a source file.
 | `/scieng-mcp:dot` | Graphviz graphs: clusters, record nodes, state machines | SVG file through `render_dot` | Graphviz engine on this machine |
 | `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | on this machine (sciengjs engine) |
 | `/scieng-mcp:wavedrom` | digital timing diagrams | HTML page through `render_html` | WaveDrom in the browser |
-| `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html` | Plotly in the browser |
+| `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html`. With `--static`, an SVG file through `render` with `type` set to `plot` | Plotly in the browser. With `--static`, the sciengjs engine (local) |
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 
@@ -57,7 +57,7 @@ Read the reference for the type before you write the source.
 
 ## Other tools
 
-- `render_html` takes typed blocks: `mermaid`, `dot`, `latex`, `plotly`, `wavedrom` and `raw-html`. The tool adds only the CDN imports that the blocks need. A `plotly` block is JSON `{"data": [...], "layout": {...}}`. A `raw-html` block goes into the page as it is, so put only content that you wrote into it.
+- `render_html` takes typed blocks: `mermaid`, `dot`, `latex`, `plotly`, `wavedrom` and `raw-html`. The tool adds only the CDN imports that the blocks need. A `plotly` block is JSON `{"data": [...], "layout": {...}}`. A `plotly` block can set `static` to true. Then the engine draws the figure as inline SVG on this machine. The page does not load a Plotly script for the figure. Only a `plotly` block can set `static`. For other block types, the tool returns the error E_INPUT. A `raw-html` block goes into the page as it is, so put only content that you wrote into it.
 - For a page that needs custom JavaScript, Three.js or D3, write the HTML yourself from `RENDERERS.md`.
 - `ooxml_replace` makes many find-and-replace edits in an unpacked `word/document.xml` and keeps the run formatting. For one edit, change the XML with the Edit tool. See `ENGINEERING-DOCX.md`.
 

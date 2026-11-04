@@ -150,3 +150,9 @@ test("plot command documents --static as a render plot svg call", async () => {
   assert.match(text, /`format` set to `svg`/);
   assert.match(text, /@danielsimonjr\/sciengjs\/plot/);
 });
+
+test("the skill documents the --static route of plot and the static field of a plotly block", () => {
+  const text = readFileSync(join(PLUGIN, "skills", "scieng", "SKILL.md"), "utf-8");
+  assert.match(text, /`\/scieng-mcp:plot`[^\n]*`--static`[^\n]*`render`/);
+  assert.match(text, /`static`[^\n]*`plotly` block|`plotly` block[^\n]*`static`/);
+});
