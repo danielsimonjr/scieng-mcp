@@ -3,8 +3,8 @@
  * Live-API smoke test — NOT part of the `node --test` unit suite.
  *
  * Run on demand: `node render.smoke.ts`
- * Requires network access. Hits the real mermaid.ink and latex.codecogs.com
- * APIs (no fetch mocking). The DOT case renders through the local engine. It asserts each renderer
+ * Requires network access for the LaTeX case only, which hits latex.codecogs.com. The DOT and Mermaid
+ * cases render through the local engine. It asserts each renderer
  * returns a response containing "<svg". Intentionally named `*.smoke.ts`
  * (not `*.test.ts`) so Node's test runner skips it and it is never run in
  * CI.
@@ -13,7 +13,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { renderDotSource } from "../src/render-dot.ts";
-import { renderMermaid } from "../src/render-mermaid.ts";
+import { renderMermaidSource } from "../src/render-mermaid.ts";
 import { renderLatex } from "../src/render-latex.ts";
 
 async function main(): Promise<void> {
@@ -28,11 +28,11 @@ async function main(): Promise<void> {
       },
     },
     {
-      name: "renderMermaid (mermaid.ink)",
-      run: () => {
-        const inp = join(dir, "d.mmd");
-        writeFileSync(inp, "graph TD\n A-->B");
-        return renderMermaid(inp, join(dir, "d.svg"));
+      name: "renderMermaid (local engine)",
+      run: async () => {
+        const out = join(dir, "d.svg");
+        await renderMermaidSource("classDiagram\nclass Animal", out, "svg");
+        return readFileSync(out, "utf-8");
       },
     },
     {

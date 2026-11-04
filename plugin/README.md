@@ -24,7 +24,8 @@ Give each command a description or the path of a source file. Example:
 
 ## Where the source goes
 
-- `mermaid` and `latex` send the source to mermaid.ink or latex.codecogs.com and save an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `mermaid` renders the source on your machine, with the sciengjs engine, and saves an SVG file. Class, state and sequence diagrams need no browser. Other diagram types need `SCIENG_BROWSER`. Add `--local` to make an HTML page that renders in your browser.
+- `latex` sends the source to latex.codecogs.com and saves an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
 - `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 
@@ -53,5 +54,7 @@ The bundle ships the engine assets in `plugin/bundle/assets/`. Each asset keeps 
 | `index_bg.wasm`: the WASM file of `@resvg/resvg-wasm` 2.6.2 (resvg, raster stage) | Mozilla Public License 2.0 (MPL-2.0) | `licenses/MPL-2.0.txt` |
 | Graphviz, inside `@viz-js/viz` 3.31.0 (graph stage) | Eclipse Public License 2.0 (EPL-2.0) | `licenses/EPL-2.0.txt` |
 | `@viz-js/viz` 3.31.0, the JavaScript wrapper | MIT | `licenses/MIT-viz-js.txt` |
+| `mermaid.min.js`: the pinned Mermaid build, with the packages that it bundles | MIT, and the licences in the bundle text | `licenses/MIT-mermaid.txt`, `licenses/mermaid-bundle.txt` |
+| `mermaid.min.js`: the pinned Mermaid build, with the packages that it bundles | MIT, and the licences in the bundle text | `licenses/MIT-mermaid.txt`, `licenses/mermaid-bundle.txt` |
 
-The licence texts of the four rows are in `plugin/bundle/assets/`.
+The licence texts of the five rows are in `plugin/bundle/assets/`.

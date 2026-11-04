@@ -1,8 +1,9 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
-import { RENDER_ERROR_CODES, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
+import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
-import { renderMermaidSource } from "./render-mermaid.ts";
+import { renderMermaidSource, MERMAID_FORMATS } from "./render-mermaid.ts";
+import { renderAny } from "./render-any.ts";
 import { renderDotSource } from "./render-dot.ts";
 import { engineConfig } from "./engine-config.ts";
 import { renderLatexSource } from "./render-latex.ts";
@@ -84,13 +85,33 @@ const renderIo = {
   input_path: { type: "string" as const, description: INPUT_DESC },
   output_path: { type: "string" as const, description: OUTPUT_DESC },
 };
-/** The six MCP tools. Each entry holds the name, the description, the annotations and the input schema. */
+/** The seven MCP tools. Each entry holds the name, the description, the annotations and the input schema. */
 export const TOOLS: Tool[] = [
   {
     name: "render_mermaid",
-    description: "Render Mermaid diagram source to an SVG file via mermaid.ink. Returns {path, bytes}; never the SVG body.",
+    description: "Render Mermaid diagram source to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf. Class, state and sequence diagrams need no browser; other types need SCIENG_BROWSER. Returns {path, bytes, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
-    inputSchema: { type: "object", properties: renderIo, additionalProperties: false },
+    inputSchema: {
+      type: "object",
+      properties: { ...renderIo, format: { type: "string", enum: [...MERMAID_FORMATS], description: "Output format (default svg)." } },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "render",
+    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
+    annotations: { readOnlyHint: false, destructiveHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...renderIo,
+        type: { type: "string", enum: [...INPUT_TYPES], description: "Input type of the source." },
+        format: { type: "string", enum: [...OUTPUT_FORMATS], description: "Output format." },
+        options: { type: "object", description: "Per-type options, passed to the engine unchanged.", additionalProperties: true },
+      },
+      required: ["type", "format"],
+      additionalProperties: false,
+    },
   },
   {
     name: "render_dot",
@@ -177,6 +198,12 @@ const RenderArgs = z.object({
 }).strict();
 
 const DotFormat = z.enum(["svg", "png"]);
+const MermaidFormat = z.enum(MERMAID_FORMATS);
+const RenderAnyExtra = {
+  type: z.enum(INPUT_TYPES),
+  format: z.enum(OUTPUT_FORMATS),
+  options: z.record(z.string(), z.unknown()).optional(),
+};
 
 function resolveRenderIo<T extends z.ZodRawShape = Record<string, never>>(raw: unknown, extra?: T, ext = ".svg"): { code: string; out: string; args: Record<string, unknown> } {
   const schema = extra ? RenderArgs.extend(extra).strict() : RenderArgs;
@@ -217,8 +244,16 @@ const OoxmlArgs = z.object({
 export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolHandler> {
   return {
     render_mermaid: async (raw) => {
-      const { code, out } = resolveRenderIo(raw);
-      return result(out, await renderMermaidSource(code, out, fetchImpl));
+      const format = MermaidFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
+      const { code, out } = resolveRenderIo(raw, { format: MermaidFormat.optional() }, `.${format}`);
+      const res = await renderMermaidSource(code, out, format);
+      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
+    },
+    render: async (raw) => {
+      const pre = z.object({ format: z.enum(OUTPUT_FORMATS) }).passthrough().parse(raw ?? {});
+      const { code, out, args } = resolveRenderIo(raw, RenderAnyExtra, `.${pre.format}`);
+      const format = args.format as (typeof OUTPUT_FORMATS)[number];
+      return JSON.stringify(await renderAny(args.type as (typeof INPUT_TYPES)[number], format, code, out, args.options as Record<string, unknown> | undefined));
     },
     render_dot: async (raw) => {
       const format = DotFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");

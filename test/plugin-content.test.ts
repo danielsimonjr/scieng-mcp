@@ -63,7 +63,7 @@ test("each reference file that a command or the skill names exists in the skill 
 });
 
 test("the remote commands name the service that receives the source, and offer --local", () => {
-  const remote: Record<string, string> = { mermaid: "mermaid.ink", latex: "codecogs.com" };
+  const remote: Record<string, string> = { latex: "codecogs.com" };
   for (const [cmd, host] of Object.entries(remote)) {
     const { meta, body } = parse(join(COMMANDS, `${cmd}.md`));
     assert.ok(body.includes(host), `${cmd}: does not name ${host}`);
@@ -128,4 +128,17 @@ test("the circuit command and SCIENG.md forbid a wire that crosses a part", () =
   const rule = /never draw a wire across a part/i;
   assert.match(parse(join(COMMANDS, "circuit.md")).body, rule, "circuit.md");
   assert.match(readFileSync(join(SKILL_DIR, "SCIENG.md"), "utf-8"), rule, "SCIENG.md");
+});
+
+test("the mermaid command renders locally and names no remote service", () => {
+  const { body } = parse(join(COMMANDS, "mermaid.md"));
+  assert.doesNotMatch(body, /mermaid\.ink|codecogs|quickchart/i);
+  assert.match(body, /locally|the engine/i);
+});
+
+test("no shipped file of the plugin names mermaid.ink", () => {
+  for (const f of readdirSync(PLUGIN, { recursive: true }) as string[]) {
+    if (!/\.(md|mjs|js|json|ts)$/.test(f)) continue;
+    assert.doesNotMatch(readFileSync(join(PLUGIN, f), "utf-8"), /mermaid\.ink/, `${f} names mermaid.ink`);
+  }
 });

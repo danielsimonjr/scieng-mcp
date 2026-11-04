@@ -7,7 +7,7 @@ import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:c
 import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, join, sep } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -178,4 +178,15 @@ test("each file of the bundle has mode 0644 on systems other than Windows", { sk
     .filter(({ mode }) => mode !== 0o644)
     .map(({ f, mode }) => `${f}: ${mode.toString(8)}`);
   assert.deepEqual(wrong, [], "these bundle files are not mode 0644");
+});
+
+test("every backend module of the engine registry is in the bundle", async () => {
+  const dist = join(dirname(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json")), "dist");
+  const { DEFAULT_REGISTRY } = await import(pathToFileURL(join(dist, "registry.js")).href) as {
+    DEFAULT_REGISTRY: Record<string, { moduleUrl: string }>;
+  };
+  const missing = Object.entries(DEFAULT_REGISTRY)
+    .map(([key, entry]) => ({ key, rel: relative(dist, fileURLToPath(entry.moduleUrl)).replace(/\.js$/, ".mjs").split(sep).join("/") }))
+    .filter(({ rel }) => !existsSync(join(BUNDLE, rel)));
+  assert.deepEqual(missing, [], "these registry backends are not in plugin/bundle");
 });
