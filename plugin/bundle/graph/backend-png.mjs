@@ -4,8 +4,8 @@ import {
   render,
   renderPng,
   svgDocumentToPng
-} from "../chunk-HGRLBXYS.mjs";
-import "../chunk-6APOSV2P.mjs";
+} from "../chunk-GIQHGLCM.mjs";
+import "../chunk-AQT2E3NM.mjs";
 import "../chunk-T5W7ILUB.mjs";
 import "../chunk-4KI3PA2R.mjs";
 import "../chunk-JFFRTQ6A.mjs";

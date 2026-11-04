@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-6APOSV2P.mjs";
+} from "./chunk-AQT2E3NM.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35212,12 +35212,21 @@ function workerExecArgv(parentArgv) {
   }
   return kept;
 }
+var INVALID_EXEC_ARGV = "ERR_WORKER_INVALID_EXEC_ARGV";
+function constructWorker(ctor, base, parentArgv) {
+  const kept = workerExecArgv(parentArgv);
+  const removedAny = kept.length !== parentArgv.length;
+  try {
+    return ctor(removedAny ? { ...base, execArgv: kept } : { ...base });
+  } catch (err) {
+    if (err?.code === INVALID_EXEC_ARGV) {
+      return ctor({ ...base, execArgv: [] });
+    }
+    throw err;
+  }
+}
 function createDefaultWorker(entry, data, maxMemoryMb) {
-  return new Worker(entry, {
-    workerData: data,
-    execArgv: workerExecArgv(process.execArgv),
-    resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb }
-  });
+  return constructWorker((options) => new Worker(entry, options), { workerData: data, resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb } }, process.execArgv);
 }
 function stopWorker(worker, waitMs) {
   let timer;
