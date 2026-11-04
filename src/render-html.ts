@@ -10,6 +10,11 @@ export interface HtmlBlock { type: BlockType; source: string; title?: string }
 const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// Encodes a value for a double-quoted attribute. A carriage return becomes &#13; so that no parser
+// removes it; a line feed stays literal, which the parser keeps.
+const escAttr = (s: string): string =>
+  esc(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r/g, "&#13;");
+
 // JSON-encode a value for embedding inside an inline <script>: escape "<" so
 // a value containing "</script>" cannot close the surrounding tag early.
 const jsEmbed = (v: unknown): string => JSON.stringify(v).replace(/</g, "\\u003c");
@@ -52,7 +57,7 @@ const INIT_SCRIPTS: Partial<Record<BlockType, string>> = {
 
 // Page styles that only some block types need, added only when such a block is present.
 const BLOCK_STYLES: Partial<Record<BlockType, string>> = {
-  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; }`,
+  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border: 1px solid #8a8a8a; border-radius: 4px; overflow-x: auto; }`,
 };
 
 const hasOwnDelimiters = (tex: string): boolean =>
@@ -105,7 +110,7 @@ export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): str
   const styles = (Object.keys(BLOCK_STYLES) as BlockType[])
     .filter((t) => types.has(t)).map((t) => `\n    ${BLOCK_STYLES[t]!}`).join("");
   const body = blocks.map((b, i) => {
-    const inner = renderBlock(b, i);
+    const inner = `<div class="scieng-block" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
     return b.title ? `<section>\n<h2>${esc(b.title)}</h2>\n${inner}\n</section>` : inner;
   });
   return `<!DOCTYPE html>

@@ -1,26 +1,23 @@
-import { deflateSync } from "node:zlib";
-import { readInput, writeOutput, httpText, type FetchLike } from "./render-lib.ts";
+// Renders Mermaid sources through the sciengjs engine and writes the image to disk.
+// Engine errors, including the E_STAGE_MISSING error of a type that needs the browser, pass through unchanged.
+import { render } from "@danielsimonjr/sciengjs";
+import { writeOutput } from "./render-lib.ts";
+import { engineConfig } from "./engine-config.ts";
 
-/** Encodes Mermaid source for the mermaid.ink URL: a JSON object with the code and the default theme, deflated and base64url-encoded. */
-export function encodePako(mermaidCode: string): string {
-  const json = JSON.stringify({ code: mermaidCode, mermaid: { theme: "default" } });
-  return deflateSync(Buffer.from(json, "utf-8")).toString("base64url");
-}
+export const MERMAID_FORMATS = ["svg", "png", "pdf"] as const;
+/** The output formats of a Mermaid render. */
+export type MermaidFormat = (typeof MERMAID_FORMATS)[number];
 
 /**
- * Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.
- * The source goes to that service in the request URL. The call throws when the response holds no SVG element.
- * The function returns the SVG text.
+ * Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.
+ * Class, state and sequence diagrams need no browser. Other diagram types need SCIENG_BROWSER.
  */
-export async function renderMermaidSource(code: string, output: string, fetchImpl?: FetchLike): Promise<string> {
-  const url = `https://mermaid.ink/svg/pako:${encodePako(code)}`;
-  const svg = await httpText(url, { fetchImpl });
-  if (!svg.includes("<svg")) throw new Error("no SVG in response");
-  writeOutput(output, svg);
-  return svg;
-}
-
-/** Reads a Mermaid file. Renders the file with renderMermaidSource. Returns the SVG text. */
-export async function renderMermaid(input: string, output: string, fetchImpl?: FetchLike): Promise<string> {
-  return renderMermaidSource(readInput(input), output, fetchImpl);
+export async function renderMermaidSource(
+  source: string,
+  output: string,
+  format: MermaidFormat,
+): Promise<{ bytes: number; warnings: string[] }> {
+  const result = await render({ type: "mermaid", format, source }, engineConfig());
+  writeOutput(output, result.bytes);
+  return { bytes: result.bytes.byteLength, warnings: result.warnings };
 }

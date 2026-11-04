@@ -4,11 +4,12 @@ Rules for an agent that works on this repository. `CLAUDE.md` loads this file.
 
 ## What this repository is
 
-scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has six tools:
+scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has seven tools:
 
 | Tool | Job |
 |---|---|
-| `render_mermaid` | Mermaid source to an SVG file, through mermaid.ink |
+| `render_mermaid` | Mermaid source to an SVG, PNG or PDF file, drawn on this machine by the sciengjs engine |
+| `render` | any input type and output format of the sciengjs engine, drawn on this machine, with the engine options and error codes |
 | `render_dot` | Graphviz DOT source to an SVG or PNG file, drawn on this machine by the sciengjs engine |
 | `render_latex` | LaTeX math to an SVG file, through latex.codecogs.com |
 | `render_html` | typed blocks to one self-contained HTML page with pinned CDN imports |
@@ -24,7 +25,7 @@ The plugin also ships the `scieng` skill and one slash command per diagram type.
 | `src/` | the server source in TypeScript. `index.ts` starts the server; `tools.ts` defines the tools and their handlers. |
 | `test/` | `node:test` tests. `plugin-content.test.ts` checks the commands and the skill against `TOOLS`. |
 | `smoke/`, `scripts/smoke-handshake.mjs` | checks against the live services and of the built bundle |
-| `scripts/bundle.mjs` | esbuild. It writes `src/index.ts`, the engine worker and its two backends to `plugin/bundle/`, and the engine assets to `plugin/bundle/assets/` |
+| `scripts/bundle.mjs` | esbuild. It writes `src/index.ts`, the engine worker and its backends to `plugin/bundle/`, and the engine assets to `plugin/bundle/assets/` |
 | `plugin/` | everything that the plugin installs: `.claude-plugin/plugin.json`, `.mcp.json`, `bundle/`, `commands/`, `skills/scieng/`, `README.md` |
 
 `plugin/` holds no `package.json` and no lockfile. The plugin installer runs a package install when it finds both files. The server needs no runtime package. Keep the two out of `plugin/`.

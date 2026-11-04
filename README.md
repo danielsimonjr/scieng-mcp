@@ -1,12 +1,13 @@
 # scieng-mcp
 
-scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp exposes six tools over stdio through the Model Context Protocol. The tools render diagram and math sources (Mermaid, DOT, LaTeX) to SVG. The tools assemble self-contained HTML playgrounds from mixed content blocks. The tools apply run-preserving find and replace edits to unpacked Word (OOXML) documents.
+scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp exposes seven tools over stdio through the Model Context Protocol. The tools render diagram and math sources (Mermaid, DOT, LaTeX) to SVG. The tools assemble self-contained HTML playgrounds from mixed content blocks. The tools apply run-preserving find and replace edits to unpacked Word (OOXML) documents.
 
 ## Tools
 
 | Tool | Inputs | Behavior |
 |---|---|---|
-| `render_mermaid` | `source` \| `input_path`, `output_path` | Renders Mermaid diagram source to an SVG file through mermaid.ink. Returns `{path, bytes}`; never the SVG body. |
+| `render_mermaid` | `source` \| `input_path`, `output_path`, `format` | Renders Mermaid diagram source to an SVG file (`format` `svg`, the default), a PNG file or a PDF file on this machine, with the sciengjs engine. Class, state and sequence diagrams need no browser; other types need `SCIENG_BROWSER`. Returns `{path, bytes, warnings}`. |
+| `render` | `type`, `format`, `options`, `source` \| `input_path`, `output_path` | Renders any input type and output format that the local engine supports. Returns `{path, bytes, mime, backend, warnings}`. An engine error returns its code. |
 | `render_dot` | `source` \| `input_path`, `output_path`, `format` | Renders Graphviz DOT source to an SVG file (`format` `svg`, the default) or a PNG file (`format` `png`) on this machine, with the sciengjs engine. Returns `{path, bytes, warnings}`. |
 | `render_latex` | `source` \| `input_path`, `output_path`, `dpi` | Renders LaTeX (bare math or a document's equation/align/display blocks) to an SVG file through latex.codecogs.com. The tool reports partial failures in a `failures` array instead of throwing them. Returns `{path, bytes, failures}`. |
 | `render_html` | `blocks` (typed `mermaid`/`dot`/`latex`/`plotly`/`wavedrom`/`raw-html`), `title`, `output_path` | Assembles a self-contained HTML playground from the given blocks, emitting only the CDN imports the present block types require. `plotly` source must be JSON `{data, layout}`; `raw-html` passes through verbatim. Returns `{path, bytes}`. |

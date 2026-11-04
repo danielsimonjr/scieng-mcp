@@ -3,8 +3,8 @@
 import { build } from "esbuild";
 import { chmodSync, cpSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { dirname, join, relative, sep } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "plugin", "bundle");
@@ -14,6 +14,16 @@ const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
 // URL. A single-file bundle has no such files, so each one is emitted here at the path the engine
 // computes: entry.mjs beside index.mjs, and graph/backend-*.mjs below it.
 const engineRoot = dirname(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json"));
+const engineDist = join(engineRoot, "dist");
+
+// The backends come from the engine's own registry, so the bundle always includes each new backend.
+const { DEFAULT_REGISTRY } = await import(pathToFileURL(join(engineDist, "registry.js")).href);
+const backendEntries = Object.fromEntries(
+  Object.values(DEFAULT_REGISTRY).map(({ moduleUrl }) => {
+    const rel = relative(engineDist, fileURLToPath(moduleUrl)).replace(/\.js$/, "");
+    return [rel.split(sep).join("/"), join(engineDist, rel + ".js")];
+  }),
+);
 
 // ESM banner shim: bundled CJS deps need require/__filename/__dirname.
 const banner =
@@ -30,9 +40,8 @@ rmSync(OUT, { recursive: true, force: true });
 await build({
   entryPoints: {
     index: join(ROOT, "src", "index.ts"),
-    entry: join(engineRoot, "dist", "worker", "entry.js"),
-    "graph/backend-svg": join(engineRoot, "dist", "graph", "backend-svg.js"),
-    "graph/backend-png": join(engineRoot, "dist", "graph", "backend-png.js"),
+    entry: join(engineDist, "worker", "entry.js"),
+    ...backendEntries,
   },
   bundle: true,
   splitting: true,

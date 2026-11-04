@@ -192,10 +192,11 @@ mindmap
 
 ## Rendering to SVG
 
-Call the `render_mermaid` tool of the scieng-mcp server. Set `input_path` to the `.mmd` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
+Call the `render_mermaid` tool of the scieng-mcp server. Set `input_path` to the `.mmd` file. Set `format` to `svg`, `png` or `pdf`; the default is `svg`. Set `output_path` to the file. When `output_path` is not given, the tool uses the input path with the format as its extension. The tool returns the path, the size of the file and any warnings.
 
-- The tool sends the source to mermaid.ink. No local install is necessary.
-- For a source that must stay private, use a `render_html` block. The browser renders the block, and the source stays on the machine.
+- The tool renders the source on this machine, through the sciengjs engine. The tool makes no network request, and you need no local install.
+- Class, state and sequence diagrams need no browser. Other diagram types, and the `pdf` format, need the browser stage. Set `SCIENG_BROWSER` to the path of a Chromium browser. Without it, the tool returns `E_STAGE_MISSING`.
+- The tool returns the code of an engine error. Correct the source from the error line and render again.
 
 ## Validation Checklist
 

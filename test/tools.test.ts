@@ -3,24 +3,88 @@ import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { RenderError } from "@danielsimonjr/sciengjs";
+import { RenderError, INPUT_TYPES, OUTPUT_FORMATS } from "@danielsimonjr/sciengjs";
 import { TOOLS, makeHandlers, dispatchTool, type ToolHandler } from "../src/tools.ts";
 
-test("exactly the six tools are defined", () => {
+test("exactly the seven tools are defined", () => {
   assert.deepEqual(TOOLS.map((t) => t.name).sort(),
-    ["capabilities", "ooxml_replace", "render_dot", "render_html", "render_latex", "render_mermaid"]);
+    ["capabilities", "ooxml_replace", "render", "render_dot", "render_html", "render_latex", "render_mermaid"]);
   for (const t of TOOLS) assert.equal(t.inputSchema.type, "object");
 });
 
-test("render_mermaid: inline source writes SVG and returns path+bytes JSON", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "tool-"));
-  const out = join(dir, "d.svg");
-  const fake: typeof fetch = async () => new Response("<svg id='m'/>", { status: 200 });
-  const h = makeHandlers(fake);
-  const res = JSON.parse(await h.render_mermaid({ source: "graph TD\n A-->B", output_path: out }));
+test("render_mermaid: inline class source writes SVG and returns path, bytes and warnings", async () => {
+  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "d.svg");
+  const res = JSON.parse(await makeHandlers().render_mermaid({ source: "classDiagram\nclass A", output_path: out }));
   assert.equal(res.path, out);
-  assert.equal(res.bytes, Buffer.byteLength("<svg id='m'/>"));
+  assert.equal(res.bytes, readFileSync(out).length);
+  assert.deepEqual(res.warnings, []);
   assert.match(readFileSync(out, "utf-8"), /<svg/);
+});
+
+test("render_mermaid: format png writes PNG bytes and input_path derives the png extension", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const inp = join(dir, "c.mmd");
+  writeFileSync(inp, "classDiagram\nclass A");
+  const res = JSON.parse(await makeHandlers().render_mermaid({ input_path: inp, format: "png" }));
+  assert.equal(res.path, join(dir, "c.png"));
+  assert.deepEqual([...readFileSync(res.path).subarray(0, 4)], [137, 80, 78, 71]);
+});
+
+test("render_mermaid renders locally: an injected fetch is never called", async () => {
+  let calls = 0;
+  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
+  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "local.svg");
+  await makeHandlers(refuse).render_mermaid({ source: "classDiagram\nclass A", output_path: out });
+  assert.equal(calls, 0);
+});
+
+test("render: mermaid svg through the generic entry point returns the engine metadata", async () => {
+  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "r.svg");
+  const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "svg", source: "digraph { a -> b }", output_path: out }));
+  assert.equal(res.path, out);
+  assert.equal(res.mime, "image/svg+xml");
+  assert.equal(res.backend, "graph/viz");
+  assert.equal(res.bytes, readFileSync(out).length);
+  assert.ok(Array.isArray(res.warnings));
+});
+
+test("render: an input_path with no output_path derives the name from the format", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const input = join(dir, "graph.dot");
+  writeFileSync(input, "digraph { a -> b }");
+  const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "png", input_path: input }));
+  assert.equal(res.path, join(dir, "graph.png"));
+  assert.ok(existsSync(join(dir, "graph.png")));
+});
+
+test("render: an input_path with format pdf and no output_path derives <name>.pdf", { skip: !process.env.SCIENG_BROWSER && "needs SCIENG_BROWSER" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const input = join(dir, "graph.dot");
+  writeFileSync(input, "digraph { a -> b }");
+  const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "pdf", input_path: input }));
+  assert.equal(res.path, join(dir, "graph.pdf"));
+  assert.ok(existsSync(join(dir, "graph.pdf")));
+});
+
+test("render: the type and format enums are the engine lists, not a copy", () => {
+  const tool = TOOLS.find((t) => t.name === "render")!;
+  const props = tool.inputSchema.properties as Record<string, { enum?: string[] }>;
+  assert.deepEqual(props.type!.enum, [...INPUT_TYPES]);
+  assert.deepEqual(props.format!.enum, [...OUTPUT_FORMATS]);
+  assert.deepEqual(tool.inputSchema.required, ["type", "format"]);
+});
+
+test("render: an unsupported pair returns the engine code in the error result", async () => {
+  const h = makeHandlers();
+  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "x.svg");
+  const res = await dispatchTool(h, "render", { type: "math", format: "svg", source: "E = mc^2", output_path: out });
+  assert.equal(res.isError, true);
+  assert.equal(JSON.parse(res.content[0]!.text).code, "E_UNSUPPORTED");
+});
+
+test("render: a type outside the engine list is refused by the schema", async () => {
+  const res = await dispatchTool(makeHandlers(), "render", { type: "docx", format: "svg", source: "x", output_path: "y.svg" });
+  assert.equal(res.isError, true);
 });
 
 test("render tools reject ambiguous input", async () => {

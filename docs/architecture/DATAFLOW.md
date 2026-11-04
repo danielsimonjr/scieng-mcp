@@ -19,14 +19,18 @@ This document traces one tool call from the request to the result. This document
 
 ### render_mermaid
 
-1. `resolveRenderIo` checks the arguments. `resolveRenderIo` requires exactly one of `source` and `input_path`.
+1. `resolveRenderIo` checks the arguments. The function requires exactly one of `source` and `input_path`. `format` selects the extension of the default output path.
 2. With `input_path`, `readInput` reads the file. A file of more than 524288 bytes fails with `input too large`.
-3. The output path is `output_path`. Without `output_path`, the output path is the input path with the extension `.svg`.
-4. `renderMermaidSource` builds the URL `https://mermaid.ink/svg/pako:<payload>`. The payload holds the source. The payload is deflated JSON in base64url form.
-5. `httpText` sends a GET request with a timeout of 20000 ms. `httpText` retries as [ARCHITECTURE.md](ARCHITECTURE.md) states.
-6. A response without `<svg` fails with `no SVG in response`.
-7. `writeOutput` writes `<output>.tmp` and renames it to `<output>`.
-8. The result is `{"path": <output>, "bytes": <UTF-8 byte count>}`.
+3. `renderMermaidSource` calls the sciengjs engine with `render` and the Mermaid type, the format and the source. The engine draws the file on this machine.
+4. A diagram type that needs the browser stage fails with `E_STAGE_MISSING` when `SCIENG_BROWSER` has no value. The engine error passes through unchanged.
+5. `writeOutput` writes `<output>.tmp` and renames it to `<output>`.
+6. The result holds the path, the byte count and the engine warnings.
+
+### render
+
+1. The handler checks `type` and `format` against the engine lists. It then runs the steps of `render_mermaid` for the source.
+2. `renderAny` calls `render` of the engine, with `options` when they are given.
+3. `writeOutput` writes the bytes as above. The result holds the engine `mime` and `backend`.
 
 ### render_dot
 
@@ -101,7 +105,6 @@ For each handler error, `dispatchTool` writes one line to standard error. The li
 
 | Tool | Host | Path or query | Data sent | Attempts and timeout |
 |---|---|---|---|---|
-| `render_mermaid` | `mermaid.ink` | `/svg/pako:<payload>` | The Mermaid source, deflated and encoded. | Up to four attempts. 20000 ms for each attempt. |
 | `render_latex` | `latex.codecogs.com` | `/svg.image?\dpi{<dpi>}<encoded block>` | The source of one LaTeX block. | Up to four attempts for each block. 20000 ms for each attempt. Four blocks at a time. |
 
 No other tool sends a request. The browser requests the pinned files of a generated page when the page opens. The hosts are `cdn.jsdelivr.net`, `cdnjs.cloudflare.com` and `cdn.plot.ly`.
@@ -111,6 +114,7 @@ No other tool sends a request. The browser requests the pinned files of a genera
 | Tool | Reads | Writes |
 |---|---|---|
 | `render_mermaid` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
+| `render` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_dot` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_latex` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_html` | None | `output_path`, through `<output_path>.tmp` |
@@ -119,7 +123,7 @@ No other tool sends a request. The browser requests the pinned files of a genera
 
 ## Timing
 
-- A `render_mermaid` or `render_latex` request makes up to four attempts. Each attempt has a timeout of 20000 ms.
+- A `render_latex` request makes up to four attempts. Each attempt has a timeout of 20000 ms.
 - The waits between attempts are 500 ms, 1000 ms and 2000 ms.
 - A service that never answers makes the call fail after 83.5 seconds. The total is four timeouts of 20 seconds, plus the three waits.
 - A body read that fails leaves its timer armed until the timer fires. The process does not exit before then.
@@ -131,5 +135,5 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |

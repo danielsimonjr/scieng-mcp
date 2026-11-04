@@ -2,7 +2,8 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-KMFV4PKN.mjs";
+} from "./chunk-AQT2E3NM.mjs";
+import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
   RenderError
@@ -35118,26 +35119,27 @@ function toError(value) {
 }
 
 // node_modules/@danielsimonjr/sciengjs/dist/pairs.js
+var MERMAID_NOTE = "types other than class, state and sequence need the browser stage";
 var PAIRS = [
   { type: "dot", format: "svg", stage: "graph" },
   { type: "dot", format: "png", stage: "graph" },
   { type: "dot", format: "pdf", stage: "browser" },
-  { type: "mermaid", format: "svg", stage: "graph" },
-  { type: "mermaid", format: "png", stage: "graph" },
+  { type: "mermaid", format: "svg", stage: "graph", note: MERMAID_NOTE },
+  { type: "mermaid", format: "png", stage: "graph", note: MERMAID_NOTE },
   { type: "mermaid", format: "pdf", stage: "browser" },
   { type: "math", format: "svg", stage: "math" },
   { type: "math", format: "png", stage: "math" },
-  { type: "math", format: "pdf", stage: "math" },
+  { type: "math", format: "pdf", stage: "browser" },
   { type: "tikz", format: "svg", stage: "tex" },
   { type: "tikz", format: "png", stage: "tex" },
-  { type: "tikz", format: "pdf", stage: "tex" },
+  { type: "tikz", format: "pdf", stage: "browser" },
   { type: "plot", format: "svg", stage: "plot" },
   { type: "plot", format: "png", stage: "plot" },
-  { type: "plot", format: "pdf", stage: "plot" },
+  { type: "plot", format: "pdf", stage: "browser" },
   { type: "plot", format: "html", stage: "plot" },
   { type: "sysml", format: "svg", stage: "graph" },
   { type: "sysml", format: "png", stage: "graph" },
-  { type: "sysml", format: "pdf", stage: "graph" },
+  { type: "sysml", format: "pdf", stage: "browser" },
   { type: "step", format: "html", stage: "mesh" },
   { type: "step", format: "png", stage: "browser" },
   { type: "step", format: "glb", stage: "mesh" },
@@ -35170,7 +35172,11 @@ var DEFAULT_REGISTRY = {
   "dot:svg": { backend: "graph/viz", moduleUrl: backendUrl("graph/backend-svg") },
   "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") },
   "mermaid:svg": { backend: "mermaid/native", moduleUrl: backendUrl("mermaid/backend-svg") },
-  "mermaid:png": { backend: "mermaid/native+raster/resvg", moduleUrl: backendUrl("mermaid/backend-png") }
+  "mermaid:png": { backend: "mermaid/native+raster/resvg", moduleUrl: backendUrl("mermaid/backend-png") },
+  "dot:pdf": { backend: "graph/viz+browser/chromium", moduleUrl: backendUrl("graph/backend-pdf") },
+  "mermaid:pdf": { backend: "mermaid/browser/chromium", moduleUrl: backendUrl("mermaid/backend-pdf") },
+  "html:png": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-png") },
+  "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35181,11 +35187,46 @@ import { Worker } from "node:worker_threads";
 import { extname as extname2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 var DEFAULT_TERMINATE_WAIT_MS = 5e3;
+var VALUE_FLAGS = /* @__PURE__ */ new Set(["-e", "--eval", "-p", "--print", "--input-type"]);
+var MODE_FLAGS = /* @__PURE__ */ new Set(["-i", "--interactive", "-c", "--check"]);
+var SHORT_GROUP = /^-[epic]{2,}$/;
+function workerExecArgv(parentArgv) {
+  const kept = [];
+  for (let i = 0; i < parentArgv.length; i++) {
+    const token = parentArgv[i];
+    if (MODE_FLAGS.has(token))
+      continue;
+    if (SHORT_GROUP.test(token)) {
+      if (/[ep]/.test(token))
+        i++;
+      continue;
+    }
+    const eq = token.indexOf("=");
+    const name = eq === -1 ? token : token.slice(0, eq);
+    if (VALUE_FLAGS.has(name)) {
+      if (eq === -1)
+        i++;
+      continue;
+    }
+    kept.push(token);
+  }
+  return kept;
+}
+var INVALID_EXEC_ARGV = "ERR_WORKER_INVALID_EXEC_ARGV";
+function constructWorker(ctor, base, parentArgv) {
+  const kept = workerExecArgv(parentArgv);
+  const removedAny = kept.length !== parentArgv.length;
+  try {
+    return ctor(removedAny ? { ...base, execArgv: kept } : { ...base });
+  } catch (err) {
+    if (err?.code === INVALID_EXEC_ARGV) {
+      return ctor({ ...base, execArgv: [] });
+    }
+    throw err;
+  }
+}
 function createDefaultWorker(entry, data, maxMemoryMb) {
-  return new Worker(entry, {
-    workerData: data,
-    resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb }
-  });
+  return constructWorker((options) => new Worker(entry, options), { workerData: data, resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb } }, process.execArgv);
 }
 function stopWorker(worker, waitMs) {
   let timer;
@@ -35227,7 +35268,7 @@ function runInWorker(job, limits) {
     worker.once("message", (msg) => {
       settle2(() => {
         if (msg.ok) {
-          resolve({ bytes: msg.bytes, warnings: msg.warnings });
+          resolve({ bytes: msg.bytes, warnings: msg.warnings, backend: msg.backend });
         } else {
           const code = msg.code;
           reject(new RenderError(code, msg.message, { line: msg.line, column: msg.column }));
@@ -35315,13 +35356,19 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
       format: req.format,
       source: req.source,
       options: req.options ?? {},
-      settings: { maxMemoryMb: cfg.maxMemoryMb, rasterFont: cfg.rasterFont, assetsUrl: cfg.assetsUrl }
+      settings: {
+        maxMemoryMb: cfg.maxMemoryMb,
+        rasterFont: cfg.rasterFont,
+        assetsUrl: cfg.assetsUrl,
+        browser: cfg.browser,
+        timeoutMs: cfg.timeoutMs
+      }
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
   return {
     bytes: out.bytes,
     mime: MIME[req.format],
-    backend: entry.backend,
+    backend: out.backend ?? entry.backend,
     warnings: out.warnings ?? []
   };
 }
@@ -35332,6 +35379,8 @@ async function capabilitiesWithRegistry(options, registry2, configDeps) {
     const browserReady = pair.stage !== "browser" || cfg.browser !== void 0;
     const ready = registered && browserReady;
     const cap = { type: pair.type, format: pair.format, stage: pair.stage, ready };
+    if (pair.note !== void 0)
+      cap.note = pair.note;
     if (!registered)
       cap.reason = "no backend is built in this release";
     else if (!browserReady)
@@ -35441,20 +35490,6 @@ async function mapLimit(items, limit, fn) {
   return results;
 }
 
-// src/render-mermaid.ts
-import { deflateSync } from "node:zlib";
-function encodePako(mermaidCode) {
-  const json2 = JSON.stringify({ code: mermaidCode, mermaid: { theme: "default" } });
-  return deflateSync(Buffer.from(json2, "utf-8")).toString("base64url");
-}
-async function renderMermaidSource(code, output2, fetchImpl) {
-  const url2 = `https://mermaid.ink/svg/pako:${encodePako(code)}`;
-  const svg = await httpText(url2, { fetchImpl });
-  if (!svg.includes("<svg")) throw new Error("no SVG in response");
-  writeOutput(output2, svg);
-  return svg;
-}
-
 // src/engine-config.ts
 function bundledEngineConfig(moduleUrl) {
   return { assetsUrl: new URL("./assets/", moduleUrl).href };
@@ -35464,6 +35499,22 @@ function engineConfig() {
     return bundledEngineConfig(import.meta.url);
   }
   return {};
+}
+
+// src/render-mermaid.ts
+var MERMAID_FORMATS = ["svg", "png", "pdf"];
+async function renderMermaidSource(source, output2, format) {
+  const result2 = await render({ type: "mermaid", format, source }, engineConfig());
+  writeOutput(output2, result2.bytes);
+  return { bytes: result2.bytes.byteLength, warnings: result2.warnings };
+}
+
+// src/render-any.ts
+async function renderAny(type, format, source, output2, options) {
+  const req = options === void 0 ? { type, format, source } : { type, format, source, options };
+  const result2 = await render(req, engineConfig());
+  writeOutput(output2, result2.bytes);
+  return { path: output2, bytes: result2.bytes.byteLength, mime: result2.mime, backend: result2.backend, warnings: result2.warnings };
 }
 
 // src/render-dot.ts
@@ -35584,6 +35635,7 @@ async function renderLatexSource(texSource, output2, opts = {}) {
 
 // src/render-html.ts
 var esc2 = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+var escAttr = (s) => esc2(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r/g, "&#13;");
 var jsEmbed = (v) => JSON.stringify(v).replace(/</g, "\\u003c");
 var HEAD_IMPORTS = {
   mermaid: `<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous"></script>`,
@@ -35614,7 +35666,7 @@ var INIT_SCRIPTS = {
   });`
 };
 var BLOCK_STYLES = {
-  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; }`
+  wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border: 1px solid #8a8a8a; border-radius: 4px; overflow-x: auto; }`
 };
 var hasOwnDelimiters = (tex) => tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
 function renderBlock(b, i) {
@@ -35656,7 +35708,7 @@ function buildHtml(blocks, title = "scieng playground") {
   const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
     ${BLOCK_STYLES[t]}`).join("");
   const body = blocks.map((b, i) => {
-    const inner = renderBlock(b, i);
+    const inner = `<div class="scieng-block" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
     return b.title ? `<section>
 <h2>${esc2(b.title)}</h2>
 ${inner}
@@ -35867,9 +35919,29 @@ var renderIo = {
 var TOOLS = [
   {
     name: "render_mermaid",
-    description: "Render Mermaid diagram source to an SVG file via mermaid.ink. Returns {path, bytes}; never the SVG body.",
+    description: "Render Mermaid diagram source to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf. Class, state and sequence diagrams need no browser; other types need SCIENG_BROWSER. Returns {path, bytes, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
-    inputSchema: { type: "object", properties: renderIo, additionalProperties: false }
+    inputSchema: {
+      type: "object",
+      properties: { ...renderIo, format: { type: "string", enum: [...MERMAID_FORMATS], description: "Output format (default svg)." } },
+      additionalProperties: false
+    }
+  },
+  {
+    name: "render",
+    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
+    annotations: { readOnlyHint: false, destructiveHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        ...renderIo,
+        type: { type: "string", enum: [...INPUT_TYPES], description: "Input type of the source." },
+        format: { type: "string", enum: [...OUTPUT_FORMATS], description: "Output format." },
+        options: { type: "object", description: "Per-type options, passed to the engine unchanged.", additionalProperties: true }
+      },
+      required: ["type", "format"],
+      additionalProperties: false
+    }
   },
   {
     name: "render_dot",
@@ -35899,7 +35971,7 @@ var TOOLS = [
   },
   {
     name: "render_html",
-    description: "Assemble a self-contained HTML playground from typed blocks (mermaid | dot | latex | plotly | wavedrom | raw-html). Emits only the CDN imports the present block types need (pins per the scieng skill's RENDERERS.md). plotly source must be JSON {data, layout}; raw-html passes through verbatim. Returns {path, bytes}. Open the result with `start <path>`.",
+    description: "Build a self-contained HTML playground from typed blocks (mermaid | dot | latex | plotly | wavedrom | raw-html). The page has only the CDN imports that the present block types need (pins per the scieng skill's RENDERERS.md). plotly source must be JSON {data, layout}; raw-html passes through verbatim, inside a div: the tool does not support an unbalanced or table-only fragment. Each block source occurs two times: in the rendered element and in its data-scieng-source attribute. Returns {path, bytes}. Open the result with `start <path>`.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
@@ -35956,6 +36028,12 @@ var RenderArgs = external_exports.object({
   output_path: external_exports.string().optional()
 }).strict();
 var DotFormat = external_exports.enum(["svg", "png"]);
+var MermaidFormat = external_exports.enum(MERMAID_FORMATS);
+var RenderAnyExtra = {
+  type: external_exports.enum(INPUT_TYPES),
+  format: external_exports.enum(OUTPUT_FORMATS),
+  options: external_exports.record(external_exports.string(), external_exports.unknown()).optional()
+};
 function resolveRenderIo(raw, extra, ext = ".svg") {
   const schema = extra ? RenderArgs.extend(extra).strict() : RenderArgs;
   const a = schema.parse(raw ?? {});
@@ -35985,8 +36063,16 @@ var OoxmlArgs = external_exports.object({
 function makeHandlers(fetchImpl = fetch) {
   return {
     render_mermaid: async (raw) => {
-      const { code, out } = resolveRenderIo(raw);
-      return result(out, await renderMermaidSource(code, out, fetchImpl));
+      const format = MermaidFormat.parse(raw?.format ?? "svg");
+      const { code, out } = resolveRenderIo(raw, { format: MermaidFormat.optional() }, `.${format}`);
+      const res = await renderMermaidSource(code, out, format);
+      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
+    },
+    render: async (raw) => {
+      const pre = external_exports.object({ format: external_exports.enum(OUTPUT_FORMATS) }).passthrough().parse(raw ?? {});
+      const { code, out, args } = resolveRenderIo(raw, RenderAnyExtra, `.${pre.format}`);
+      const format = args.format;
+      return JSON.stringify(await renderAny(args.type, format, code, out, args.options));
     },
     render_dot: async (raw) => {
       const format = DotFormat.parse(raw?.format ?? "svg");
@@ -36017,7 +36103,7 @@ function makeHandlers(fetchImpl = fetch) {
 }
 
 // src/index.ts
-var VERSION = true ? "0.6.1" : "0.0.0-dev";
+var VERSION = true ? "0.7.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

@@ -4,12 +4,12 @@
 
 The server turns source text into files. An MCP client starts the server as a child process. The client sends one JSON request for each tool call. The server runs the requested renderer or edit, writes its output file, and returns the path and the byte count of that file.
 
-Three tools render diagram or formula source. Two of them send the source to a public rendering service. The third draws Graphviz DOT on the local machine. One tool builds one HTML page from typed blocks. One tool edits the text of an unpacked Word document in place. A sixth tool reports the render pairs of the local engine. The server keeps no state between calls.
+Four tools render diagram or formula source. Three of them draw on the local machine, through the sciengjs engine: render_mermaid, render and render_dot. The fourth, render_latex, sends the source to a public rendering service. One tool builds one HTML page from typed blocks. One tool edits the text of an unpacked Word document in place. A seventh tool reports the render pairs of the local engine. The server keeps no state between calls.
 
 ## System context
 
 - **MCP client.** The client starts the server with `node` and the bundle. [plugin/.mcp.json](../../plugin/.mcp.json) defines the start. The client sends requests on standard input and reads responses on standard output.
-- **mermaid.ink.** `render_mermaid` puts the Mermaid source in the request URL.
+- **sciengjs engine.** `render_mermaid` and `render` draw on this machine. No request leaves the process for them.
 - **latex.codecogs.com.** `render_latex` puts the source of each LaTeX block in the request URL.
 - **Local engine (`@danielsimonjr/sciengjs`).** `render_dot` and `capabilities` run the engine on this machine. The engine starts a worker thread from its worker entry. In the bundle, the entry is `plugin/bundle/entry.mjs`. `renderDotSource` makes no network request, and a unit test checks that.
 - **File system.** The render tools read `input_path` files of at most 524288 bytes. `ooxml_replace` reads and writes the `word/document.xml` file of an unpacked document. Each tool writes its output at the path that the caller gives.
@@ -17,14 +17,14 @@ Three tools render diagram or formula source. Two of them send the source to a p
 
 ## Architecture principles
 
-1. Source text leaves the machine only for the two remote renderers, Mermaid and LaTeX.
+1. Source text leaves the machine only for the remote renderer, LaTeX.
 2. A render call writes one output file. The call returns the path and the size of the file, not its content.
 3. A generated page loads only exact-version files. Each file carries a Subresource Integrity hash.
 4. Each tool input object refuses an unknown key. The `capabilities` tool is the exception. The tool reads no input, and its handler accepts any argument.
 5. The committed bundle is the shipped artifact. A source change and its bundle change share one commit. CI rejects a stale bundle.
 6. The server needs no install step at run time. The bundle carries the engine assets that the engine reads.
 7. A failed tool call does not end the session. The error travels in the tool result.
-8. The two remote renderers take an injectable fetch function. The tests replace the network through that function.
+8. The remote renderer, LaTeX, takes an injectable fetch function. The tests replace the network through that function.
 
 ## Component architecture
 
@@ -37,16 +37,16 @@ The modules of `src/` form four layers. The table gives the imports of each laye
 | Renderers and builders | `src/render-mermaid.ts`, `src/render-latex.ts`, `src/render-dot.ts`, `src/render-html.ts`, `src/ooxml-edit.ts` | `src/render-lib.ts` and `src/engine-config.ts`, where each module needs them. `src/render-html.ts` and `src/ooxml-edit.ts` import nothing from `src/`. |
 | Utilities | `src/render-lib.ts`, `src/engine-config.ts` | None |
 
-Every import points down the table. The census finds no import cycle among the 27 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
+Every import points down the table. The census finds no import cycle among the 29 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
 
 ## Key design decisions
 
 Each decision gives the choice, the reason for the choice, the cost of the choice, and the rejected alternative.
 
-### D1. Mermaid and LaTeX use public rendering services
+### D1. LaTeX uses a public rendering service
 
-- **Decision.** `render_mermaid` sends the Mermaid source to mermaid.ink. The source travels in the request path, as deflated JSON encoded in base64url. `render_latex` sends the source of each block to latex.codecogs.com, URL-encoded in the query string.
-- **Rationale.** The server needs no renderer package for these two formats. Each service renders the source that the URL carries.
+- **Decision.** `render_latex` sends the source of each block to latex.codecogs.com, URL-encoded in the query string. Mermaid renders on this machine, through the sciengjs engine.
+- **Rationale.** The server needs no renderer package for LaTeX. The service renders the source that the URL carries.
 - **Trade-offs.** Each render needs network access. The source leaves the machine. The service sets the size and rate limits, and a service outage ends the render.
 - **Alternative.** A local renderer for each format. The repository contains no local renderer for these formats.
 
@@ -97,7 +97,7 @@ Each decision gives the choice, the reason for the choice, the cost of the choic
 - **Trade-offs.** An unbundled run uses the engine's own assets folder. Its path differs from the shipped path. The bundle gate test covers the shipped path.
 - **Alternative.** An environment variable or a working-directory path. Neither follows a folder that moves with the plugin.
 
-### D8. Remote renderers retry only transient failures
+### D8. The remote renderer retries only transient failures
 
 - **Decision.** `httpText` retries a network error and the statuses 429, 500, 502, 503 and 504. `httpText` makes up to four attempts in total. The wait before each retry is 500 ms, doubled after each attempt. A retried status with a numeric `Retry-After` header waits for the number of seconds that the header gives.
 - **Rationale.** These failures can clear within a short time. Other error statuses describe the request. A repeated request receives the same answer.
@@ -158,9 +158,9 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 ## Performance
 
 - The server keeps no cache. Each call does its work again.
-- The two remote renderers wait on the network. Each attempt has a timeout of 20 seconds. A request makes up to four attempts (D8).
+- The LaTeX renderer waits on the network. Each attempt has a timeout of 20 seconds. A request makes up to four attempts (D8).
 - The LaTeX renderer sends up to four block requests at the same time.
-- The DOT renderer, the HTML builder and the Word edit make no network request.
+- The Mermaid, DOT and generic renderers, the HTML builder and the Word edit make no network request.
 - The 524288-byte limit bounds the size of an `input_path` file. A request line of 10,485,760 bytes or more, not counting the line feed, makes the server stop answering requests. The server writes `scieng-mcp: ReadBuffer exceeded maximum size of 10485760 bytes` to standard error. The process stays alive until the client closes standard input. The process then exits with code 0. [plugin/README.md](../../plugin/README.md) states the 10,485,760-byte limit.
 
 ## Security architecture
@@ -168,19 +168,19 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 The server has five trust boundaries.
 
 1. **Client to server.** Every argument is untrusted. The schemas check types and keys. The schemas do not check the content of a source.
-2. **Server to remote services.** The source text reaches the service. An `input_path` file reaches the service as well, because the server reads the file and sends its content.
+2. **Server to the remote service.** The LaTeX source reaches latex.codecogs.com. An `input_path` file of `render_latex` reaches the service as well, because the server reads the file and sends its content.
 3. **Generated page to CDN.** The pins and hashes (D4) limit the files that a browser loads.
 4. **Generated page content.** The trust rule of each block type (D5) limits what the content can do.
 5. **Server to the file system.** The server writes to any path that the process may write. The server confines no path.
 
-The server source reads no environment variable. The remote services need no key, and the requests carry none. The Word edit refuses a `DOCTYPE` or `ENTITY` declaration in `word/document.xml`. The source comment states that the port uses no entity-expanding parser. The refusal is therefore defense in depth.
+The server source reads no environment variable. The remote service needs no key, and the requests carry none. The Word edit refuses a `DOCTYPE` or `ENTITY` declaration in `word/document.xml`. The source comment states that the port uses no entity-expanding parser. The refusal is therefore defense in depth.
 
 ## Testing strategy
 
-- The test runner is `node --test`. `bun run test` starts the runner. Ten test files hold 88 test cases.
+- The test runner is `node --test`. `bun run test` starts the runner. Thirteen test files hold 149 test cases.
 - The bundle gate starts the bundle with `scripts/block-network.mjs` preloaded. The preload refuses socket connections, DNS lookups and `fetch` calls, and it logs each attempt. The gate then renders SVG and PNG output, and it checks that the bundle sends no network request.
 - The bundle gate runs the bundle in a fresh folder with no `node_modules`. The bundle gate compares each engine asset with the file in the engine package. On systems other than Windows, it checks that each bundle file has mode 0644.
-- The other tests pass a fake fetch function to the remote renderers.
+- The other tests pass a fake fetch function to the LaTeX renderer.
 - The plugin-content test checks that each command and the skill name only tools and reference files that exist.
 - `bun run smoke` starts the bundle and sends an `initialize` request. CI does not run this script.
 - `smoke/render.smoke.ts` calls the live services. No package script runs `smoke/render.smoke.ts`.
@@ -193,6 +193,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

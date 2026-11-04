@@ -2,21 +2,21 @@
 
 ## Summary
 
-scieng-mcp is a Model Context Protocol (MCP) server. The server runs as a child process of an MCP client. The server exchanges JSON messages over standard input and standard output. The server exposes six tools.
+scieng-mcp is a Model Context Protocol (MCP) server. The server runs as a child process of an MCP client. The server exchanges JSON messages over standard input and standard output. The server exposes seven tools.
 
-Three tools render diagram or formula source to an image file. One tool builds an HTML page from typed blocks. One tool replaces text in an unpacked Word document. The sixth tool reports the render pairs of the local engine.
+Four tools render diagram or formula source to an image file. One tool builds an HTML page from typed blocks. One tool replaces text in an unpacked Word document. The seventh tool reports the render pairs of the local engine.
 
 The server runs on Node.js 24 or later. Its runtime entry is the committed bundle `plugin/bundle/index.mjs`. The bundle needs no `node_modules` folder. The same repository holds the Claude Code plugin that installs the server. The plugin adds seven slash commands and one skill. Development uses Bun. The lockfile is `bun.lock`.
 
 ## Key metrics
 
-The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 27 files and no file of `plugin/bundle/`.
+The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 29 files and no file of `plugin/bundle/`.
 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
-| `totalSourceFiles` | 27 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 3699 | The census. | `dependency-graph.json` |
-| `totalExports` | 81 | The census: 31 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
+| `totalSourceFiles` | 29 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 4005 | The census. | `dependency-graph.json` |
+| `totalExports` | 83 | The census: 33 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
 | Tools | 6 | The `TOOLS` array in `src/tools.ts`. | Direct search. Not a `repo-tools` metric. |
@@ -46,13 +46,14 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 3699. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4005. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
 | Tool | Writes | Remote service | Purpose |
 |---|---|---|---|
-| `render_mermaid` | One SVG file | mermaid.ink | Renders Mermaid diagram source. |
+| `render_mermaid` | One SVG, PNG or PDF file | sciengjs engine, local | Renders Mermaid diagram source. |
+| `render` | One file of any supported type and format | sciengjs engine, local | Renders any input type the engine supports. |
 | `render_dot` | One SVG or PNG file | None. The engine runs on this machine. | Renders Graphviz DOT source. |
 | `render_latex` | One SVG file | latex.codecogs.com | Renders LaTeX math and the math blocks of a document. |
 | `render_html` | One HTML file | None at render time. The browser loads the pinned files when the page opens. | Builds one page from typed blocks. |
@@ -73,7 +74,7 @@ Each command runs one package script. `typecheck` runs `tsc --noEmit`. `test` ru
 
 ## Design principles
 
-1. Source text leaves the machine only for `render_mermaid` and `render_latex`. A check: only `src/render-mermaid.ts` and `src/render-latex.ts` call `httpText`.
+1. Source text leaves the machine only for `render_latex`. A check: only `src/render-latex.ts` calls `httpText`.
 2. A render call writes one output file. The call returns the path and the byte count. The call never returns the file content. A check: each render handler returns `path` and `bytes`.
 3. A generated page loads exact-version files only. Each file has a Subresource Integrity hash. A check: every entry of `HEAD_IMPORTS` in `src/render-html.ts` has an `integrity` attribute.
 4. Each tool input object refuses an unknown key, except the `capabilities` tool. A check: each schema in `src/tools.ts` that takes input is `.strict()` or sets `additionalProperties: false`. The `capabilities` handler accepts any argument. [API.md](API.md) states the exception.
@@ -94,7 +95,7 @@ Each command runs one package script. `typecheck` runs `tsc --noEmit`. `test` ru
 
 - Three files have no importer: `plugin/skills/scieng/engineering-patterns.ts`, `plugin/skills/scieng/stubs/docx.d.ts` and `smoke/render.smoke.ts`. The first two are reference files for the skill. The third runs on demand. The census classifies all three as orphaned. The classification is correct for a static import graph. The classification does not show intent.
 - Five exports have no importer outside their own module: `HttpOptions`, `Block`, `BlockType`, `EditResult` and `ToolResult`. Each is a type declaration.
-- The package entry module, `plugin/bundle/index.mjs`, exports nothing. Removing a `src/` export therefore changes no package API. The public surface is the set of six tools. Removing a tool is a breaking change for each client that calls it. See [API.md](API.md).
+- The package entry module, `plugin/bundle/index.mjs`, exports nothing. Thus the removal of a `src/` export changes no package API. The public surface is the set of seven tools. Removing a tool is a breaking change for each client that calls it. See [API.md](API.md).
 
 ## Related documentation
 
@@ -113,8 +114,8 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
-| totalLinesOfCode | 3699 | dependency-graph.json |
-| totalExports | 81 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
+| totalLinesOfCode | 4005 | dependency-graph.json |
+| totalExports | 83 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

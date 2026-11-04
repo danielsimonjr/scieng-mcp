@@ -1,24 +1,24 @@
 {
-  "totalFiles": 27,
+  "totalFiles": 29,
   "byDisposition": {
-    "reachable": 8,
+    "reachable": 9,
     "build-entry": 1,
     "test-only": 0,
     "orphan": 3,
-    "test": 12,
+    "test": 13,
     "tool": 3,
     "config": 0,
     "bench": 0,
     "example": 0
   },
   "byArea": {
-    "src": 12,
+    "src": 13,
     "tools": 3,
-    "tests": 12
+    "tests": 13
   },
   "byPackage": {
-    "(root)": 18,
-    "scieng-mcp": 9
+    "(root)": 19,
+    "scieng-mcp": 10
   },
   "files": [
     {
@@ -47,7 +47,7 @@
       "package": "(root)",
       "area": "tools",
       "disposition": "tool",
-      "loc": 59
+      "loc": 68
     },
     {
       "file": "scripts/smoke-handshake.mjs",
@@ -85,6 +85,13 @@
       "loc": 213
     },
     {
+      "file": "src/render-any.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 28
+    },
+    {
       "file": "src/render-dot.ts",
       "package": "scieng-mcp",
       "area": "src",
@@ -96,7 +103,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 136
+      "loc": 141
     },
     {
       "file": "src/render-latex.ts",
@@ -117,21 +124,21 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 26
+      "loc": 23
     },
     {
       "file": "src/tools.ts",
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 249
+      "loc": 284
     },
     {
       "file": "test/bundle-gate.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 181
+      "loc": 192
     },
     {
       "file": "test/engine-config.test.ts",
@@ -152,7 +159,14 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 131
+      "loc": 144
+    },
+    {
+      "file": "test/render-any.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 32
     },
     {
       "file": "test/render-dot.test.ts",
@@ -166,7 +180,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 126
+      "loc": 210
     },
     {
       "file": "test/render-latex.test.ts",
@@ -187,7 +201,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 27
+      "loc": 55
     },
     {
       "file": "test/repo-metadata.test.ts",
@@ -208,7 +222,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 227
+      "loc": 291
     }
   ],
   "skippedLinks": [],

@@ -7,9 +7,10 @@ This document describes the modules of `src/`. For each module, it gives the job
 | Module | Job | Exports | Imports from `src/` | Test file |
 |---|---|---|---|---|
 | `src/index.ts` | Starts the server on standard input and standard output. | 0 | `src/tools.ts` | None. The bundle gate starts the bundle. |
-| `src/tools.ts` | Defines the six tools. Checks the arguments and dispatches each call. | 5 | Every renderer, `src/render-lib.ts`, `src/engine-config.ts` | `test/tools.test.ts` |
+| `src/tools.ts` | Defines the seven tools. Checks the arguments and dispatches each call. | 5 | Every renderer, `src/render-lib.ts`, `src/engine-config.ts` | `test/tools.test.ts` |
 | `src/render-lib.ts` | Shared helpers. HTTP with retries, bounded reads, output writes, output paths and a concurrency limit. | 7 | None | `test/render-lib.test.ts` |
-| `src/render-mermaid.ts` | Renders Mermaid source to SVG through mermaid.ink. | 3 | `src/render-lib.ts` | `test/render-mermaid.test.ts` |
+| `src/render-mermaid.ts` | Renders Mermaid source to SVG, PNG or PDF through the sciengjs engine. | 3 | `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts` | `test/render-mermaid.test.ts` |
+| `src/render-any.ts` | Renders any engine input type and output format. | 2 | `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts` | `test/render-any.test.ts` |
 | `src/render-latex.ts` | Renders LaTeX source to SVG through latex.codecogs.com. | 5 | `src/render-lib.ts` | `test/render-latex.test.ts` |
 | `src/render-dot.ts` | Renders DOT source to SVG or PNG on the local machine. | 1 | `src/render-lib.ts`, `src/engine-config.ts` | `test/render-dot.test.ts` |
 | `src/render-html.ts` | Builds one HTML page from typed blocks. | 3 | None | `test/render-html.test.ts` |
@@ -34,7 +35,7 @@ Exports: none.
 
 ## src/tools.ts
 
-Job: defines the six tools, checks their arguments, runs the handlers, and maps each failure to an error result.
+Job: defines the seven tools, checks their arguments, runs the handlers, and maps each failure to an error result.
 
 ```ts
 export type ToolHandler = (raw: unknown) => Promise<string>;
@@ -62,8 +63,8 @@ Behaviour:
 - `dispatchTool` calls the handler with the arguments. A missing argument becomes an empty object.
 - A successful handler returns its text in one text item of the result.
 - A handler that throws writes one line to standard error. The result holds a JSON body with `status` set to `error`.
-- `makeHandlers` returns one handler for each tool name. The `fetchImpl` parameter replaces the global `fetch` in `render_mermaid` and `render_latex`.
-- `TOOLS` holds the six tool definitions. Each definition holds a name, a description, the annotations and the JSON Schema of its input. [API.md](API.md) lists the schemas.
+- `makeHandlers` returns one handler for each tool name. The `fetchImpl` parameter replaces the global `fetch` in `render_latex`.
+- `TOOLS` holds the seven tool definitions. Each definition holds a name, a description, the annotations and the JSON Schema of its input. [API.md](API.md) lists the schemas.
 
 Internal parts:
 
@@ -120,31 +121,33 @@ Imports: Node built-in modules only.
 
 ## src/render-mermaid.ts
 
-Job: sends Mermaid source to mermaid.ink and writes the SVG.
+Job: draws Mermaid source to SVG, PNG or PDF on this machine, through the sciengjs engine.
 
 ```ts
-export function encodePako(mermaidCode: string): string;
-
-export async function renderMermaidSource(
-  code: string,
-  output: string,
-  fetchImpl?: FetchLike,
-): Promise<string>;
-
-export async function renderMermaid(
-  input: string,
-  output: string,
-  fetchImpl?: FetchLike,
-): Promise<string>;
+export const MERMAID_FORMATS: readonly ["svg", "png", "pdf"];
+export type MermaidFormat = (typeof MERMAID_FORMATS)[number];
+export async function renderMermaidSource(source: string, output: string, format: MermaidFormat): Promise<{ bytes: number; warnings: string[] }>;
 ```
 
 Behaviour:
 
-- `encodePako` builds the JSON text `{"code": <source>, "mermaid": {"theme": "default"}}`. `encodePako` compresses the text with zlib `deflateSync`. `encodePako` encodes the result as base64url.
-- `renderMermaidSource` requests `https://mermaid.ink/svg/pako:<payload>` with `httpText`. The call throws `no SVG in response` when the response has no `<svg`. Otherwise `renderMermaidSource` writes the text with `writeOutput` and returns the text.
-- `renderMermaid` reads the input file with `readInput`, and then calls `renderMermaidSource`.
+- `renderMermaidSource` calls the engine `render` with the Mermaid type, the format and the source. It writes the bytes with `writeOutput`, and returns the byte count and the engine warnings.
+- Engine errors pass through unchanged. A diagram type that needs the browser stage rejects with `E_STAGE_MISSING` when `SCIENG_BROWSER` has no value.
 
-Imports: `node:zlib`, `src/render-lib.ts`.
+Imports: `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts`.
+
+## src/render-any.ts
+
+Job: renders any input type and output format that the engine supports, and writes the file.
+
+```ts
+export interface AnyRenderResult { path: string; bytes: number; mime: string; backend: string; warnings: string[] }
+export async function renderAny(type, format, source, output, options?): Promise<AnyRenderResult>;
+```
+
+Behaviour: calls the engine `render`. The pair decides the output. An unsupported pair rejects with `E_UNSUPPORTED`. The error passes through unchanged.
+
+Imports: `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts`.
 
 ## src/render-latex.ts
 
@@ -326,6 +329,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

@@ -50,7 +50,7 @@ test("latex block wraps bare math in display delimiters and loads KaTeX", () => 
 
 test("latex block with its own delimiters is not double-wrapped", () => {
   const html = buildHtml([{ type: "latex", source: "\\[ a+b \\]" }]);
-  assert.equal((html.match(/\\\[/g) ?? []).length, 1 + 1); // one in content, one in the delimiter config
+  assert.equal((html.match(/\\\[/g) ?? []).length, 1 + 1 + 1); // one in content, one in its data-scieng-source copy, one in the delimiter config
 });
 
 test("latex auto-render lists the environments that a block may hold, so they do not stay literal", () => {
@@ -123,4 +123,88 @@ test("wavedrom guard names the refused token and the reason (F30)", () => {
       source,
     );
   }
+});
+
+const ENTITY: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", "#13": "\r", "#10": "\n" };
+/** Decodes the five escapes that the attribute encoder writes, in one pass. */
+const unescapeAttr = (s: string): string =>
+  s.replace(/&(amp|lt|gt|quot|#39|#13|#10);/g, (_, e: string) => ENTITY[e]!);
+
+/** Every value of a data-scieng-source attribute, in page order, after decoding. */
+const sourceAttrs = (html: string): string[] =>
+  [...html.matchAll(/data-scieng-source="([^"]*)"/g)].map((m) => unescapeAttr(m[1]!));
+
+const TRICKY = 'a "quoted" & <tag> \'single\'\nline two é ü 中 \ end';
+const EVERY_BLOCK = [
+  { type: "mermaid" as const, source: `classDiagram\nclass A {\n  +String "name" & <x>\n}\n%% é` },
+  { type: "dot" as const, source: 'digraph { a [label="x & <y> \\"q\\" é"] }' },
+  { type: "latex" as const, source: `a < b & "c" \frac{1}{2} é` },
+  { type: "plotly" as const, source: JSON.stringify({ data: [{ name: 'a"&<b é' }], layout: { title: "<t>&" } }) },
+  { type: "wavedrom" as const, source: '{ "signal": [{ "name": "a & <b> é \\"q\\"", "wave": "01.0" }] }' },
+  { type: "raw-html" as const, source: '<p data-x="a&quot;b">é & &lt;</p>' },
+];
+
+test("each block carries its exact source in data-scieng-source, for every block type", () => {
+  for (const block of EVERY_BLOCK) {
+    const html = buildHtml([block]);
+    assert.deepEqual(sourceAttrs(html), [block.source], `${block.type}: attribute does not round-trip`);
+  }
+});
+
+test("the attribute round-trips tricky text: quotes, ampersands, angle brackets, newlines, non-ASCII, CR", () => {
+  const html = buildHtml([{ type: "mermaid", source: TRICKY + "\r\nend" }]);
+  assert.deepEqual(sourceAttrs(html), [TRICKY + "\r\nend"]);
+});
+
+test("the attribute encodes a carriage return as &#13; and keeps no raw carriage return", () => {
+  const html = buildHtml([{ type: "mermaid", source: "a\r\nb" }]);
+  assert.match(html, /data-scieng-source="a&#13;\nb"/);
+  for (const m of html.matchAll(/data-scieng-source="([^"]*)"/g)) assert.doesNotMatch(m[1]!, /\r/);
+});
+
+test("the attribute encodes a single quote as &#39;", () => {
+  const html = buildHtml([{ type: "mermaid", source: "it's" }]);
+  assert.match(html, /data-scieng-source="it&#39;s"/);
+});
+
+test("the attribute value holds no raw quote, ampersand or angle bracket", () => {
+  const html = buildHtml(EVERY_BLOCK);
+  for (const m of html.matchAll(/data-scieng-source="([^"]*)"/g)) {
+    assert.doesNotMatch(m[1]!, /["<>]|&(?!(?:amp|lt|gt|quot|#39|#13|#10);)/);
+  }
+});
+
+test("a page with all six block types carries six attributes, in block order", () => {
+  assert.deepEqual(sourceAttrs(buildHtml(EVERY_BLOCK)), EVERY_BLOCK.map((b) => b.source));
+});
+
+test("the wavedrom panel has a light background and a visible border", () => {
+  const html = buildHtml([{ type: "wavedrom", source: '{ "signal": [] }' }]);
+  const rule = /\.wavedrom-block \{([^}]*)\}/.exec(html);
+  assert.ok(rule, "no .wavedrom-block rule");
+  assert.match(rule[1]!, /background:\s*#fff\b/);
+  assert.match(rule[1]!, /border:\s*1px solid #[0-9a-f]{6}/i);
+});
+
+/** WCAG relative luminance of a six-digit hex colour. */
+function luminance(hex: string): number {
+  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0]! + 0.7152 * c[1]! + 0.0722 * c[2]!;
+}
+const contrast = (a: string, b: string): number => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+test("dark page: body text, headings and the WaveDrom border meet the contrast floor", () => {
+  const html = buildHtml([{ type: "wavedrom", source: '{ "signal": [] }', title: "Timing" }]);
+  const root = /:root \{([^}]*)\}/.exec(html)![1]!;
+  const colour = (name: string): string => `#${new RegExp(`--${name}:\\s*#([0-9a-f]{6})`, "i").exec(root)![1]}`;
+  const bg = colour("bg");
+  assert.ok(contrast(colour("fg"), bg) >= 4.5, "body text on the page background is below 4.5:1");
+  assert.ok(contrast(colour("accent"), bg) >= 4.5, "heading on the page background is below 4.5:1");
+  const border = /\.wavedrom-block \{[^}]*border:\s*1px solid (#[0-9a-f]{6})/i.exec(html)![1]!;
+  assert.ok(contrast(border, bg) >= 3, "the panel border is below 3:1 against the page background");
+  assert.ok(contrast("#000000", "#ffffff") >= 4.5, "diagram text on the light panel is below 4.5:1");
 });

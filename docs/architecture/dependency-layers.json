@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "scieng-mcp",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "schemaVersion": "2.0.0",
     "language": "typescript"
   },
@@ -174,7 +174,7 @@
           {
             "file": "../src/render-mermaid.ts",
             "imports": [
-              "renderMermaid"
+              "renderMermaidSource"
             ]
           },
           {
@@ -247,6 +247,45 @@
           "assertNoDoctype",
           "replaceInRuns",
           "applyEdits"
+        ]
+      },
+      "src/render-any.ts": {
+        "description": "Renders any input type and output format that the sciengjs engine supports, and writes the bytes to disk.",
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "render",
+              "InputType",
+              "OutputFormat",
+              "RenderOptions"
+            ]
+          }
+        ],
+        "nodeDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "writeOutput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "renderAny"
+        ],
+        "interfaces": [
+          "AnyRenderResult"
+        ],
+        "functions": [
+          "renderAny"
         ]
       },
       "src/render-dot.ts": {
@@ -379,37 +418,40 @@
         ]
       },
       "src/render-mermaid.ts": {
-        "description": "Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.",
-        "externalDependencies": [],
-        "nodeDependencies": [
+        "description": "Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.",
+        "externalDependencies": [
           {
-            "module": "zlib",
+            "package": "@danielsimonjr/sciengjs",
             "imports": [
-              "deflateSync"
+              "render"
             ]
           }
         ],
+        "nodeDependencies": [],
         "internalDependencies": [
           {
             "file": "./render-lib.ts",
             "imports": [
-              "readInput",
-              "writeOutput",
-              "httpText",
-              "FetchLike"
+              "writeOutput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
             ]
           }
         ],
         "workspaceDependencies": [],
         "exports": [
-          "encodePako",
-          "renderMermaidSource",
-          "renderMermaid"
+          "MERMAID_FORMATS",
+          "renderMermaidSource"
         ],
         "functions": [
-          "encodePako",
-          "renderMermaidSource",
-          "renderMermaid"
+          "renderMermaidSource"
+        ],
+        "constants": [
+          "MERMAID_FORMATS"
         ]
       },
       "src/tools.ts": {
@@ -431,6 +473,8 @@
             "package": "@danielsimonjr/sciengjs",
             "imports": [
               "RENDER_ERROR_CODES",
+              "INPUT_TYPES",
+              "OUTPUT_FORMATS",
               "capabilities"
             ]
           }
@@ -449,7 +493,14 @@
           {
             "file": "./render-mermaid.ts",
             "imports": [
-              "renderMermaidSource"
+              "renderMermaidSource",
+              "MERMAID_FORMATS"
+            ]
+          },
+          {
+            "file": "./render-any.ts",
+            "imports": [
+              "renderAny"
             ]
           },
           {
@@ -558,6 +609,7 @@
       "files": [
         "src/engine-config.ts",
         "src/ooxml-edit.ts",
+        "src/render-any.ts",
         "src/render-dot.ts",
         "src/render-html.ts",
         "src/render-latex.ts",
