@@ -162,7 +162,7 @@ export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): str
   const styles = (Object.keys(BLOCK_STYLES) as BlockType[])
     .filter((t) => types.has(t)).map((t) => `\n    ${BLOCK_STYLES[t]!}`).join("");
   const body = blocks.map((b, i) => {
-    const inner = `<div class="scieng-block" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
+    const inner = `<div class="scieng-block" data-scieng-type="${b.type}" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
     return b.title ? `<section>\n<h2>${esc(b.title)}</h2>\n${inner}\n</section>` : inner;
   });
   return `<!DOCTYPE html>

@@ -6,9 +6,9 @@ import { join } from "node:path";
 import { RenderError, INPUT_TYPES, OUTPUT_FORMATS } from "@danielsimonjr/sciengjs";
 import { TOOLS, makeHandlers, dispatchTool, type ToolHandler } from "../src/tools.ts";
 
-test("exactly the seven tools are defined", () => {
+test("exactly the eight tools are defined", () => {
   assert.deepEqual(TOOLS.map((t) => t.name).sort(),
-    ["capabilities", "ooxml_replace", "render", "render_dot", "render_html", "render_latex", "render_mermaid"]);
+    ["capabilities", "html_to_markdown", "ooxml_replace", "render", "render_dot", "render_html", "render_latex", "render_mermaid"]);
   for (const t of TOOLS) assert.equal(t.inputSchema.type, "object");
 });
 

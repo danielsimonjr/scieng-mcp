@@ -2,7 +2,7 @@ import { createRequire as __createRequire } from 'node:module';import { fileURLT
 import {
   readPlotOptions,
   render
-} from "../chunk-35RWSO5A.mjs";
+} from "../chunk-Z4UEFC4G.mjs";
 import "../chunk-JFFRTQ6A.mjs";
 import "../chunk-Y7HUHYVH.mjs";
 export {

@@ -4,7 +4,7 @@ Rules for an agent that works on this repository. `CLAUDE.md` loads this file.
 
 ## What this repository is
 
-scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has seven tools:
+scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has eight tools:
 
 | Tool | Job |
 |---|---|
@@ -14,6 +14,7 @@ scieng-mcp is an MCP server over stdio and a Claude Code plugin. The server has 
 | `render_latex` | LaTeX math to an SVG, PNG or PDF file, drawn on this machine by the sciengjs engine |
 | `render_html` | typed blocks to one self-contained HTML page with pinned CDN imports |
 | `ooxml_replace` | find and replace in an unpacked `word/document.xml`, with the run formatting kept |
+| `html_to_markdown` | HTML (text or an `.html` file) to GitHub Flavored Markdown and its assets, through the sciengjs engine, written locally |
 | `capabilities` | the render pairs of the engine (type and format) with their readiness. Read-only |
 
 The plugin also ships the `scieng` skill and one slash command per diagram type.

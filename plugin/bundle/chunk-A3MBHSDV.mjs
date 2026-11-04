@@ -12,7 +12,7 @@ import { readFile as fsReadFile } from "node:fs/promises";
 import path from "node:path";
 
 // node_modules/@danielsimonjr/sciengjs/dist/version.js
-var ENGINE_VERSION = "0.5.0";
+var ENGINE_VERSION = "0.6.0";
 
 // node_modules/@danielsimonjr/sciengjs/dist/config.js
 var DEFAULT_ASSETS_URL = new URL("../assets/", import.meta.url).href;
@@ -26,7 +26,9 @@ var ENV = {
   maxMemoryMb: "SCIENG_MAX_MEMORY_MB",
   allowNetwork: "SCIENG_ALLOW_NETWORK",
   assetsUrl: "SCIENG_ASSETS_URL",
-  rasterFont: "SCIENG_RASTER_FONT"
+  rasterFont: "SCIENG_RASTER_FONT",
+  imageTimeoutMs: "SCIENG_IMAGE_TIMEOUT_MS",
+  maxImageBytes: "SCIENG_MAX_IMAGE_BYTES"
 };
 var RELEASE_URL_BASE = "https://github.com/danielsimonjr/sciengjs/releases/download";
 var NETWORK_POLICIES = ["none", "tex-bundles", "tex-bundles,images"];
@@ -63,7 +65,9 @@ function defaults(engineVersion) {
     maxSourceBytes: 10485760,
     maxMemoryMb: 2048,
     allowNetwork: "tex-bundles",
-    assetsUrl: DEFAULT_ASSETS_URL
+    assetsUrl: DEFAULT_ASSETS_URL,
+    imageTimeoutMs: 15e3,
+    maxImageBytes: 10485760
   };
 }
 function defaultConfigPath(d) {
@@ -85,6 +89,8 @@ function checkValue(key, value, source) {
     case "timeoutMs":
     case "maxSourceBytes":
     case "maxMemoryMb":
+    case "imageTimeoutMs":
+    case "maxImageBytes":
       if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
         return fail("must be a positive integer");
       }
@@ -98,8 +104,9 @@ function checkValue(key, value, source) {
       return checkAssetsUrl(value, `${source}: ${key}`);
   }
 }
+var NUMBER_KEYS = ["timeoutMs", "maxSourceBytes", "maxMemoryMb", "imageTimeoutMs", "maxImageBytes"];
 function fromEnvText(key, text, envName) {
-  if (key === "timeoutMs" || key === "maxSourceBytes" || key === "maxMemoryMb") {
+  if (NUMBER_KEYS.includes(key)) {
     if (!/^\d+$/.test(text)) {
       throw new RenderError("E_CONFIG", `${envName} must be a whole number, got "${text}"`);
     }
@@ -116,7 +123,9 @@ var ENV_KEYS = {
   maxMemoryMb: ENV.maxMemoryMb,
   allowNetwork: ENV.allowNetwork,
   assetsUrl: ENV.assetsUrl,
-  rasterFont: ENV.rasterFont
+  rasterFont: ENV.rasterFont,
+  imageTimeoutMs: ENV.imageTimeoutMs,
+  maxImageBytes: ENV.maxImageBytes
 };
 async function readConfigFile(filePath, explicit, d) {
   let text;

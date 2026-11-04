@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-KB4UG3Z6.mjs";
+} from "./chunk-A3MBHSDV.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35182,7 +35182,8 @@ var DEFAULT_REGISTRY = {
   "dot:pdf": { backend: "graph/viz+browser/chromium", moduleUrl: backendUrl("graph/backend-pdf") },
   "mermaid:pdf": { backend: "mermaid/browser/chromium", moduleUrl: backendUrl("mermaid/backend-pdf") },
   "html:png": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-png") },
-  "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") }
+  "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") },
+  "html:md": { backend: "html/md", moduleUrl: backendUrl("html/backend-md") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35274,7 +35275,7 @@ function runInWorker(job, limits) {
     worker.once("message", (msg) => {
       settle2(() => {
         if (msg.ok) {
-          resolve({ bytes: msg.bytes, warnings: msg.warnings, backend: msg.backend });
+          resolve({ bytes: msg.bytes, warnings: msg.warnings, backend: msg.backend, assets: msg.assets });
         } else {
           const code = msg.code;
           reject(new RenderError(code, msg.message, { line: msg.line, column: msg.column }));
@@ -35367,7 +35368,10 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
         rasterFont: cfg.rasterFont,
         assetsUrl: cfg.assetsUrl,
         browser: cfg.browser,
-        timeoutMs: cfg.timeoutMs
+        timeoutMs: cfg.timeoutMs,
+        allowNetwork: cfg.allowNetwork,
+        imageTimeoutMs: cfg.imageTimeoutMs,
+        maxImageBytes: cfg.maxImageBytes
       }
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
@@ -35375,7 +35379,8 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
     bytes: out.bytes,
     mime: MIME[req.format],
     backend: out.backend ?? entry.backend,
-    warnings: out.warnings ?? []
+    warnings: out.warnings ?? [],
+    ...out.assets !== void 0 && out.assets.length > 0 ? { assets: out.assets } : {}
   };
 }
 async function capabilitiesWithRegistry(options, registry2, configDeps) {
@@ -35684,7 +35689,7 @@ function buildHtml(blocks, title = "scieng playground") {
   const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
     ${BLOCK_STYLES[t]}`).join("");
   const body = blocks.map((b, i) => {
-    const inner = `<div class="scieng-block" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
+    const inner = `<div class="scieng-block" data-scieng-type="${b.type}" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
     return b.title ? `<section>
 <h2>${esc2(b.title)}</h2>
 ${inner}
@@ -35872,6 +35877,61 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
   return { results, replaced_count: made, written: made > 0 };
 }
 
+// src/render-markdown.ts
+import { existsSync, mkdirSync as mkdirSync2, writeFileSync as writeFileSync3 } from "node:fs";
+import { dirname as dirname3, extname as extname4, join as join3 } from "node:path";
+function assetFilePath(dir, name) {
+  if (name === "") {
+    throw new Error("asset name must not be empty");
+  }
+  if (name.includes("..")) {
+    throw new Error('asset name must not contain ".."');
+  }
+  if (name.includes("/") || name.includes("\\")) {
+    throw new Error("asset name must not contain path separators");
+  }
+  return join3(dir, name);
+}
+function uniquePath(dir, name) {
+  const first = join3(dir, name);
+  if (!existsSync(first)) return first;
+  const ext = extname4(name);
+  const base = name.slice(0, name.length - ext.length);
+  for (let i = 2; ; i++) {
+    const candidate = join3(dir, `${base}-${i}${ext}`);
+    if (!existsSync(candidate)) return candidate;
+  }
+}
+async function htmlToMarkdownFile(a) {
+  if (!!a.html === !!a.input_path) throw new Error("provide exactly one of html or input_path");
+  const source = a.html !== void 0 ? a.html : readInput(a.input_path);
+  const res = await render(
+    {
+      type: "html",
+      format: "md",
+      source,
+      options: { downloadImages: a.download_images ?? false, browser: a.browser ?? false }
+    },
+    engineConfig()
+  );
+  let markdown = new TextDecoder().decode(res.bytes);
+  const dir = dirname3(a.output_path);
+  const assetPaths = [];
+  if (res.assets && res.assets.length > 0) mkdirSync2(dir, { recursive: true });
+  for (const asset of res.assets ?? []) {
+    assetFilePath(dir, asset.name);
+    const target = uniquePath(dir, asset.name);
+    const finalName = target.slice(dir.length + 1);
+    if (finalName !== asset.name) {
+      markdown = markdown.split(`(${asset.name})`).join(`(${finalName})`);
+    }
+    writeFileSync3(target, asset.bytes);
+    assetPaths.push(target);
+  }
+  writeOutput(a.output_path, markdown);
+  return { path: a.output_path, bytes: Buffer.byteLength(markdown, "utf-8"), assets: assetPaths, warnings: res.warnings };
+}
+
 // src/tools.ts
 async function dispatchTool(handlers, name, args) {
   if (!Object.hasOwn(handlers, name)) {
@@ -35999,6 +36059,23 @@ var TOOLS = [
     }
   },
   {
+    name: "html_to_markdown",
+    description: "Convert HTML to GitHub Flavored Markdown locally, through the sciengjs engine. Give exactly one of html (text) or input_path (an .html file). output_path is the .md file. Each asset of the page is written into the folder of output_path under its asset name; an existing file is never overwritten (a new name gets -2, -3). download_images fetches remote images only when the engine config allows images; browser uses a headless browser. Returns {path, bytes, assets, warnings}. An engine error returns its code.",
+    annotations: { readOnlyHint: false, destructiveHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        html: { type: "string", description: "Inline HTML text. Provide exactly one of html / input_path." },
+        input_path: { type: "string", description: "Path to an .html file. Provide exactly one of html / input_path." },
+        output_path: { type: "string", description: "Output .md path (required)." },
+        download_images: { type: "boolean", description: "Fetch remote images (default false)." },
+        browser: { type: "boolean", description: "Use a headless browser for the conversion (default false)." }
+      },
+      required: ["output_path"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "ooxml_replace",
     description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. A match does not cross a w:br, w:tab or w:cr element. A rewritten w:t element is re-encoded; other elements keep their bytes. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
@@ -36056,6 +36133,13 @@ var HtmlArgs = external_exports.object({
   }).strict()).min(1),
   title: external_exports.string().optional(),
   output_path: external_exports.string()
+}).strict();
+var HtmlToMarkdownArgs = external_exports.object({
+  html: external_exports.string().optional(),
+  input_path: external_exports.string().optional(),
+  output_path: external_exports.string(),
+  download_images: external_exports.boolean().optional(),
+  browser: external_exports.boolean().optional()
 }).strict();
 var OoxmlArgs = external_exports.object({
   document_xml_path: external_exports.string(),
@@ -36115,6 +36199,10 @@ function makeHandlers() {
       const html = buildHtml(blocks, a.title);
       writeOutput(a.output_path, html);
       return result(a.output_path, html);
+    },
+    html_to_markdown: async (raw) => {
+      const a = HtmlToMarkdownArgs.parse(raw ?? {});
+      return JSON.stringify(await htmlToMarkdownFile(a));
     },
     ooxml_replace: async (raw) => {
       const a = OoxmlArgs.parse(raw ?? {});

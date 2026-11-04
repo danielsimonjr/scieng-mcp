@@ -7,7 +7,7 @@ import {
 import {
   readPlotFigure,
   readPlotOptions
-} from "../chunk-35RWSO5A.mjs";
+} from "../chunk-Z4UEFC4G.mjs";
 import "../chunk-JFFRTQ6A.mjs";
 import "../chunk-Y7HUHYVH.mjs";
 
