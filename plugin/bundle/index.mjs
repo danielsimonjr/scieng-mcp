@@ -35620,6 +35620,21 @@ var BLOCK_STYLES = {
   wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border: 1px solid #8a8a8a; border-radius: 4px; overflow-x: auto; }`
 };
 var hasOwnDelimiters = (tex) => tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
+var inputError = (message) => Object.assign(new Error(message), { name: "RenderError", code: "E_INPUT" });
+var decodeRefs = (s) => s.replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCodePoint(parseInt(h, 16) % 1114112)).replace(/&#(\d+);?/g, (_, d) => String.fromCodePoint(Number(d) % 1114112)).replace(/&colon;/gi, ":").replace(/&(tab|newline);/gi, "");
+function unsafeSvg(svg) {
+  if (/<script/i.test(svg)) return "a script tag";
+  if (/<foreignObject/i.test(svg)) return "a foreignObject element";
+  if (/[\s/"']on\w+\s*=/i.test(svg)) return "an event-handler attribute";
+  if (/javascript:/i.test(decodeRefs(svg).replace(/[\s\x00-\x1f]/g, ""))) return "a javascript: URL";
+  return void 0;
+}
+function scopeSvgIds(svg, suffix) {
+  const ids = new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+  if (ids.size === 0) return svg;
+  const scoped = (id) => ids.has(id) ? id + suffix : id;
+  return svg.replace(/\bid="([^"]+)"/g, (_, id) => `id="${scoped(id)}"`).replace(/url\(\s*(['"]?)#([^'")\s]+)\1\s*\)/g, (_, q, id) => `url(${q}#${scoped(id)}${q})`).replace(/(href=")#([^"]+)"/g, (_, h, id) => `${h}#${scoped(id)}"`);
+}
 function renderBlock(b, i) {
   switch (b.type) {
     case "mermaid":
@@ -35634,8 +35649,9 @@ function renderBlock(b, i) {
     case "plotly": {
       if (b.static) {
         if (b.svg === void 0) throw new Error(`plotly block ${i}: a static block needs its SVG (the svg field is missing)`);
-        if (/<script/i.test(b.svg)) throw new Error(`plotly block ${i}: the SVG of a static block must not contain a script tag`);
-        return `<div class="plotly-static">${b.svg}</div>`;
+        const unsafe = unsafeSvg(b.svg);
+        if (unsafe) throw new Error(`plotly block ${i}: the SVG of a static block must not contain ${unsafe}`);
+        return `<div class="plotly-static">${scopeSvgIds(b.svg, `-b${i}`)}</div>`;
       }
       let spec;
       try {
@@ -35658,6 +35674,9 @@ function renderBlock(b, i) {
 }
 function buildHtml(blocks, title = "scieng playground") {
   if (blocks.length === 0) throw new Error("buildHtml needs at least one block");
+  blocks.forEach((b, i) => {
+    if (b.static && b.type !== "plotly") throw inputError(`${b.type} block ${i}: static is valid only on a plotly block`);
+  });
   const types = new Set(blocks.map((b) => b.type === "plotly" && b.static ? "static-plotly" : b.type));
   const imports = Object.keys(HEAD_IMPORTS).filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = Object.keys(INIT_SCRIPTS).filter((t) => types.has(t)).map((t) => INIT_SCRIPTS[t]);
