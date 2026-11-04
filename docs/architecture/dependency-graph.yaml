@@ -188,6 +188,7 @@ modules:
     src/render-lib.ts:
       externalDependencies: []
       nodeDependencies:
+        - node:crypto
         - node:fs
         - node:path
       internalDependencies: []
@@ -562,7 +563,7 @@ statistics:
   totalTypeScriptFiles: 33
   totalSourceFiles: 33
   totalModules: 3
-  totalLinesOfCode: 4925
+  totalLinesOfCode: 4950
   totalExports: 95
   entryRoots: 1
   reachableFiles: 11

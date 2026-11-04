@@ -15,7 +15,7 @@ The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
 | `totalSourceFiles` | 33 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 4925 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 4950 | The census. | `dependency-graph.json` |
 | `totalExports` | 95 | The census. See `dependency-graph.json` for the count per file. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
@@ -28,8 +28,8 @@ The 45 exports in `src/` are the declarations that start at the first column of 
 
 ```
 scieng-mcp/
-├── src/                    Server source. 11 files, 1493 lines.
-├── test/                   node:test suites. 16 files, 2223 lines.
+├── src/                    Server source. 11 files, 1500 lines.
+├── test/                   node:test suites. 16 files, 2241 lines.
 ├── scripts/                Bundle build, network guard for the tests, handshake check. 3 files, 127 lines.
 ├── smoke/                  Live-service smoke test. 1 file, 67 lines. No package script runs it.
 ├── plugin/                 Files that the plugin installs.
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4925. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4950. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -115,7 +115,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 33 | dependency-graph.json |
-| totalLinesOfCode | 4925 | dependency-graph.json |
+| totalLinesOfCode | 4950 | dependency-graph.json |
 | totalExports | 95 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

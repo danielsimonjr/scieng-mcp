@@ -57,7 +57,7 @@ This report lists each source file that the map census finds, with a disposition
 | `src/render-dot.ts` | scieng-mcp | src | reachable | 16 |
 | `src/render-html.ts` | scieng-mcp | src | reachable | 217 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 200 |
-| `src/render-lib.ts` | scieng-mcp | src | reachable | 140 |
+| `src/render-lib.ts` | scieng-mcp | src | reachable | 147 |
 | `src/render-markdown.ts` | scieng-mcp | src | reachable | 249 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
 | `src/tools.ts` | scieng-mcp | src | reachable | 344 |
@@ -72,7 +72,7 @@ This report lists each source file that the map census finds, with a disposition
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
 | `test/render-html.test.ts` | (root) | tests | test | 350 |
 | `test/render-latex.test.ts` | (root) | tests | test | 212 |
-| `test/render-lib.test.ts` | (root) | tests | test | 175 |
+| `test/render-lib.test.ts` | (root) | tests | test | 193 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 55 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
 | `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
