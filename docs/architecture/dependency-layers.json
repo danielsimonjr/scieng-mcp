@@ -438,6 +438,65 @@
           "RETRY_AFTER_CAP_MS"
         ]
       },
+      "src/render-markdown.ts": {
+        "description": "Converts HTML (inline or from a file) to Markdown at output_path.",
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "render"
+            ]
+          }
+        ],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "existsSync",
+              "mkdirSync",
+              "writeFileSync"
+            ]
+          },
+          {
+            "module": "path",
+            "imports": [
+              "dirname",
+              "extname",
+              "join"
+            ]
+          }
+        ],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "readInput",
+              "writeOutput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "assetFilePath",
+          "uniquePath",
+          "htmlToMarkdownFile"
+        ],
+        "interfaces": [
+          "MarkdownResult",
+          "HtmlToMarkdownArgs"
+        ],
+        "functions": [
+          "assetFilePath",
+          "uniquePath",
+          "htmlToMarkdownFile"
+        ]
+      },
       "src/render-mermaid.ts": {
         "description": "Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.",
         "externalDependencies": [
@@ -556,6 +615,12 @@
             "imports": [
               "applyEdits"
             ]
+          },
+          {
+            "file": "./render-markdown.ts",
+            "imports": [
+              "htmlToMarkdownFile"
+            ]
           }
         ],
         "workspaceDependencies": [],
@@ -637,6 +702,7 @@
         "src/render-html.ts",
         "src/render-latex.ts",
         "src/render-lib.ts",
+        "src/render-markdown.ts",
         "src/render-mermaid.ts",
         "src/tools.ts"
       ]

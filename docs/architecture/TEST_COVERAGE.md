@@ -8,11 +8,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Source Files | 12 |
-| Total Test Files | 15 |
-| Source Files with Tests | 9 |
+| Total Source Files | 13 |
+| Total Test Files | 16 |
+| Source Files with Tests | 10 |
 | Source Files without Tests | 3 |
-| Coverage (raw, direct-import) | **75.0%** |
+| Coverage (raw, direct-import) | **76.9%** |
 ---
 
 ## Source Files Not Imported By A Test
@@ -41,8 +41,9 @@ The following 3 source files are not directly imported by any test file:
 | `src/render-html.ts` | `render-html.test.ts` |
 | `src/render-latex.ts` | `render-latex.test.ts` |
 | `src/render-lib.ts` | `render-lib.test.ts` |
+| `src/render-markdown.ts` | `html-to-markdown.test.ts` |
 | `src/render-mermaid.ts` | `render-mermaid.test.ts` |
-| `src/tools.ts` | `plugin-content.test.ts`, `render-html.test.ts`, `tools.test.ts` |
+| `src/tools.ts` | `html-to-markdown.test.ts`, `plugin-content.test.ts`, `render-html.test.ts`, `tools.test.ts` |
 
 ---
 
@@ -53,6 +54,7 @@ The following 3 source files are not directly imported by any test file:
 | `test/bundle-gate.test.ts` | 0 files |
 | `test/docs-latex.test.ts` | 0 files |
 | `test/engine-config.test.ts` | 1 files |
+| `test/html-to-markdown.test.ts` | 2 files |
 | `test/no-network.test.ts` | 0 files |
 | `test/ooxml-edit.test.ts` | 1 files |
 | `test/plugin-content.test.ts` | 1 files |

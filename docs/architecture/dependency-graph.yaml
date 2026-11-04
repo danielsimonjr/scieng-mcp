@@ -2,9 +2,9 @@ metadata:
   name: scieng-mcp
   schemaVersion: 2.0.0
   language: typescript
-  totalFiles: 31
+  totalFiles: 33
   totalModules: 3
-  totalExports: 88
+  totalExports: 93
 modules:
   src:
     plugin/skills/scieng/engineering-patterns.ts:
@@ -200,6 +200,28 @@ modules:
         - deriveOutputPath
         - writeOutput
         - mapLimit
+    src/render-markdown.ts:
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
+      nodeDependencies:
+        - node:fs
+        - node:path
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - readInput
+            - writeOutput
+          typeOnly: false
+        - file: src/engine-config.ts
+          imports:
+            - engineConfig
+          typeOnly: false
+      exports:
+        - MarkdownResult
+        - assetFilePath
+        - uniquePath
+        - HtmlToMarkdownArgs
+        - htmlToMarkdownFile
     src/render-mermaid.ts:
       externalDependencies:
         - '@danielsimonjr/sciengjs'
@@ -262,6 +284,10 @@ modules:
         - file: src/ooxml-edit.ts
           imports:
             - applyEdits
+          typeOnly: false
+        - file: src/render-markdown.ts
+          imports:
+            - htmlToMarkdownFile
           typeOnly: false
       exports:
         - ToolHandler
@@ -328,6 +354,24 @@ modules:
           imports:
             - bundledEngineConfig
             - engineConfig
+          typeOnly: false
+      exports: []
+    test/html-to-markdown.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+      internalDependencies:
+        - file: src/tools.ts
+          imports:
+            - makeHandlers
+          typeOnly: false
+        - file: src/render-markdown.ts
+          imports:
+            - '*'
           typeOnly: false
       exports: []
     test/no-network.test.ts:
@@ -511,13 +555,13 @@ modules:
           typeOnly: false
       exports: []
 statistics:
-  totalTypeScriptFiles: 31
-  totalSourceFiles: 31
+  totalTypeScriptFiles: 33
+  totalSourceFiles: 33
   totalModules: 3
-  totalLinesOfCode: 4427
-  totalExports: 88
+  totalLinesOfCode: 4628
+  totalExports: 93
   entryRoots: 1
-  reachableFiles: 10
+  reachableFiles: 11
   dormantFiles: 3
   orphanedFiles: 3
   testOnlyFiles: 0
@@ -532,8 +576,8 @@ statistics:
   runtimeFilesInCycles: 0
   typeOnlyFilesInCycles: 0
   totalClasses: 12
-  totalInterfaces: 7
-  totalFunctions: 22
+  totalInterfaces: 9
+  totalFunctions: 25
   totalTypeGuards: 0
   totalEnums: 0
   totalConstants: 11
@@ -541,7 +585,7 @@ statistics:
 reachability:
   roots:
     - src/index.ts
-  reachableCount: 10
+  reachableCount: 11
   dormantCount: 3
   orphaned:
     - plugin/skills/scieng/engineering-patterns.ts

@@ -8,37 +8,37 @@ This report lists each source file that the map census finds, with a disposition
 
 **Language**: typescript
 
-**Total files**: 31
+**Total files**: 33
 
 ## Disposition counts
 
 | Disposition | Count | Meaning |
 | --- | --: | --- |
-| `reachable` | 9 | A `src`-area file that an entry root reaches. |
+| `reachable` | 10 | A `src`-area file that an entry root reaches. |
 | `build-entry` | 1 | A `src`-area file that is an entry root. |
 | `test-only` | 0 | A `src`-area file that only a test reaches. |
 | `orphan` | 3 | A `src`-area file that nothing reaches. Delete it, or wire it to a root. |
-| `test` | 15 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
+| `test` | 16 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
 | `tool` | 3 | A file in a `tools/` or `scripts/` folder outside `src/`. |
 | `config` | 0 | A `*.config.*` file of TypeScript or JavaScript. |
 | `example` | 0 | A file in `examples/` or `docs/`. |
 | `bench` | 0 | A file in `bench/` or `benchmarks/`, or a `*.bench.*` file. |
-| **Total** | **31** | |
+| **Total** | **33** | |
 
 ## Per-area counts
 
 | Area | Files |
 | --- | --: |
-| `src` | 13 |
-| `tests` | 15 |
+| `src` | 14 |
+| `tests` | 16 |
 | `tools` | 3 |
 
 ## Per-package counts
 
 | Package | Files |
 | --- | --: |
-| `(root)` | 21 |
-| `scieng-mcp` | 10 |
+| `(root)` | 22 |
+| `scieng-mcp` | 11 |
 
 ## All files
 
@@ -58,17 +58,19 @@ This report lists each source file that the map census finds, with a disposition
 | `src/render-html.ts` | scieng-mcp | src | reachable | 217 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 200 |
 | `src/render-lib.ts` | scieng-mcp | src | reachable | 140 |
+| `src/render-markdown.ts` | scieng-mcp | src | reachable | 84 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
-| `src/tools.ts` | scieng-mcp | src | reachable | 314 |
+| `src/tools.ts` | scieng-mcp | src | reachable | 344 |
 | `test/bundle-gate.test.ts` | (root) | tests | test | 192 |
 | `test/docs-latex.test.ts` | (root) | tests | test | 21 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
+| `test/html-to-markdown.test.ts` | (root) | tests | test | 80 |
 | `test/no-network.test.ts` | (root) | tests | test | 39 |
 | `test/ooxml-edit.test.ts` | (root) | tests | test | 199 |
 | `test/plugin-content.test.ts` | (root) | tests | test | 158 |
 | `test/render-any.test.ts` | (root) | tests | test | 46 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
-| `test/render-html.test.ts` | (root) | tests | test | 343 |
+| `test/render-html.test.ts` | (root) | tests | test | 350 |
 | `test/render-latex.test.ts` | (root) | tests | test | 212 |
 | `test/render-lib.test.ts` | (root) | tests | test | 175 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 55 |

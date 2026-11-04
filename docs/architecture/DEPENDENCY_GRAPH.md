@@ -32,7 +32,7 @@ The codebase is organized into the following modules:
 
 - **plugin/skills**: 2 files
 - **smoke**: 1 file
-- **root**: 9 files
+- **root**: 10 files
 - **entry**: 1 file
 
 ---
@@ -206,6 +206,31 @@ The codebase is organized into the following modules:
 
 ---
 
+### `src/render-markdown.ts` - Converts HTML (inline or from a file) to Markdown at output_path.
+
+**External Dependencies:**
+| Package | Import |
+|---------|--------|
+| `@danielsimonjr/sciengjs` | `render` |
+
+**Node.js Built-in Dependencies:**
+| Module | Import |
+|--------|--------|
+| `fs` | `existsSync, mkdirSync, writeFileSync` |
+| `path` | `dirname, extname, join` |
+
+**Internal Dependencies:**
+| File | Imports | Type |
+|------|---------|------|
+| `./render-lib.ts` | `readInput, writeOutput` | Import |
+| `./engine-config.ts` | `engineConfig` | Import |
+
+**Exports:**
+- Interfaces: `MarkdownResult`, `HtmlToMarkdownArgs`
+- Functions: `assetFilePath`, `uniquePath`, `htmlToMarkdownFile`
+
+---
+
 ### `src/render-mermaid.ts` - Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.
 
 **External Dependencies:**
@@ -246,6 +271,7 @@ The codebase is organized into the following modules:
 | `./render-latex.ts` | `renderLatexSource, LATEX_FORMATS` | Import |
 | `./render-html.ts` | `buildHtml, resolveStaticBlocks, HtmlBlock` | Import |
 | `./ooxml-edit.ts` | `applyEdits` | Import |
+| `./render-markdown.ts` | `htmlToMarkdownFile` | Import |
 
 **Exports:**
 - Interfaces: `ToolResult`
@@ -281,14 +307,15 @@ The codebase is organized into the following modules:
 
 | File | Imports From | Exports To |
 |------|--------------|------------|
-| `src/tools` | 8 files | 1 file |
-| `src/engine-config` | 0 files | 5 files |
-| `src/render-lib` | 0 files | 5 files |
+| `src/tools` | 9 files | 1 file |
+| `src/engine-config` | 0 files | 6 files |
+| `src/render-lib` | 0 files | 6 files |
 | `src/render-dot` | 2 files | 2 files |
 | `src/render-latex` | 2 files | 2 files |
 | `src/render-mermaid` | 2 files | 2 files |
 | `smoke/render.smoke` | 3 files | 0 files |
 | `src/render-any` | 2 files | 1 file |
+| `src/render-markdown` | 2 files | 1 file |
 | `src/index` | 1 file | 0 files |
 | `src/ooxml-edit` | 0 files | 1 file |
 | `src/render-html` | 0 files | 1 file |
@@ -325,18 +352,19 @@ graph TD
         N7[render-html]
         N8[render-latex]
         N9[render-lib]
-        N10[render-mermaid]
-        N11[tools]
+        N10[render-markdown]
+        N11[render-mermaid]
+        N12[tools]
     end
 
     subgraph Entry
-        N12[index]
+        N13[index]
     end
 
     N2 --> N6
-    N2 --> N10
+    N2 --> N11
     N2 --> N8
-    N12 --> N11
+    N13 --> N12
     N5 --> N9
     N5 --> N3
     N6 --> N9
@@ -346,13 +374,16 @@ graph TD
     N10 --> N9
     N10 --> N3
     N11 --> N9
-    N11 --> N10
-    N11 --> N5
-    N11 --> N6
     N11 --> N3
-    N11 --> N8
-    N11 --> N7
-    N11 --> N4
+    N12 --> N9
+    N12 --> N11
+    N12 --> N5
+    N12 --> N6
+    N12 --> N3
+    N12 --> N8
+    N12 --> N7
+    N12 --> N4
+    N12 --> N10
 ```
 
 ---
@@ -362,14 +393,14 @@ graph TD
 
 | Category | Count |
 |----------|-------|
-| Total Source Files | 31 |
+| Total Source Files | 33 |
 | Subsystems | 4 |
-| Total Lines of Code | 4427 |
-| Total Exports | 88 |
+| Total Lines of Code | 4628 |
+| Total Exports | 93 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
-| Total Interfaces | 7 |
-| Total Functions | 22 |
+| Total Interfaces | 9 |
+| Total Functions | 25 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
 | Type-only Imports | 0 |
