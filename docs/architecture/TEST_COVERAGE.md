@@ -9,7 +9,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 12 |
-| Total Test Files | 13 |
+| Total Test Files | 15 |
 | Source Files with Tests | 9 |
 | Source Files without Tests | 3 |
 | Coverage (raw, direct-import) | **75.0%** |
@@ -51,7 +51,9 @@ The following 3 source files are not directly imported by any test file:
 | Test File | Imports from Source |
 |-----------|---------------------|
 | `test/bundle-gate.test.ts` | 0 files |
+| `test/docs-latex.test.ts` | 0 files |
 | `test/engine-config.test.ts` | 1 files |
+| `test/no-network.test.ts` | 0 files |
 | `test/ooxml-edit.test.ts` | 1 files |
 | `test/plugin-content.test.ts` | 1 files |
 | `test/render-any.test.ts` | 1 files |

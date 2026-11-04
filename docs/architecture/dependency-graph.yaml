@@ -2,7 +2,7 @@ metadata:
   name: scieng-mcp
   schemaVersion: 2.0.0
   language: typescript
-  totalFiles: 29
+  totalFiles: 31
   totalModules: 3
   totalExports: 86
 modules:
@@ -305,6 +305,15 @@ modules:
         - node:url
       internalDependencies: []
       exports: []
+    test/docs-latex.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:fs
+        - node:path
+        - node:test
+      internalDependencies: []
+      exports: []
     test/engine-config.test.ts:
       externalDependencies: []
       nodeDependencies:
@@ -316,6 +325,18 @@ modules:
             - bundledEngineConfig
             - engineConfig
           typeOnly: false
+      exports: []
+    test/no-network.test.ts:
+      externalDependencies: []
+      nodeDependencies:
+        - node:assert/strict
+        - node:child_process
+        - node:fs
+        - node:os
+        - node:path
+        - node:test
+        - node:url
+      internalDependencies: []
       exports: []
     test/ooxml-edit.test.ts:
       externalDependencies: []
@@ -395,7 +416,6 @@ modules:
         - node:os
         - node:path
         - node:test
-        - node:url
       internalDependencies:
         - file: src/render-latex.ts
           imports:
@@ -482,10 +502,10 @@ modules:
           typeOnly: false
       exports: []
 statistics:
-  totalTypeScriptFiles: 29
-  totalSourceFiles: 29
+  totalTypeScriptFiles: 31
+  totalSourceFiles: 31
   totalModules: 3
-  totalLinesOfCode: 4051
+  totalLinesOfCode: 4172
   totalExports: 86
   entryRoots: 1
   reachableFiles: 10

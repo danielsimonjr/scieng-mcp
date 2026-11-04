@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 12,
-    "totalTestFiles": 13,
+    "totalTestFiles": 15,
     "testedCount": 9,
     "untestedCount": 3,
     "coveragePercent": "75.0",
@@ -68,9 +68,11 @@
   },
   "testToSourceMap": {
     "test/bundle-gate.test.ts": [],
+    "test/docs-latex.test.ts": [],
     "test/engine-config.test.ts": [
       "src/engine-config.ts"
     ],
+    "test/no-network.test.ts": [],
     "test/ooxml-edit.test.ts": [
       "src/ooxml-edit.ts"
     ],
