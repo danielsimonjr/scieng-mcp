@@ -108,7 +108,7 @@ test("renderLatexSource throws the engine error when every block fails", async (
   });
 });
 
-// The three headers that latex.codecogs.com returns (live, measured). Unitless, double-quoted, viewBox equals the size.
+// Three measured SVG headers of a remote LaTeX renderer. Unitless, double-quoted, viewBox equals the size.
 const LIVE_1 = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 73.27 19.12" width="73.27" height="19.12"><path d="M0 0"/></svg>';
 const LIVE_2 = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 87.64 51.76" width="87.64" height="51.76"><path d="M0 0"/></svg>';
 const LIVE_3 = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17.84 36.69" width="17.84" height="36.69"><path d="M0 0"/></svg>';
@@ -138,7 +138,7 @@ function assertNear(actual: number, expected: number): void {
   assert.ok(Math.abs(actual - expected) < 1e-9, `expected ${expected}, got ${actual}`);
 }
 
-test("combineSvgs stacks the live codecogs headers with no overlap", () => {
+test("combineSvgs stacks three measured unitless headers with no overlap", () => {
   const out = combineSvgs([LIVE_1, LIVE_2, LIVE_3]);
   const boxes = nestedBoxes(out);
   assert.equal(boxes.length, 3);

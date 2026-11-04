@@ -76,8 +76,8 @@ test("httpText fails fast on 4xx (no retry)", async () => {
 test("httpText error message names the service (host)", async () => {
   const fake: typeof fetch = async () => new Response("nope", { status: 404 });
   await assert.rejects(
-    () => httpText("https://codecogs.example.com/render", { fetchImpl: fake, retries: 0 }),
-    /HTTP 404 from codecogs\.example\.com: nope/,
+    () => httpText("https://render.example.com/render", { fetchImpl: fake, retries: 0 }),
+    /HTTP 404 from render\.example\.com: nope/,
   );
 });
 
