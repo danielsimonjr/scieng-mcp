@@ -1,16 +1,16 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   DEFAULT_ASSETS_URL
-} from "./chunk-AQT2E3NM.mjs";
+} from "./chunk-CBVLJN63.mjs";
+import {
+  dotSourceText,
+  dotToSvg
+} from "./chunk-4KI3PA2R.mjs";
 import {
   RESVG_WASM_FILE,
   bundledFontPathIn,
   readAsset
 } from "./chunk-T5W7ILUB.mjs";
-import {
-  dotSourceText,
-  dotToSvg
-} from "./chunk-4KI3PA2R.mjs";
 import {
   RenderError
 } from "./chunk-JFFRTQ6A.mjs";

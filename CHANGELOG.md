@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-04
+
+### Changed
+
+- `render_latex` renders each block on this machine through the sciengjs `math` type. It makes no network request. The latex.codecogs.com service is removed.
+- `render_latex` takes `format` (`svg` default, `png` or `pdf`) and `scale`. A png or pdf takes one block. `scale` applies to png only. svg and pdf ignore `scale` and add a warning.
+- `render_latex` returns a `warnings` array.
+- `extractBlocks` returns the blocks in source order. Before, the display blocks came after all environments.
+- The sciengjs engine dependency moves to `^0.4.0`.
+
+### Deprecated
+
+- `render_latex` `dpi`. For png with no `scale`, the scale is `dpi`/100. svg and pdf ignore `dpi` and add a warning.
+
+### Fixed
+
+- `writeOutput` creates a missing parent folder.
+
+### Added
+
+- A test spawns Node with no network permission and renders LaTeX, Mermaid and DOT to svg.
+
 ## [0.7.0] - 2026-11-03
 
 ### Added

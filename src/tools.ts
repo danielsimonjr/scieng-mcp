@@ -1,12 +1,12 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
-import { readInput, deriveOutputPath, writeOutput, type FetchLike } from "./render-lib.ts";
+import { readInput, deriveOutputPath, writeOutput } from "./render-lib.ts";
 import { renderMermaidSource, MERMAID_FORMATS } from "./render-mermaid.ts";
 import { renderAny } from "./render-any.ts";
 import { renderDotSource } from "./render-dot.ts";
 import { engineConfig } from "./engine-config.ts";
-import { renderLatexSource } from "./render-latex.ts";
+import { renderLatexSource, LATEX_FORMATS } from "./render-latex.ts";
 import { buildHtml, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
 
@@ -131,11 +131,16 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "render_latex",
-    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG file via latex.codecogs.com. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
+    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf; a png or pdf takes one block. For png or pdf, an output_path that ends in .svg gets the .png or .pdf extension; any other extension is kept. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
-      properties: { ...renderIo, dpi: { type: "number", description: "Render DPI (default 200)." } },
+      properties: {
+        ...renderIo,
+        format: { type: "string", enum: [...LATEX_FORMATS], description: "Output format (default svg)." },
+        scale: { type: "number", description: "Scale of the render. Applies to png only; svg and pdf ignore it with a warning." },
+        dpi: { type: "number", description: "Deprecated alias of scale: for png with no scale, scale is dpi/100. svg and pdf ignore it with a warning." },
+      },
       additionalProperties: false,
     },
   },
@@ -238,10 +243,29 @@ const OoxmlArgs = z.object({
 }).strict();
 
 /**
- * Creates the handler of each tool, keyed by the tool name.
- * The fetchImpl parameter replaces the global fetch for the remote renderer, LaTeX.
+ * Resolves the scale of a LaTeX render from scale and the deprecated dpi alias.
+ * For png, scale wins; with no scale, scale is dpi/100. For svg and pdf, both values are ignored with a warning.
  */
-export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolHandler> {
+function latexScale(format: string, scale: number | undefined, dpi: number | undefined): { scale: number | undefined; warnings: string[] } {
+  const warnings: string[] = [];
+  if (format !== "png") {
+    if (dpi !== undefined) warnings.push(`dpi is deprecated and applies to png only; ignored for ${format}`);
+    if (scale !== undefined) warnings.push(`scale applies to png only; ignored for ${format}`);
+    return { scale: undefined, warnings };
+  }
+  if (dpi === undefined) return { scale, warnings };
+  if (scale !== undefined) {
+    warnings.push("dpi is deprecated; ignored because scale is set");
+    return { scale, warnings };
+  }
+  warnings.push(`dpi is deprecated; use scale (dpi ${dpi} gives scale ${dpi / 100})`);
+  return { scale: dpi / 100, warnings };
+}
+
+/**
+ * Creates the handler of each tool, keyed by the tool name.
+ */
+export function makeHandlers(): Record<string, ToolHandler> {
   return {
     render_mermaid: async (raw) => {
       const format = MermaidFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
@@ -266,9 +290,12 @@ export function makeHandlers(fetchImpl: FetchLike = fetch): Record<string, ToolH
       return JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) });
     },
     render_latex: async (raw) => {
-      const { code, out, args } = resolveRenderIo(raw, { dpi: z.number().optional() });
-      const { svg, failures } = await renderLatexSource(code, out, { dpi: args.dpi as number | undefined, fetchImpl });
-      return result(out, svg, { failures });
+      const { code, out, args } = resolveRenderIo(raw, { format: z.enum(LATEX_FORMATS).optional(), scale: z.number().optional(), dpi: z.number().optional() }, ".svg");
+      const format = (args.format as (typeof LATEX_FORMATS)[number] | undefined) ?? "svg";
+      const outPath = format === "svg" ? out : out.replace(/\.svg$/i, `.${format}`);
+      const { scale, warnings } = latexScale(format, args.scale as number | undefined, args.dpi as number | undefined);
+      const { bytes, failures } = await renderLatexSource(code, outPath, scale === undefined ? { format } : { format, scale });
+      return JSON.stringify({ path: outPath, bytes, failures, warnings });
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});

@@ -46,15 +46,15 @@ This flow makes no network request.
 
 ### render_latex
 
-1. The handler reads `dpi`. The value is a number. The default is 200.
+1. The handler reads `format`, `scale` and the deprecated `dpi`. For png with no `scale`, the scale is `dpi`/100. svg and pdf ignore `scale` and `dpi`. svg and pdf add a warning. For png or pdf, an `output_path` that ends in `.svg` gets the `.png` or `.pdf` extension. The handler keeps any other extension.
 2. `resolveRenderIo` works as in step 1 of `render_mermaid`.
 3. `renderLatexSource` calls `extractBlocks`. The rules are in [COMPONENTS.md](COMPONENTS.md).
-4. `mapLimit` sends each block with `httpText`. The URL is `https://latex.codecogs.com/svg.image?\dpi{<dpi>}<encoded block>`. At most four requests run at the same time.
-5. A block fails when its request throws, or when its response has no `<svg`. The failure goes into `failures`. Each entry holds the block index, the label and the message.
-6. When no block renders, the call fails with `no blocks rendered`.
+4. `renderLatexSource` calls the sciengjs engine for each block, on this machine.
+5. A block fails when its engine request throws. The failure goes into `failures`. Each entry holds the block index, the label, the message and the engine code.
+6. When every block fails, the call rejects with the engine error of the first block.
 7. When one block renders, its SVG is the output. When more blocks render, `combineSvgs` stacks them.
-8. `writeOutput` writes the SVG.
-9. The result is `{"path", "bytes", "failures"}`. The `failures` list holds the failures in completion order. Each entry keeps its block index.
+8. `writeOutput` writes the SVG, or the png or pdf bytes of the one block.
+9. The result is `{"path", "bytes", "failures", "warnings"}`. The `failures` list holds the failures in block order.
 
 ### render_html
 
@@ -105,7 +105,7 @@ For each handler error, `dispatchTool` writes one line to standard error. The li
 
 | Tool | Host | Path or query | Data sent | Attempts and timeout |
 |---|---|---|---|---|
-| `render_latex` | `latex.codecogs.com` | `/svg.image?\dpi{<dpi>}<encoded block>` | The source of one LaTeX block. | Up to four attempts for each block. 20000 ms for each attempt. Four blocks at a time. |
+| `render_latex` | none | none | Nothing leaves the machine. | None: the engine runs in process. |
 
 No other tool sends a request. The browser requests the pinned files of a generated page when the page opens. The hosts are `cdn.jsdelivr.net`, `cdnjs.cloudflare.com` and `cdn.plot.ly`.
 
@@ -125,7 +125,7 @@ No other tool sends a request. The browser requests the pinned files of a genera
 
 - A `render_latex` request makes up to four attempts. Each attempt has a timeout of 20000 ms.
 - The waits between attempts are 500 ms, 1000 ms and 2000 ms.
-- A service that never answers makes the call fail after 83.5 seconds. The total is four timeouts of 20 seconds, plus the three waits.
+
 - A body read that fails leaves its timer armed until the timer fires. The process does not exit before then.
 
 ## Verification
@@ -135,5 +135,5 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |

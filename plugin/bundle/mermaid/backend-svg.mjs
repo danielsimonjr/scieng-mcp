@@ -5,12 +5,12 @@ import {
   routesToBrowser,
   sourceText
 } from "../chunk-MXHEZA6Z.mjs";
+import "../chunk-4KI3PA2R.mjs";
 import {
   drawMermaidInBrowser
 } from "../chunk-Q5BBJJYJ.mjs";
 import "../chunk-566V4Y3S.mjs";
 import "../chunk-T5W7ILUB.mjs";
-import "../chunk-4KI3PA2R.mjs";
 import "../chunk-JFFRTQ6A.mjs";
 import "../chunk-Y7HUHYVH.mjs";
 

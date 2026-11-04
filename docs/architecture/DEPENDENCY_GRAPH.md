@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.7.0
+**Version**: 0.8.0
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -171,14 +171,22 @@ The codebase is organized into the following modules:
 
 ### `src/render-latex.ts` - Splits a LaTeX source into blocks.
 
+**External Dependencies:**
+| Package | Import |
+|---------|--------|
+| `@danielsimonjr/sciengjs` | `render, RenderError` |
+
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
-| `./render-lib.ts` | `readInput, writeOutput, httpText, mapLimit, FetchLike` | Import |
+| `./render-lib.ts` | `readInput, writeOutput` | Import |
+| `./engine-config.ts` | `engineConfig` | Import |
 
 **Exports:**
-- Interfaces: `Block`
+- Interfaces: `Block`, `LatexFailure`
+- Types: `LatexFormat`
 - Functions: `extractBlocks`, `combineSvgs`, `renderLatexSource`, `renderLatex`
+- Constants: `LATEX_FORMATS`
 
 ---
 
@@ -187,7 +195,7 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync, renameSync, statSync` |
+| `fs` | `readFileSync, writeFileSync, renameSync, statSync, mkdirSync` |
 | `path` | `dirname, join, basename, extname` |
 
 **Exports:**
@@ -230,12 +238,12 @@ The codebase is organized into the following modules:
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
-| `./render-lib.ts` | `readInput, deriveOutputPath, writeOutput, FetchLike` | Import |
+| `./render-lib.ts` | `readInput, deriveOutputPath, writeOutput` | Import |
 | `./render-mermaid.ts` | `renderMermaidSource, MERMAID_FORMATS` | Import |
 | `./render-any.ts` | `renderAny` | Import |
 | `./render-dot.ts` | `renderDotSource` | Import |
 | `./engine-config.ts` | `engineConfig` | Import |
-| `./render-latex.ts` | `renderLatexSource` | Import |
+| `./render-latex.ts` | `renderLatexSource, LATEX_FORMATS` | Import |
 | `./render-html.ts` | `buildHtml, HtmlBlock` | Import |
 | `./ooxml-edit.ts` | `applyEdits` | Import |
 
@@ -274,13 +282,13 @@ The codebase is organized into the following modules:
 | File | Imports From | Exports To |
 |------|--------------|------------|
 | `src/tools` | 8 files | 1 file |
+| `src/engine-config` | 0 files | 5 files |
 | `src/render-lib` | 0 files | 5 files |
-| `src/engine-config` | 0 files | 4 files |
 | `src/render-dot` | 2 files | 2 files |
+| `src/render-latex` | 2 files | 2 files |
 | `src/render-mermaid` | 2 files | 2 files |
 | `smoke/render.smoke` | 3 files | 0 files |
 | `src/render-any` | 2 files | 1 file |
-| `src/render-latex` | 1 file | 2 files |
 | `src/index` | 1 file | 0 files |
 | `src/ooxml-edit` | 0 files | 1 file |
 | `src/render-html` | 0 files | 1 file |
@@ -334,6 +342,7 @@ graph TD
     N6 --> N9
     N6 --> N3
     N8 --> N9
+    N8 --> N3
     N10 --> N9
     N10 --> N3
     N11 --> N9
@@ -353,13 +362,13 @@ graph TD
 
 | Category | Count |
 |----------|-------|
-| Total Source Files | 29 |
+| Total Source Files | 31 |
 | Subsystems | 4 |
-| Total Lines of Code | 4005 |
-| Total Exports | 83 |
+| Total Lines of Code | 4178 |
+| Total Exports | 86 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
-| Total Interfaces | 6 |
+| Total Interfaces | 7 |
 | Total Functions | 20 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
@@ -371,4 +380,4 @@ graph TD
 
 ---
 
-*Version*: 0.7.0
+*Version*: 0.8.0

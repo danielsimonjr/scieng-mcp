@@ -62,13 +62,10 @@ test("each reference file that a command or the skill names exists in the skill 
   }
 });
 
-test("the remote commands name the service that receives the source, and offer --local", () => {
-  const remote: Record<string, string> = { latex: "codecogs.com" };
-  for (const [cmd, host] of Object.entries(remote)) {
-    const { meta, body } = parse(join(COMMANDS, `${cmd}.md`));
-    assert.ok(body.includes(host), `${cmd}: does not name ${host}`);
-    assert.ok(meta["argument-hint"]!.includes("--local") && body.includes("--local"), `${cmd}: no --local`);
-  }
+test("the latex command renders locally and names no remote service", () => {
+  const { body } = parse(join(COMMANDS, "latex.md"));
+  assert.match(body, /sciengjs engine/);
+  assert.doesNotMatch(body, /codecogs|remote|third-party/i);
 });
 
 test("the dot command renders locally and names no remote service", () => {

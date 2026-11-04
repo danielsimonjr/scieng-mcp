@@ -1,11 +1,11 @@
 {
-  "totalFiles": 29,
+  "totalFiles": 31,
   "byDisposition": {
     "reachable": 9,
     "build-entry": 1,
     "test-only": 0,
     "orphan": 3,
-    "test": 13,
+    "test": 15,
     "tool": 3,
     "config": 0,
     "bench": 0,
@@ -14,10 +14,10 @@
   "byArea": {
     "src": 13,
     "tools": 3,
-    "tests": 13
+    "tests": 15
   },
   "byPackage": {
-    "(root)": 19,
+    "(root)": 21,
     "scieng-mcp": 10
   },
   "files": [
@@ -110,14 +110,14 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 173
+      "loc": 200
     },
     {
       "file": "src/render-lib.ts",
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 139
+      "loc": 140
     },
     {
       "file": "src/render-mermaid.ts",
@@ -131,7 +131,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 284
+      "loc": 311
     },
     {
       "file": "test/bundle-gate.test.ts",
@@ -141,11 +141,25 @@
       "loc": 192
     },
     {
+      "file": "test/docs-latex.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 21
+    },
+    {
       "file": "test/engine-config.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
       "loc": 15
+    },
+    {
+      "file": "test/no-network.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 39
     },
     {
       "file": "test/ooxml-edit.test.ts",
@@ -159,7 +173,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 144
+      "loc": 141
     },
     {
       "file": "test/render-any.test.ts",
@@ -187,14 +201,14 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 210
+      "loc": 212
     },
     {
       "file": "test/render-lib.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 167
+      "loc": 175
     },
     {
       "file": "test/render-mermaid.test.ts",
@@ -222,7 +236,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 291
+      "loc": 342
     }
   ],
   "skippedLinks": [],

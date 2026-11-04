@@ -25,7 +25,7 @@ Give each command a description or the path of a source file. Example:
 ## Where the source goes
 
 - `mermaid` renders the source on your machine, with the sciengjs engine, and saves an SVG file. Class, state and sequence diagrams need no browser. Other diagram types need `SCIENG_BROWSER`. Add `--local` to make an HTML page that renders in your browser.
-- `latex` sends the source to latex.codecogs.com and saves an SVG file. Add `--local` to make an HTML page that renders in your browser. The source then stays on your machine.
+- `latex` draws the source on your machine through the sciengjs engine and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 

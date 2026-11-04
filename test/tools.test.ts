@@ -30,14 +30,6 @@ test("render_mermaid: format png writes PNG bytes and input_path derives the png
   assert.deepEqual([...readFileSync(res.path).subarray(0, 4)], [137, 80, 78, 71]);
 });
 
-test("render_mermaid renders locally: an injected fetch is never called", async () => {
-  let calls = 0;
-  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
-  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "local.svg");
-  await makeHandlers(refuse).render_mermaid({ source: "classDiagram\nclass A", output_path: out });
-  assert.equal(calls, 0);
-});
-
 test("render: mermaid svg through the generic entry point returns the engine metadata", async () => {
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "r.svg");
   const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "svg", source: "digraph { a -> b }", output_path: out }));
@@ -77,7 +69,7 @@ test("render: the type and format enums are the engine lists, not a copy", () =>
 test("render: an unsupported pair returns the engine code in the error result", async () => {
   const h = makeHandlers();
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "x.svg");
-  const res = await dispatchTool(h, "render", { type: "math", format: "svg", source: "E = mc^2", output_path: out });
+  const res = await dispatchTool(h, "render", { type: "tikz", format: "svg", source: "x", output_path: out });
   assert.equal(res.isError, true);
   assert.equal(JSON.parse(res.content[0]!.text).code, "E_UNSUPPORTED");
 });
@@ -107,16 +99,13 @@ test("render_dot: input_path derives the output path from the format", async () 
   assert.deepEqual([...readFileSync(png.path).subarray(0, 4)], [137, 80, 78, 71]);
 });
 
-test("render_dot renders locally: an injected fetch is never called", async () => {
+test("render_dot: inline source writes the SVG and returns its path and bytes", async () => {
   const dir = mkdtempSync(join(tmpdir(), "tool-"));
   const out = join(dir, "local.svg");
-  let calls = 0;
-  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
-  const res = JSON.parse(await makeHandlers(refuse).render_dot({ source: "digraph { a -> b }", output_path: out }));
+  const res = JSON.parse(await makeHandlers().render_dot({ source: "digraph { a -> b }", output_path: out }));
   assert.equal(res.path, out);
   assert.equal(res.bytes, readFileSync(out).length);
   assert.match(readFileSync(out, "utf-8"), /<svg/);
-  assert.equal(calls, 0);
 });
 
 test("render_dot: format png writes PNG bytes", async () => {
@@ -179,10 +168,28 @@ test("the README names every tool", () => {
 
 test("render_latex reports failures array", async () => {
   const dir = mkdtempSync(join(tmpdir(), "tool-"));
-  const fake: typeof fetch = async () => new Response("<svg id='l'/>", { status: 200 });
-  const res = JSON.parse(await makeHandlers(fake).render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg") }));
+  const res = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg") }));
   assert.deepEqual(res.failures, []);
   assert.ok(res.bytes > 0);
+});
+
+test("every tool that writes creates a missing output folder", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const cases: [string, Record<string, unknown>, string][] = [
+    ["render_mermaid", { source: "classDiagram\nclass A", output_path: "m1/a.svg" }, "m1/a.svg"],
+    ["render_dot", { source: "digraph { a -> b }", output_path: "d1/a.svg" }, "d1/a.svg"],
+    ["render", { type: "dot", format: "svg", source: "digraph { a -> b }", output_path: "r1/a.svg" }, "r1/a.svg"],
+    ["render_latex", { source: "E=mc^2", output_path: "l1/a.svg" }, "l1/a.svg"],
+    ["render_latex", { source: "E=mc^2", format: "png", output_path: "l2/a.png" }, "l2/a.png"],
+    ["render_html", { title: "T", blocks: [{ type: "mermaid", source: "graph TD\n A-->B" }], output_path: "p1/a.html" }, "p1/a.html"],
+  ];
+  for (const [tool, args, rel] of cases) {
+    const out = join(dir, rel);
+    const res = JSON.parse(await (h as Record<string, (a: unknown) => Promise<string>>)[tool]({ ...args, output_path: out }));
+    assert.equal(res.path, out, `${tool} did not report its path`);
+    assert.ok(existsSync(out), `${tool} did not write ${rel}`);
+  }
 });
 
 test("render_html builds a playground from blocks", async () => {
@@ -288,4 +295,48 @@ test("ooxml_replace refuses an empty find through dispatchTool and changes nothi
   assert.equal(res.isError, true);
   assert.match(res.content[0].text, /\[EMPTY_FIND\]/);
   assert.equal(readFileSync(p, "utf-8"), original);
+});
+
+test("render_latex: dpi is a deprecated alias of scale for png (dpi 200 gives scale 2)", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const viaDpi = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "a.svg"), format: "png", dpi: 200 }));
+  const viaScale = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "b.svg"), format: "png", scale: 2 }));
+  assert.equal(viaDpi.path, join(dir, "a.png"));
+  assert.deepEqual(readFileSync(viaDpi.path), readFileSync(viaScale.path));
+  assert.ok(viaDpi.warnings.some((w: string) => /dpi/.test(w) && /deprecated/.test(w)));
+});
+
+test("render_latex: scale wins over dpi for png", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const both = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "a.png"), format: "png", scale: 1, dpi: 300 }));
+  const one = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "b.png"), format: "png", scale: 1 }));
+  assert.deepEqual(readFileSync(both.path), readFileSync(one.path));
+});
+
+test("render_latex: svg ignores dpi and scale with a warning each", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const res = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg"), dpi: 200, scale: 3 }));
+  assert.match(readFileSync(res.path, "utf-8"), /<svg/);
+  assert.ok(res.warnings.some((w: string) => /dpi/.test(w)), "no dpi warning");
+  assert.ok(res.warnings.some((w: string) => /scale/.test(w)), "no scale warning");
+  const plain = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "p.svg") }));
+  assert.deepEqual(plain.warnings, []);
+});
+
+test("render_latex: the scale schema says png only and dpi is a deprecated alias", () => {
+  const t = TOOLS.find((x) => x.name === "render_latex")!;
+  const props = t.inputSchema.properties as Record<string, { description?: string }>;
+  assert.match(props.scale.description ?? "", /png only/i);
+  assert.match(props.dpi.description ?? "", /deprecated/i);
+});
+
+test("render_latex: png changes a .svg output_path extension and keeps any other extension", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  assert.equal(JSON.parse(await h.render_latex({ source: "x", output_path: join(dir, "a.svg"), format: "png" })).path, join(dir, "a.png"));
+  assert.equal(JSON.parse(await h.render_latex({ source: "x", output_path: join(dir, "b.img"), format: "png" })).path, join(dir, "b.img"));
+  const t = TOOLS.find((x) => x.name === "render_latex")!;
+  assert.match(t.description ?? "", /other extension is kept/);
 });

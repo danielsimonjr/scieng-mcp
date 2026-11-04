@@ -214,9 +214,9 @@ def train(model, data):
 
 Call the `render_latex` tool of the scieng-mcp server. Set `input_path` to the `.tex` file. Set `output_path` to the SVG file; without it, the tool uses the input path with the `.svg` extension. The tool returns the path and the size of the file.
 
-- The tool sends the source to latex.codecogs.com. No local install is necessary.
+- The tool draws the source on this machine through the sciengjs engine. It makes no network request.
 - The tool renders bare math, or the `equation`, `align` and display blocks of a full document.
-- The `dpi` argument sets the resolution. The default is 200.
+- The `format` argument sets svg (the default), png or pdf. A png or pdf render takes one block. The `scale` argument sets the scale of a png or pdf render.
 - The result lists each block that did not compile in `failures`.
 - For a source that must stay private, use `render_html`. `render_html` does not extract equations from a full document. Put each equation in its own `latex` block, without the preamble. The block can hold an `equation`, `align` or `gather` environment. KaTeX renders the blocks in the browser. The source stays on the machine. KaTeX does not support every package. For `\newcommand` across blocks, `\ce{}` or `\qty{}`, use the MathJax setup of `SCIENG.md`.
 

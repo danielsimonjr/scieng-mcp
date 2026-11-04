@@ -5,6 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { extractBlocks, combineSvgs, renderLatex, renderLatexSource } from "../src/render-latex.ts";
 
+const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
+const scratch = (): string => mkdtempSync(join(tmpdir(), "tex-"));
+function writeInput(text: string): string {
+  const path = join(scratch(), "in.tex");
+  writeFileSync(path, text);
+  return path;
+}
+
 test("extractBlocks: raw math (no document) => single block", () => {
   const b = extractBlocks("E = mc^2");
   assert.equal(b.length, 1);
@@ -19,13 +27,26 @@ test("extractBlocks: document env + display + newcommand prefix", () => {
     "\\begin{document}",
     "\\begin{equation} a=b \\end{equation}",
     "\\[ x+y \\]",
-    "\\end{document}",
+    "\\\end{document}",
   ].join("\n");
   const b = extractBlocks(src);
   assert.equal(b.length, 2);
   assert.equal(b[0].label, "equation");
   assert.equal(b[1].label, "display");
   assert.ok(b.every((x) => x.tex.includes("\\newcommand{\\R}")));
+});
+
+test("extractBlocks keeps source order: a display block between two environments", () => {
+  const src = [
+    "\\documentclass{article}",
+    "\\begin{document}",
+    "\\begin{equation} a \\end{equation}",
+    "\\[ b \\]",
+    "\\begin{align} c \\end{align}",
+    "\\end{document}",
+  ].join("\n");
+  const b = extractBlocks(src);
+  assert.deepEqual(b.map((x) => x.label), ["equation", "display", "align"]);
 });
 
 test("combineSvgs stacks multiple SVGs into one root", () => {
@@ -37,82 +58,63 @@ test("combineSvgs stacks multiple SVGs into one root", () => {
   assert.match(out, /x="20" y="20"/);
 });
 
-test("renderLatex single block writes the raw SVG directly", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "tex-"));
-  const inp = join(dir, "e.tex");
-  const out = join(dir, "e.svg");
-  writeFileSync(inp, "E=mc^2");
-  const fake: typeof fetch = async () => new Response("<svg height='10pt' width='40pt'>eq</svg>", { status: 200 });
-  const svg = await renderLatex(inp, out, { fetchImpl: fake });
+test("renderLatex single block writes the SVG drawn by the engine", async () => {
+  const out = join(scratch(), "e.svg");
+  const svg = await renderLatex(writeInput("E=mc^2"), out);
   assert.equal(svg, readFileSync(out, "utf-8"));
   assert.match(svg, /<svg/);
 });
 
-test("renderLatex tolerates a single block failing (partial failure)", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "tex-"));
-  const inp = join(dir, "doc.tex");
-  const out = join(dir, "doc.svg");
-  const src = [
-    "\\documentclass{article}",
-    "\\begin{document}",
-    "\\begin{equation} a=b \\end{equation}",
-    "\\begin{equation} c=d \\end{equation}",
-    "\\end{document}",
-  ].join("\n");
-  writeFileSync(inp, src);
-  let call = 0;
-  const fake: typeof fetch = async () => {
-    call++;
-    if (call === 1) return new Response("<svg height='10pt' width='40pt'>ok</svg>", { status: 200 });
-    return new Response("bad request", { status: 400 });
-  };
-  const svg = await renderLatex(inp, out, { fetchImpl: fake });
-  assert.match(svg, /ok<\/svg>/);
-  assert.equal(svg, readFileSync(out, "utf-8"));
+test("renderLatexSource renders a PNG and a PDF of one block", async () => {
+  const png = join(scratch(), "e.png");
+  await renderLatexSource("E=mc^2", png, { format: "png" });
+  assert.deepEqual([...readFileSync(png).subarray(0, 8)], PNG_SIGNATURE);
+  const pdf = join(scratch(), "e.pdf");
+  if (process.env.SCIENG_BROWSER) {
+    // A browser is set: the engine draws the pdf.
+    await renderLatexSource("E=mc^2", pdf, { format: "pdf" });
+    assert.equal(readFileSync(pdf).subarray(0, 5).toString("latin1"), "%PDF-");
+    return;
+  }
+  await assert.rejects(renderLatexSource("E=mc^2", pdf, { format: "pdf" }), (err: unknown) => {
+    assert.equal((err as { code?: string }).code, "E_STAGE_MISSING");
+    return true;
+  }, "pdf needs the browser stage when SCIENG_BROWSER is not set");
 });
 
-test("renderLatex throws when all blocks fail", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "allfail-"));
-  const inp = join(dir, "allfail.tex");
-  const out = join(dir, "allfail.svg");
-  writeFileSync(inp, "E=mc^2");
-  const fake: typeof fetch = async () => new Response("bad request", { status: 400 });
-  await assert.rejects(renderLatex(inp, out, { fetchImpl: fake }), /no blocks rendered/);
+test("renderLatexSource passes scale to the engine for a PNG", async () => {
+  const small = join(scratch(), "s.png");
+  const big = join(scratch(), "b.png");
+  await renderLatexSource("E=mc^2", small, { format: "png", scale: 1 });
+  await renderLatexSource("E=mc^2", big, { format: "png", scale: 3 });
+  assert.ok(readFileSync(big).length > readFileSync(small).length);
 });
 
-test("renderLatexSource reports per-block failures without failing the call", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "tex-"));
-  let call = 0;
-  const fake: typeof fetch = async () => {
-    call++;
-    return call === 1 ? new Response("not svg", { status: 200 })
-                      : new Response("<svg id='b'/>", { status: 200 });
-  };
+test("renderLatexSource rejects a multi-block PNG with E_UNSUPPORTED", async () => {
   const src = "\\documentclass{article}\\begin{document}\\begin{equation}a\\end{equation}\\begin{equation}b\\end{equation}\\end{document}";
-  const { svg, failures } = await renderLatexSource(src, join(dir, "o.svg"), { fetchImpl: fake });
+  await assert.rejects(renderLatexSource(src, join(scratch(), "m.png"), { format: "png" }), (err: unknown) => {
+    assert.equal((err as { code?: string }).code, "E_UNSUPPORTED");
+    return true;
+  });
+});
+
+test("renderLatexSource reports a bad block in failures with the engine code", async () => {
+  const src = "\\documentclass{article}\\begin{document}\\begin{equation}a\\end{equation}\\begin{equation}\\frac{\\end{equation}\\end{document}";
+  const { svg, failures } = await renderLatexSource(src, join(scratch(), "o.svg"));
   assert.equal(failures.length, 1);
-  assert.equal(failures[0].index, 0);
+  assert.equal(failures[0].index, 1);
+  assert.equal(failures[0].code, "E_INPUT");
   assert.match(svg, /<svg/);
 });
 
-test("renderLatexSource lists failures in input order, not completion order", async () => {
-  const src = "\\documentclass{article}\\begin{document}\\begin{equation}a\\end{equation}\\begin{equation}b\\end{equation}\\begin{equation}c\\end{equation}\\end{document}";
-  // Block 0 fails slowly, block 1 fails at once, block 2 renders. Completion order would be [1, 0].
-  let call = 0;
-  const fake: typeof fetch = async () => {
-    const n = call++;
-    if (n === 0) {
-      await new Promise((r) => setTimeout(r, 30));
-      return new Response("bad", { status: 400 });
-    }
-    if (n === 1) return new Response("bad", { status: 400 });
-    return new Response("<svg height='10pt' width='40pt'>ok</svg>", { status: 200 });
-  };
-  const { failures } = await renderLatexSource(src, join(mkdtempSync(join(tmpdir(), "ord-")), "o.svg"), { fetchImpl: fake });
-  assert.deepEqual(failures.map((f) => f.index), [0, 1]);
+test("renderLatexSource throws the engine error when every block fails", async () => {
+  await assert.rejects(renderLatexSource("\frac{", join(scratch(), "x.svg")), (err: unknown) => {
+    assert.equal((err as { code?: string }).code, "E_INPUT");
+    return true;
+  });
 });
 
-// The three headers that latex.codecogs.com returns (live, measured). Unitless, double-quoted, viewBox equals the size.
+// Three measured SVG headers of a remote LaTeX renderer. Unitless, double-quoted, viewBox equals the size.
 const LIVE_1 = '<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 73.27 19.12" width="73.27" height="19.12"><path d="M0 0"/></svg>';
 const LIVE_2 = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 87.64 51.76" width="87.64" height="51.76"><path d="M0 0"/></svg>';
 const LIVE_3 = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17.84 36.69" width="17.84" height="36.69"><path d="M0 0"/></svg>';
@@ -142,7 +144,7 @@ function assertNear(actual: number, expected: number): void {
   assert.ok(Math.abs(actual - expected) < 1e-9, `expected ${expected}, got ${actual}`);
 }
 
-test("combineSvgs stacks the live codecogs headers with no overlap", () => {
+test("combineSvgs stacks three measured unitless headers with no overlap", () => {
   const out = combineSvgs([LIVE_1, LIVE_2, LIVE_3]);
   const boxes = nestedBoxes(out);
   assert.equal(boxes.length, 3);

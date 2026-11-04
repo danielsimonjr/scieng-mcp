@@ -10,17 +10,17 @@ The server runs on Node.js 24 or later. Its runtime entry is the committed bundl
 
 ## Key metrics
 
-The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 29 files and no file of `plugin/bundle/`.
+The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). The census lists 31 files and no file of `plugin/bundle/`.
 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
-| `totalSourceFiles` | 29 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 4005 | The census. | `dependency-graph.json` |
-| `totalExports` | 83 | The census: 33 exports in `src/`, 31 in `plugin/skills/scieng/engineering-patterns.ts`, 19 in `plugin/skills/scieng/stubs/docx.d.ts`. | `dependency-graph.json` |
+| `totalSourceFiles` | 31 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 4178 | The census. | `dependency-graph.json` |
+| `totalExports` | 86 | The census. See `dependency-graph.json` for the count per file. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
 | Tools | 6 | The `TOOLS` array in `src/tools.ts`. | Direct search. Not a `repo-tools` metric. |
-| Test cases | 123 | The `test(` calls at the first column in the twelve files of `test/`. | Direct count. Not a `repo-tools` metric. |
+| Test cases | 160 | The `test(` calls at the first column in the fifteen files of `test/`. | Direct count. Not a `repo-tools` metric. |
 
 The 31 exports in `src/` are the declarations that start at the first column of a file in `src/`. The `src/index.ts` module exports nothing.
 
@@ -28,9 +28,9 @@ The 31 exports in `src/` are the declarations that start at the first column of 
 
 ```
 scieng-mcp/
-├── src/                    Server source. 9 files, 1009 lines.
-├── test/                   node:test suites. 12 files, 1490 lines.
-├── scripts/                Bundle build, network guard for the tests, handshake check. 3 files, 118 lines.
+├── src/                    Server source. 10 files, 1129 lines.
+├── test/                   node:test suites. 15 files, 1840 lines.
+├── scripts/                Bundle build, network guard for the tests, handshake check. 3 files, 127 lines.
 ├── smoke/                  Live-service smoke test. 1 file, 67 lines. No package script runs it.
 ├── plugin/                 Files that the plugin installs.
 │   ├── .claude-plugin/     Plugin manifest.
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4005. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4178. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -55,7 +55,7 @@ The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` 
 | `render_mermaid` | One SVG, PNG or PDF file | sciengjs engine, local | Renders Mermaid diagram source. |
 | `render` | One file of any supported type and format | sciengjs engine, local | Renders any input type the engine supports. |
 | `render_dot` | One SVG or PNG file | None. The engine runs on this machine. | Renders Graphviz DOT source. |
-| `render_latex` | One SVG file | latex.codecogs.com | Renders LaTeX math and the math blocks of a document. |
+| `render_latex` | One SVG, PNG or PDF file | The sciengjs engine, on this machine | Renders LaTeX math and the math blocks of a document. |
 | `render_html` | One HTML file | None at render time. The browser loads the pinned files when the page opens. | Builds one page from typed blocks. |
 | `ooxml_replace` | The `word/document.xml` file, in place | None | Replaces text in runs and keeps the run formatting. |
 | `capabilities` | Nothing | None | Lists the render pairs of the engine and their readiness. |
@@ -114,8 +114,8 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
-| totalLinesOfCode | 4005 | dependency-graph.json |
-| totalExports | 83 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
+| totalLinesOfCode | 4178 | dependency-graph.json |
+| totalExports | 86 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

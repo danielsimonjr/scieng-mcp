@@ -17,17 +17,17 @@ Each command makes one type of diagram from a description or from a source file.
 |---|---|---|---|
 | `/scieng-mcp:mermaid` | flowchart, sequence, class, state, ER, gantt, mindmap, timeline | SVG file through `render_mermaid` | sciengjs engine (local) |
 | `/scieng-mcp:dot` | Graphviz graphs: clusters, record nodes, state machines | SVG file through `render_dot` | Graphviz engine on this machine |
-| `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | latex.codecogs.com (remote) |
+| `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | on this machine (sciengjs engine) |
 | `/scieng-mcp:wavedrom` | digital timing diagrams | HTML page through `render_html` | WaveDrom in the browser |
 | `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html` | Plotly in the browser |
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 
-`--local` on mermaid, dot and latex makes an HTML page that renders in the browser.
+The default render of mermaid, dot and latex keeps the source on this machine. `--local` makes an HTML page that loads pinned CDN files and renders in the browser.
 
 ## Privacy
 
-- `render_latex` sends the source to a third-party web service. The service sees all of the source. `render_mermaid` and `render_dot` render the source on this machine through the sciengjs engine and make no network request.
+- `render_latex`, `render_mermaid` and `render_dot` render the source on this machine through the sciengjs engine. They make no network request. No source leaves the machine.
 - Use `--local` when the source holds private, internal or personal content. Stop and use `--local` when the source holds a password, a key, a token or a personal detail.
 - An HTML page from `render_html` loads its renderer from a CDN, with a pinned version and a Subresource Integrity hash. The page sends no diagram source. The browser renders it.
 - `render_dot` removes each `image` and `stylesheet` attribute from the source. The result holds a warning for each attribute that it removes. Tell the user about each warning.

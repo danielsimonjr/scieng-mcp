@@ -16,7 +16,7 @@ This document describes the public surface of the server. The surface holds seve
 | `render_mermaid` | One SVG, PNG or PDF file | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
 | `render` | One file of any type and format that the engine supports | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
 | `render_dot` | One SVG or PNG file | A source file, when `input_path` is given | None | Not read-only. Not destructive. |
-| `render_latex` | One SVG file | A source file, when `input_path` is given | `latex.codecogs.com` | Not read-only. Not destructive. |
+| `render_latex` | One file: SVG, PNG or PDF | A source file, when `input_path` is given | The sciengjs engine, on this machine | Not read-only. Not destructive. |
 | `render_html` | One HTML file | None | None | Not read-only. Not destructive. |
 | `ooxml_replace` | `word/document.xml`, in place | `word/document.xml` | None | Not read-only. Destructive. |
 | `capabilities` | Nothing | Nothing | None | Read-only. Not destructive. |
@@ -55,10 +55,10 @@ This document describes the public surface of the server. The surface holds seve
 
 ### render_latex
 
-- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG file through latex.codecogs.com.
-- Arguments: the shared render arguments, and `dpi`. The value of `dpi` is a number. The default is 200.
-- Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string}]}`. A block that fails appears in `failures`. The call does not fail for one failed block. The `failures` list holds the failures in completion order. Each entry keeps the block index.
-- Errors: an argument error, `input too large`, or `no blocks rendered`, which means that every block failed.
+- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG, PNG or PDF file on this machine, through the sciengjs engine.
+- Arguments: the shared render arguments, `format`, `scale` and `dpi`. `format` is `svg` (the default), `png` or `pdf`. A png or pdf takes one block. `scale` is a number that applies to png only. `dpi` is a deprecated alias. For png with no `scale`, the scale is `dpi`/100 (200 gives 2). svg and pdf ignore `scale` and `dpi`. svg and pdf add a warning. For png or pdf, an `output_path` that ends in `.svg` gets the `.png` or `.pdf` extension. The call keeps any other extension.
+- Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string, "code"?: string}], "warnings": string[]}`. A failed block goes into `failures` in block order with the block index, label, message and engine code. The call does not fail for one failed block.
+- Errors: an argument error, `input too large`, or an engine error. When every block fails, the call rejects with the engine error of the first block. A png or pdf source with more than one block rejects with `E_UNSUPPORTED`.
 
 ### render_html
 
@@ -144,7 +144,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 | `ToolResult` | Interface | `{ content, isError? }` | The MCP result of a tool call. |
 | `dispatchTool` | Function | `(handlers, name, args) => Promise<ToolResult>` | Runs the named handler and returns the MCP result. |
 | `TOOLS` | Constant | `Tool[]` | The seven tool definitions. |
-| `makeHandlers` | Function | `(fetchImpl?) => Record<string, ToolHandler>` | Returns one handler for each tool name. |
+| `makeHandlers` | Function | `() => Record<string, ToolHandler>` | Returns one handler for each tool name. |
 
 ### src/render-lib.ts
 
@@ -229,7 +229,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
-| totalExports | 83 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
+| totalExports | 86 | dependency-graph.json |
 
 The census counts 80 exports. Thirty are in `src/`. The other 50 are in two reference files of the skill, which the server does not load.

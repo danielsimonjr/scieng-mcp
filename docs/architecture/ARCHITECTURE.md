@@ -10,7 +10,7 @@ Four tools render diagram or formula source. Three of them draw on the local mac
 
 - **MCP client.** The client starts the server with `node` and the bundle. [plugin/.mcp.json](../../plugin/.mcp.json) defines the start. The client sends requests on standard input and reads responses on standard output.
 - **sciengjs engine.** `render_mermaid` and `render` draw on this machine. No request leaves the process for them.
-- **latex.codecogs.com.** `render_latex` puts the source of each LaTeX block in the request URL.
+- **The sciengjs engine.** `render_latex` draws each LaTeX block on this machine. It makes no network request.
 - **Local engine (`@danielsimonjr/sciengjs`).** `render_dot` and `capabilities` run the engine on this machine. The engine starts a worker thread from its worker entry. In the bundle, the entry is `plugin/bundle/entry.mjs`. `renderDotSource` makes no network request, and a unit test checks that.
 - **File system.** The render tools read `input_path` files of at most 524288 bytes. `ooxml_replace` reads and writes the `word/document.xml` file of an unpacked document. Each tool writes its output at the path that the caller gives.
 - **Browser and CDN hosts.** A generated page loads pinned scripts and styles from `cdn.jsdelivr.net`, `cdnjs.cloudflare.com` and `cdn.plot.ly` when the page opens. The server contacts none of these hosts.
@@ -37,7 +37,7 @@ The modules of `src/` form four layers. The table gives the imports of each laye
 | Renderers and builders | `src/render-mermaid.ts`, `src/render-latex.ts`, `src/render-dot.ts`, `src/render-html.ts`, `src/ooxml-edit.ts` | `src/render-lib.ts` and `src/engine-config.ts`, where each module needs them. `src/render-html.ts` and `src/ooxml-edit.ts` import nothing from `src/`. |
 | Utilities | `src/render-lib.ts`, `src/engine-config.ts` | None |
 
-Every import points down the table. The census finds no import cycle among the 29 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
+Every import points down the table. The census finds no import cycle among the 31 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
 
 ## Key design decisions
 
@@ -45,7 +45,7 @@ Each decision gives the choice, the reason for the choice, the cost of the choic
 
 ### D1. LaTeX uses a public rendering service
 
-- **Decision.** `render_latex` sends the source of each block to latex.codecogs.com, URL-encoded in the query string. Mermaid renders on this machine, through the sciengjs engine.
+- **Decision.** `render_latex` draws each block through the sciengjs engine (`math` type), on this machine. Mermaid and DOT render the same way.
 - **Rationale.** The server needs no renderer package for LaTeX. The service renders the source that the URL carries.
 - **Trade-offs.** Each render needs network access. The source leaves the machine. The service sets the size and rate limits, and a service outage ends the render.
 - **Alternative.** A local renderer for each format. The repository contains no local renderer for these formats.
@@ -168,7 +168,7 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 The server has five trust boundaries.
 
 1. **Client to server.** Every argument is untrusted. The schemas check types and keys. The schemas do not check the content of a source.
-2. **Server to the remote service.** The LaTeX source reaches latex.codecogs.com. An `input_path` file of `render_latex` reaches the service as well, because the server reads the file and sends its content.
+2. **Remote service.** None for the render tools. The render tools make no network request. `render_html` pages load pinned CDN files, and they send no source.
 3. **Generated page to CDN.** The pins and hashes (D4) limit the files that a browser loads.
 4. **Generated page content.** The trust rule of each block type (D5) limits what the content can do.
 5. **Server to the file system.** The server writes to any path that the process may write. The server confines no path.
@@ -193,6 +193,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |
