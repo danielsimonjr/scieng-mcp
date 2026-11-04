@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildHtml } from "../src/render-html.ts";
+import { buildHtml, resolveStaticBlocks } from "../src/render-html.ts";
 
 test("emits only the CDN imports the block types need", () => {
   const html = buildHtml([{ type: "mermaid", source: "graph TD\n A-->B" }]);
@@ -207,4 +207,69 @@ test("dark page: body text, headings and the WaveDrom border meet the contrast f
   const border = /\.wavedrom-block \{[^}]*border:\s*1px solid (#[0-9a-f]{6})/i.exec(html)![1]!;
   assert.ok(contrast(border, bg) >= 3, "the panel border is below 3:1 against the page background");
   assert.ok(contrast("#000000", "#ffffff") >= 4.5, "diagram text on the light panel is below 4.5:1");
+});
+
+const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>';
+
+test("static plotly block renders its SVG inline and loads no Plotly script", () => {
+  const html = buildHtml([{ type: "plotly", static: true, source: '{"data":[],"layout":{}}', svg: SVG }]);
+  assert.match(html, /<svg/);
+  assert.doesNotMatch(html, /cdn\.plot\.ly/);
+  assert.doesNotMatch(html, /Plotly\.newPlot/);
+});
+
+test("a mixed page loads Plotly once, and only when a non-static plotly block is present", () => {
+  const mixed = buildHtml([
+    { type: "plotly", static: true, source: "{}", svg: SVG },
+    { type: "plotly", source: "{}" },
+  ]);
+  assert.equal((mixed.match(/plotly-2\.35\.2\.min\.js/g) ?? []).length, 1);
+  assert.match(mixed, /Plotly\.newPlot\("plotly-1"/);
+  const staticOnly = buildHtml([{ type: "plotly", static: true, source: "{}", svg: SVG }]);
+  assert.doesNotMatch(staticOnly, /plotly-2\.35\.2/);
+});
+
+test("a static plotly block without its SVG is refused", () => {
+  assert.throws(() => buildHtml([{ type: "plotly", static: true, source: "{}" }]), /static.*SVG/i);
+});
+
+test("a static plotly block refuses an SVG that holds a script tag", () => {
+  const bad = '<svg><script>alert(1)</script></svg>';
+  assert.throws(() => buildHtml([{ type: "plotly", static: true, source: "{}", svg: bad }]), /script/i);
+});
+
+test("resolveStaticBlocks renders each static plotly block through the renderer and leaves the rest", async () => {
+  const seen: string[] = [];
+  const fake = async (source: string) => { seen.push(source); return SVG; };
+  const out = await resolveStaticBlocks([
+    { type: "plotly", static: true, source: '{"data":[]}' },
+    { type: "plotly", source: '{"data":[]}' },
+    { type: "mermaid", source: "graph TD" },
+  ], fake);
+  assert.deepEqual(seen, ['{"data":[]}']);
+  assert.equal(out[0]!.svg, SVG);
+  assert.equal(out[1]!.svg, undefined);
+});
+
+test("an engine error on a static block keeps its code and names the block index", async () => {
+  const fake = async () => {
+    throw Object.assign(new Error("layout.title must be an object"), { name: "RenderError", code: "E_INPUT" });
+  };
+  await assert.rejects(
+    resolveStaticBlocks([{ type: "mermaid", source: "graph TD" }, { type: "plotly", static: true, source: "{}" }], fake),
+    (err: Error & { code?: string }) => err.code === "E_INPUT" && /plotly block 1/.test(err.message) && /\[E_INPUT\]/.test(err.message),
+  );
+});
+
+test("render_html draws a static plotly block through the engine and loads no Plotly script", async () => {
+  const { makeHandlers } = await import("../src/tools.ts");
+  const { mkdtempSync, readFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const out = join(mkdtempSync(join(tmpdir(), "static-")), "p.html");
+  const spec = JSON.stringify({ data: [{ x: [1, 2], y: [3, 4], type: "scatter" }], layout: { title: { text: "t" } } });
+  await makeHandlers().render_html({ blocks: [{ type: "plotly", static: true, source: spec }], output_path: out });
+  const html = readFileSync(out, "utf-8");
+  assert.match(html, /<svg/);
+  assert.doesNotMatch(html, /cdn\.plot\.ly/);
 });

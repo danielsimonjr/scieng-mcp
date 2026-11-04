@@ -5,7 +5,15 @@ export type BlockType = "mermaid" | "dot" | "latex" | "plotly" | "wavedrom" | "r
 // plotly are JSON-embedded with "<" escaped; wavedrom is verbatim behind a
 // a guard that refuses "<script", "</script" and "<!--"; raw-html is verbatim and fully caller-trusted.
 /** One block of an HTML page: its kind, its source text, and an optional section heading. */
-export interface HtmlBlock { type: BlockType; source: string; title?: string }
+export interface HtmlBlock {
+  type: BlockType;
+  source: string;
+  title?: string;
+  /** plotly only: when true, the engine draws the figure as inline SVG and no Plotly script loads for the block. */
+  static?: boolean;
+  /** plotly and static only: the SVG that the engine drew for the source. Set by resolveStaticBlocks. */
+  svg?: string;
+}
 
 const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -74,6 +82,11 @@ function renderBlock(b: HtmlBlock, i: number): string {
       return `<div class="latex-block">${esc(tex)}</div>`;
     }
     case "plotly": {
+      if (b.static) {
+        if (b.svg === undefined) throw new Error(`plotly block ${i}: a static block needs its SVG (the svg field is missing)`);
+        if (/<script/i.test(b.svg)) throw new Error(`plotly block ${i}: the SVG of a static block must not contain a script tag`);
+        return `<div class="plotly-static">${b.svg}</div>`;
+      }
       let spec: { data?: unknown; layout?: unknown };
       try { spec = JSON.parse(b.source) as typeof spec; }
       catch { throw new Error(`plotly block ${i}: source must be valid JSON ({"data": [...], "layout": {...}})`); }
@@ -102,7 +115,8 @@ function renderBlock(b: HtmlBlock, i: number): string {
  */
 export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): string {
   if (blocks.length === 0) throw new Error("buildHtml needs at least one block");
-  const types = new Set(blocks.map((b) => b.type));
+  // A static plotly block draws through the engine, so it does not need the Plotly CDN file.
+  const types = new Set(blocks.map((b) => (b.type === "plotly" && b.static ? "static-plotly" : b.type)));
   const imports = (Object.keys(HEAD_IMPORTS) as (keyof typeof HEAD_IMPORTS)[])
     .filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = (Object.keys(INIT_SCRIPTS) as BlockType[])
@@ -138,4 +152,28 @@ ${inits.join("\n")}
 </body>
 </html>
 `;
+}
+
+/**
+ * Renders each static plotly block with the given renderer, and returns the blocks in order.
+ * An engine error keeps its code. It is rethrown as a RenderError that names the block index.
+ */
+export async function resolveStaticBlocks(
+  blocks: HtmlBlock[],
+  renderPlot: (source: string) => Promise<string>,
+): Promise<HtmlBlock[]> {
+  const out: HtmlBlock[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i]!;
+    if (b.type !== "plotly" || !b.static) { out.push(b); continue; }
+    try {
+      out.push({ ...b, svg: await renderPlot(b.source) });
+    } catch (err) {
+      const code = (err as { code?: unknown }).code;
+      if (typeof code !== "string") throw err;
+      const msg = err instanceof Error ? err.message : String(err);
+      throw Object.assign(new Error(`plotly block ${i}: [${code}] ${msg}`), { name: "RenderError", code });
+    }
+  }
+  return out;
 }
