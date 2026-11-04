@@ -10,7 +10,8 @@ import {
   MERMAID_NATIVE_PDF_BACKEND,
   drawMermaidInBrowser,
   drawSvgToPdf
-} from "../chunk-Q5BBJJYJ.mjs";
+} from "../chunk-EB2VSK2A.mjs";
+import "../chunk-7NNWVETH.mjs";
 import "../chunk-566V4Y3S.mjs";
 import "../chunk-T5W7ILUB.mjs";
 import "../chunk-JFFRTQ6A.mjs";

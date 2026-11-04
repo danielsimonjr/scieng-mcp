@@ -1,5 +1,12 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
+  MERMAID_CDN_URL,
+  MERMAID_FILE,
+  MERMAID_SHA256,
+  mermaidPageHtml,
+  svgPageHtml
+} from "./chunk-7NNWVETH.mjs";
+import {
   blockedWarnings,
   browserPathOf,
   renderHtmlPage
@@ -13,27 +20,6 @@ import {
 
 // node_modules/@danielsimonjr/sciengjs/dist/mermaid/browser.js
 import { createHash } from "node:crypto";
-
-// node_modules/@danielsimonjr/sciengjs/dist/browser/pinned.js
-var MERMAID_VERSION = "11.17.2";
-var MERMAID_SHA256 = "581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8";
-var MERMAID_FILE = "mermaid.min.js";
-var MERMAID_CDN_URL = `https://cdn.jsdelivr.net/npm/mermaid@${MERMAID_VERSION}/dist/mermaid.min.js`;
-
-// node_modules/@danielsimonjr/sciengjs/dist/browser/page.js
-var PAGE_STYLE = "html,body{margin:0;background:#fff}";
-function scriptJson(text) {
-  return JSON.stringify(text).replace(/[<>&\u2028\u2029]/g, (ch) => "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0"));
-}
-function svgPageHtml(svg) {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PAGE_STYLE}</style></head><body><div id="sciengjs-diagram">${svg}</div></body></html>`;
-}
-function mermaidPageHtml(source, cdnUrl) {
-  const render = `if (typeof mermaid === "undefined") { window.__sciengDone = { ok: false, internal: true, message: "the pinned Mermaid build did not load" }; return; } try { mermaid.initialize({ startOnLoad: false, securityLevel: "strict" }); const { svg } = await mermaid.render("sciengjs-render", ${scriptJson(source)}); const host = document.getElementById("sciengjs-diagram"); host.innerHTML = svg; const el = host.querySelector("svg"); const vb = el && el.viewBox && el.viewBox.baseVal; if (vb && vb.width > 0 && vb.height > 0) { el.setAttribute("width", String(Math.ceil(vb.width))); el.setAttribute("height", String(Math.ceil(vb.height))); el.style.removeProperty("max-width"); } const out = el ? new XMLSerializer().serializeToString(el) : svg; window.__sciengDone = { ok: true, svg: out }; } catch (err) { window.__sciengDone = { ok: false, message: String((err && err.message) || err) }; }`;
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${PAGE_STYLE}</style></head><body><div id="sciengjs-diagram"></div><script src="${cdnUrl}"></script><script>(async () => { ${render} })();</script></body></html>`;
-}
-
-// node_modules/@danielsimonjr/sciengjs/dist/mermaid/browser.js
 var MERMAID_BROWSER_BACKEND = "mermaid/browser/chromium";
 var MERMAID_NATIVE_PDF_BACKEND = "mermaid/native+browser/chromium";
 async function drawMermaidInBrowser(source, format, settings, scale = 1) {
