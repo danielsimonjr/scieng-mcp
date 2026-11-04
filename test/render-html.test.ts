@@ -341,3 +341,10 @@ test("render_html passes the engine error code of an invalid static source to th
   );
   assert.equal(existsSync(out), false);
 });
+
+test("each scieng block carries its type in data-scieng-type, before its source", () => {
+  for (const block of EVERY_BLOCK) {
+    const html = buildHtml([block]);
+    assert.match(html, new RegExp(`<div class="scieng-block" data-scieng-type="${block.type}" data-scieng-source="`));
+  }
+});

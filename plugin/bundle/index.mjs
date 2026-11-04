@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-KB4UG3Z6.mjs";
+} from "./chunk-A3MBHSDV.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35182,7 +35182,8 @@ var DEFAULT_REGISTRY = {
   "dot:pdf": { backend: "graph/viz+browser/chromium", moduleUrl: backendUrl("graph/backend-pdf") },
   "mermaid:pdf": { backend: "mermaid/browser/chromium", moduleUrl: backendUrl("mermaid/backend-pdf") },
   "html:png": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-png") },
-  "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") }
+  "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") },
+  "html:md": { backend: "html/md", moduleUrl: backendUrl("html/backend-md") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35274,7 +35275,7 @@ function runInWorker(job, limits) {
     worker.once("message", (msg) => {
       settle2(() => {
         if (msg.ok) {
-          resolve({ bytes: msg.bytes, warnings: msg.warnings, backend: msg.backend });
+          resolve({ bytes: msg.bytes, warnings: msg.warnings, backend: msg.backend, assets: msg.assets });
         } else {
           const code = msg.code;
           reject(new RenderError(code, msg.message, { line: msg.line, column: msg.column }));
@@ -35367,7 +35368,10 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
         rasterFont: cfg.rasterFont,
         assetsUrl: cfg.assetsUrl,
         browser: cfg.browser,
-        timeoutMs: cfg.timeoutMs
+        timeoutMs: cfg.timeoutMs,
+        allowNetwork: cfg.allowNetwork,
+        imageTimeoutMs: cfg.imageTimeoutMs,
+        maxImageBytes: cfg.maxImageBytes
       }
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
@@ -35375,7 +35379,8 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
     bytes: out.bytes,
     mime: MIME[req.format],
     backend: out.backend ?? entry.backend,
-    warnings: out.warnings ?? []
+    warnings: out.warnings ?? [],
+    ...out.assets !== void 0 && out.assets.length > 0 ? { assets: out.assets } : {}
   };
 }
 async function capabilitiesWithRegistry(options, registry2, configDeps) {
@@ -35684,7 +35689,7 @@ function buildHtml(blocks, title = "scieng playground") {
   const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
     ${BLOCK_STYLES[t]}`).join("");
   const body = blocks.map((b, i) => {
-    const inner = `<div class="scieng-block" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
+    const inner = `<div class="scieng-block" data-scieng-type="${b.type}" data-scieng-source="${escAttr(b.source)}">${renderBlock(b, i)}</div>`;
     return b.title ? `<section>
 <h2>${esc2(b.title)}</h2>
 ${inner}
@@ -35872,6 +35877,200 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
   return { results, replaced_count: made, written: made > 0 };
 }
 
+// src/render-markdown.ts
+import { existsSync, linkSync, mkdirSync as mkdirSync2, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { basename as basename3, dirname as dirname3, extname as extname4, isAbsolute, join as join3 } from "node:path";
+var DEVICE_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
+function assetFilePath(dir, name) {
+  if (name === "") throw new Error("asset name must not be empty");
+  if (name.includes("..")) throw new Error('asset name must not contain ".."');
+  if (name.includes("/") || name.includes("\\")) throw new Error("asset name must not contain path separators");
+  if (name.includes(":") || name.includes("\0")) throw new Error('asset name must not contain ":" or NUL');
+  if (DEVICE_NAME.test(name)) throw new Error(`asset name must not be a device name: ${name}`);
+  if (/[. ]$/.test(name)) throw new Error("asset name must not end in a dot or a space");
+  if (isAbsolute(name)) throw new Error("asset name must not be an absolute path");
+  return join3(dir, name);
+}
+function numbered(name, n) {
+  if (n === 1) return name;
+  const ext = extname4(name);
+  return `${name.slice(0, name.length - ext.length)}-${n}${ext}`;
+}
+function codeSpanEnd(md, i, n) {
+  let j = i + n;
+  while (j < md.length) {
+    const k = md.indexOf("`", j);
+    if (k < 0) return -1;
+    let e = k;
+    while (md[e] === "`") e++;
+    if (e - k === n) return e;
+    j = e;
+  }
+  return -1;
+}
+function rewriteRun(md, map2) {
+  let out = "";
+  let i = 0;
+  while (i < md.length) {
+    const c = md[i];
+    if (c === "\\") {
+      out += md.slice(i, i + 2);
+      i += 2;
+      continue;
+    }
+    if (c === "`") {
+      let e = i;
+      while (md[e] === "`") e++;
+      const end = codeSpanEnd(md, i, e - i);
+      const stop = end < 0 ? e : end;
+      out += md.slice(i, stop);
+      i = stop;
+      continue;
+    }
+    if (c === "!" && md[i + 1] === "[") {
+      const link = /^!\[((?:\\.|[^\\\]])*)\]\(([ \t]*)(<(?:\\.|[^\\<>\n])*>|[^\s()<>]+)/.exec(md.slice(i));
+      if (link) {
+        const raw = link[3];
+        const bracketed = raw.startsWith("<");
+        const dest = bracketed ? raw.slice(1, -1) : raw;
+        const next = map2.get(dest);
+        const after = md[i + link[0].length];
+        if (next !== void 0 && (after === ")" || after === " " || after === "	" || after === "\n")) {
+          out += `![${link[1]}](${link[2]}${bracketed ? `<${next}>` : next}`;
+          i += link[0].length;
+          continue;
+        }
+      }
+    }
+    out += c;
+    i++;
+  }
+  return out;
+}
+function rewriteImageLinks(md, map2) {
+  if (map2.size === 0) return md;
+  const lines = md.split("\n");
+  const out = [];
+  let run = [];
+  let fence;
+  const flush = () => {
+    if (run.length > 0) out.push(rewriteRun(run.join("\n"), map2));
+    run = [];
+  };
+  for (const line of lines) {
+    const m = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fence) {
+      out.push(line);
+      if (m && m[1][0] === fence.char && m[1].length >= fence.len && line.trim() === m[1]) fence = void 0;
+    } else if (m) {
+      flush();
+      out.push(line);
+      fence = { char: m[1][0], len: m[1].length };
+    } else {
+      run.push(line);
+    }
+  }
+  flush();
+  return out.join("\n");
+}
+var realFs = { writeFile: (p, d, o) => writeFileSync3(p, d, o) };
+var isExists = (e) => e.code === "EEXIST";
+async function htmlToMarkdownFile(a, engine = render, fs = realFs) {
+  const hasHtml = typeof a.html === "string";
+  if (hasHtml === (typeof a.input_path === "string")) throw new Error("provide exactly one of html or input_path");
+  if (hasHtml && a.html === "") throw new Error("html is empty");
+  if (extname4(a.output_path).toLowerCase() !== ".md") {
+    throw new RenderError("E_INPUT", `output_path must end in .md: ${a.output_path}`);
+  }
+  if (existsSync(a.output_path)) {
+    throw new RenderError("E_INPUT", `output_path exists, and the tool does not overwrite it: ${a.output_path}`);
+  }
+  const source = hasHtml ? a.html : readInput(a.input_path);
+  const res = await engine(
+    {
+      type: "html",
+      format: "md",
+      source,
+      options: { downloadImages: a.download_images ?? false, browser: a.browser ?? false }
+    },
+    engineConfig()
+  );
+  const dir = dirname3(a.output_path);
+  const assets = res.assets ?? [];
+  for (const asset of assets) assetFilePath(dir, asset.name);
+  const text = new TextDecoder().decode(res.bytes);
+  mkdirSync2(dir, { recursive: true });
+  const created = [];
+  const tmp = join3(dir, `.${basename3(a.output_path)}.${randomUUID()}.tmp`);
+  const renames = /* @__PURE__ */ new Map();
+  const taken = /* @__PURE__ */ new Set();
+  const plan = assets.map((asset) => {
+    let n = 1;
+    while (taken.has(numbered(asset.name, n)) || existsSync(join3(dir, numbered(asset.name, n)))) n++;
+    taken.add(numbered(asset.name, n));
+    return n;
+  });
+  const markdownFor = () => rewriteImageLinks(text, renames);
+  try {
+    assets.forEach((asset, i) => {
+      if (plan[i] > 1) renames.set(asset.name, numbered(asset.name, plan[i]));
+    });
+    let markdown = markdownFor();
+    fs.writeFile(tmp, markdown, { flag: "wx" });
+    created.push(tmp);
+    const assetPaths = [];
+    let moved = false;
+    assets.forEach((asset, i) => {
+      let n = plan[i];
+      for (; ; ) {
+        const name = numbered(asset.name, n);
+        const target = join3(dir, name);
+        try {
+          fs.writeFile(target, asset.bytes, { flag: "wx" });
+        } catch (e) {
+          if (!isExists(e)) throw e;
+          do
+            n++;
+          while (taken.has(numbered(asset.name, n)));
+          continue;
+        }
+        created.push(target);
+        assetPaths.push(target);
+        if (n !== plan[i]) {
+          taken.add(name);
+          moved = true;
+          if (n > 1) renames.set(asset.name, name);
+        }
+        return;
+      }
+    });
+    if (moved) {
+      markdown = markdownFor();
+      fs.writeFile(tmp, markdown, { flag: "w" });
+    }
+    try {
+      linkSync(tmp, a.output_path);
+    } catch (e) {
+      if (isExists(e)) throw new RenderError("E_INPUT", `output_path exists, and the tool does not overwrite it: ${a.output_path}`);
+      throw e;
+    }
+    try {
+      unlinkSync(tmp);
+    } catch {
+    }
+    return { path: a.output_path, bytes: Buffer.byteLength(markdown, "utf-8"), assets: assetPaths, warnings: res.warnings };
+  } catch (e) {
+    for (const p of created) {
+      try {
+        unlinkSync(p);
+      } catch {
+      }
+    }
+    throw e;
+  }
+}
+
 // src/tools.ts
 async function dispatchTool(handlers, name, args) {
   if (!Object.hasOwn(handlers, name)) {
@@ -35999,6 +36198,23 @@ var TOOLS = [
     }
   },
   {
+    name: "html_to_markdown",
+    description: "Convert HTML to GitHub Flavored Markdown locally, through the sciengjs engine. Give exactly one of html (text) or input_path (an .html file). output_path is the .md file: it must end in .md, and an existing output_path is refused with E_INPUT. Each asset of the page is written into the folder of output_path under its asset name; an existing file is never overwritten (a new asset name gets -2, -3, and the image links follow it). A failure removes the files that the call created. download_images fetches remote images only when the engine config allows images; browser uses a headless browser. Returns {path, bytes, assets, warnings}. An engine error returns its code.",
+    annotations: { readOnlyHint: false, destructiveHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        html: { type: "string", description: "Inline HTML text. Provide exactly one of html / input_path." },
+        input_path: { type: "string", description: "Path to an .html file. Provide exactly one of html / input_path." },
+        output_path: { type: "string", description: "Output .md path (required). It must not exist." },
+        download_images: { type: "boolean", description: "Fetch remote images (default false)." },
+        browser: { type: "boolean", description: "Use a headless browser for the conversion (default false)." }
+      },
+      required: ["output_path"],
+      additionalProperties: false
+    }
+  },
+  {
     name: "ooxml_replace",
     description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. A match does not cross a w:br, w:tab or w:cr element. A rewritten w:t element is re-encoded; other elements keep their bytes. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
@@ -36056,6 +36272,13 @@ var HtmlArgs = external_exports.object({
   }).strict()).min(1),
   title: external_exports.string().optional(),
   output_path: external_exports.string()
+}).strict();
+var HtmlToMarkdownArgs = external_exports.object({
+  html: external_exports.string().optional(),
+  input_path: external_exports.string().optional(),
+  output_path: external_exports.string(),
+  download_images: external_exports.boolean().optional(),
+  browser: external_exports.boolean().optional()
 }).strict();
 var OoxmlArgs = external_exports.object({
   document_xml_path: external_exports.string(),
@@ -36116,6 +36339,10 @@ function makeHandlers() {
       writeOutput(a.output_path, html);
       return result(a.output_path, html);
     },
+    html_to_markdown: async (raw) => {
+      const a = HtmlToMarkdownArgs.parse(raw ?? {});
+      return JSON.stringify(await htmlToMarkdownFile(a));
+    },
     ooxml_replace: async (raw) => {
       const a = OoxmlArgs.parse(raw ?? {});
       return JSON.stringify(applyEdits(a.document_xml_path, a.replacements, a.preserve_space ?? true));
@@ -36124,7 +36351,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.9.0" : "0.0.0-dev";
+var VERSION = true ? "0.10.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

@@ -323,7 +323,8 @@ function logTicks(min, max) {
 }
 
 // node_modules/@danielsimonjr/sciengjs/dist/plot/plotter.js
-var DEFAULT_COLOR = "#1f77b4";
+var COLORWAY = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+var defaultColor = (index) => COLORWAY[index % COLORWAY.length];
 var DEFAULT_AXIS_LINE = "#444444";
 var FRAME = { left: 70, right: 20, top: 20, bottom: 60, gap: 60 };
 var DASH = {
@@ -521,11 +522,11 @@ function traceSvg(trace, ctx) {
     const d = points.map((p, j) => `${j === 0 ? "M" : "L"}${fmt(p[0], 2)} ${fmt(p[1], 2)}`).join(" ");
     const dash = DASH[str(lineCfg.dash, "solid")] ?? "";
     const dashAttr = dash === "" ? "" : ` stroke-dasharray="${dash}"`;
-    parts.push(`<path d="${d}" fill="none" stroke="${esc(str(lineCfg.color, DEFAULT_COLOR))}" stroke-width="${num(lineCfg.width, 2)}"${dashAttr}/>`);
+    parts.push(`<path d="${d}" fill="none" stroke="${esc(str(lineCfg.color, defaultColor(trace.index)))}" stroke-width="${num(lineCfg.width, 2)}"${dashAttr}/>`);
   }
   if (modes.includes("markers")) {
     const radius = num(markerCfg.size, 6) / 2;
-    const color = str(markerCfg.color, DEFAULT_COLOR);
+    const color = str(markerCfg.color, defaultColor(trace.index));
     const symbol = str(markerCfg.symbol, "circle");
     for (const p of points)
       parts.push(markerSvg(symbol, p[0], p[1], radius, color));
@@ -745,13 +746,13 @@ function plotToSvg(source, options) {
       const y = plot.y0 + 16 + k * (style.size + 10);
       const x = plot.x1 + 16;
       const swatchY = y - style.size * 0.35;
-      const color = str(rec(entry.raw.line).color, DEFAULT_COLOR);
+      const color = str(rec(entry.raw.line).color, defaultColor(entry.index));
       const modes = str(entry.raw.mode, "lines").split("+");
       if (modes.includes("lines"))
         legend += line(x, swatchY, x + 20, swatchY, color, 2);
       if (modes.includes("markers")) {
         const symbol = str(rec(entry.raw.marker).symbol, "circle");
-        legend += markerSvg(symbol, x + 10, swatchY, num(rec(entry.raw.marker).size, 6) / 2, str(rec(entry.raw.marker).color, DEFAULT_COLOR));
+        legend += markerSvg(symbol, x + 10, swatchY, num(rec(entry.raw.marker).size, 6) / 2, str(rec(entry.raw.marker).color, defaultColor(entry.index)));
       }
       legend += text(x + 28, y, entry.name, style, "start");
     });

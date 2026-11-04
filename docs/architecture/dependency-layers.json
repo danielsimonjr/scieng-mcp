@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "scieng-mcp",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "schemaVersion": "2.0.0",
     "language": "typescript"
   },
@@ -438,6 +438,78 @@
           "RETRY_AFTER_CAP_MS"
         ]
       },
+      "src/render-markdown.ts": {
+        "description": "Returns the path of an asset in the folder dir. Throws when the name is empty, holds a separator, \"..\", \":\" or NUL,",
+        "externalDependencies": [
+          {
+            "package": "@danielsimonjr/sciengjs",
+            "imports": [
+              "render",
+              "RenderError"
+            ]
+          }
+        ],
+        "nodeDependencies": [
+          {
+            "module": "fs",
+            "imports": [
+              "existsSync",
+              "linkSync",
+              "mkdirSync",
+              "unlinkSync",
+              "writeFileSync"
+            ]
+          },
+          {
+            "module": "crypto",
+            "imports": [
+              "randomUUID"
+            ]
+          },
+          {
+            "module": "path",
+            "imports": [
+              "basename",
+              "dirname",
+              "extname",
+              "isAbsolute",
+              "join"
+            ]
+          }
+        ],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "readInput"
+            ]
+          },
+          {
+            "file": "./engine-config.ts",
+            "imports": [
+              "engineConfig"
+            ]
+          }
+        ],
+        "workspaceDependencies": [],
+        "exports": [
+          "assetFilePath",
+          "uniquePath",
+          "rewriteImageLinks",
+          "htmlToMarkdownFile"
+        ],
+        "interfaces": [
+          "MarkdownResult",
+          "HtmlToMarkdownArgs",
+          "MarkdownFs"
+        ],
+        "functions": [
+          "assetFilePath",
+          "uniquePath",
+          "rewriteImageLinks",
+          "htmlToMarkdownFile"
+        ]
+      },
       "src/render-mermaid.ts": {
         "description": "Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.",
         "externalDependencies": [
@@ -556,6 +628,12 @@
             "imports": [
               "applyEdits"
             ]
+          },
+          {
+            "file": "./render-markdown.ts",
+            "imports": [
+              "htmlToMarkdownFile"
+            ]
           }
         ],
         "workspaceDependencies": [],
@@ -637,6 +715,7 @@
         "src/render-html.ts",
         "src/render-latex.ts",
         "src/render-lib.ts",
+        "src/render-markdown.ts",
         "src/render-mermaid.ts",
         "src/tools.ts"
       ]

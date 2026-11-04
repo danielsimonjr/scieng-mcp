@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "totalSourceFiles": 12,
-    "totalTestFiles": 15,
-    "testedCount": 9,
+    "totalSourceFiles": 13,
+    "totalTestFiles": 16,
+    "testedCount": 10,
     "untestedCount": 3,
-    "coveragePercent": "75.0",
+    "coveragePercent": "76.9",
     "effectiveCoverage": {
       "policyLoaded": false,
-      "activeFiles": 12,
-      "testedActive": 9,
+      "activeFiles": 13,
+      "testedActive": 10,
       "activeUntested": 3,
       "excludedTotal": 0,
-      "percent": "75.0",
+      "percent": "76.9",
       "breakdown": {
         "active_untested": 3
       }
@@ -30,6 +30,7 @@
     "src/render-html.ts",
     "src/render-latex.ts",
     "src/render-lib.ts",
+    "src/render-markdown.ts",
     "src/render-mermaid.ts",
     "src/tools.ts"
   ],
@@ -58,10 +59,14 @@
     "src/render-lib.ts": [
       "test/render-lib.test.ts"
     ],
+    "src/render-markdown.ts": [
+      "test/html-to-markdown.test.ts"
+    ],
     "src/render-mermaid.ts": [
       "test/render-mermaid.test.ts"
     ],
     "src/tools.ts": [
+      "test/html-to-markdown.test.ts",
       "test/plugin-content.test.ts",
       "test/render-html.test.ts",
       "test/tools.test.ts"
@@ -72,6 +77,10 @@
     "test/docs-latex.test.ts": [],
     "test/engine-config.test.ts": [
       "src/engine-config.ts"
+    ],
+    "test/html-to-markdown.test.ts": [
+      "src/tools.ts",
+      "src/render-markdown.ts"
     ],
     "test/no-network.test.ts": [],
     "test/ooxml-edit.test.ts": [

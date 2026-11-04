@@ -22,6 +22,7 @@ Each command makes one type of diagram from a description or from a source file.
 | `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html`. With `--static`, an SVG file through `render` with `type` set to `plot` | Plotly in the browser. With `--static`, the sciengjs engine (local) |
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
+| `/scieng-mcp:markdown` | Markdown from an HTML file or HTML text, with the images as files beside it | Markdown file through `html_to_markdown` | sciengjs engine (local) |
 
 The default render of mermaid, dot and latex keeps the source on this machine. `--local` makes an HTML page that loads pinned CDN files and renders in the browser.
 
@@ -59,6 +60,7 @@ Read the reference for the type before you write the source.
 
 - `render_html` takes typed blocks: `mermaid`, `dot`, `latex`, `plotly`, `wavedrom` and `raw-html`. The tool adds only the CDN imports that the blocks need. A `plotly` block is JSON `{"data": [...], "layout": {...}}`. A `plotly` block can set `static` to true. Then the engine draws the figure as inline SVG on this machine. The page does not load a Plotly script for the figure. Only a `plotly` block can set `static`. For other block types, the tool returns the error E_INPUT. A `raw-html` block goes into the page as it is, so put only content that you wrote into it.
 - For a page that needs custom JavaScript, Three.js or D3, write the HTML yourself from `RENDERERS.md`.
+- `html_to_markdown` converts HTML to GitHub Flavored Markdown. It writes the assets beside the Markdown and never overwrites a file. The conversion runs locally. `download_images` fetches remote images only when the engine config allows images.
 - `ooxml_replace` makes many find-and-replace edits in an unpacked `word/document.xml` and keeps the run formatting. For one edit, change the XML with the Edit tool. See `ENGINEERING-DOCX.md`.
 
 ## Rules

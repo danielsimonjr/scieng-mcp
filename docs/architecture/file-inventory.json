@@ -1,24 +1,24 @@
 {
-  "totalFiles": 31,
+  "totalFiles": 33,
   "byDisposition": {
-    "reachable": 9,
+    "reachable": 10,
     "build-entry": 1,
     "test-only": 0,
     "orphan": 3,
-    "test": 15,
+    "test": 16,
     "tool": 3,
     "config": 0,
     "bench": 0,
     "example": 0
   },
   "byArea": {
-    "src": 13,
+    "src": 14,
     "tools": 3,
-    "tests": 15
+    "tests": 16
   },
   "byPackage": {
-    "(root)": 21,
-    "scieng-mcp": 10
+    "(root)": 22,
+    "scieng-mcp": 11
   },
   "files": [
     {
@@ -120,6 +120,13 @@
       "loc": 140
     },
     {
+      "file": "src/render-markdown.ts",
+      "package": "scieng-mcp",
+      "area": "src",
+      "disposition": "reachable",
+      "loc": 249
+    },
+    {
       "file": "src/render-mermaid.ts",
       "package": "scieng-mcp",
       "area": "src",
@@ -131,7 +138,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 314
+      "loc": 344
     },
     {
       "file": "test/bundle-gate.test.ts",
@@ -153,6 +160,13 @@
       "area": "tests",
       "disposition": "test",
       "loc": 15
+    },
+    {
+      "file": "test/html-to-markdown.test.ts",
+      "package": "(root)",
+      "area": "tests",
+      "disposition": "test",
+      "loc": 212
     },
     {
       "file": "test/no-network.test.ts",
@@ -194,7 +208,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 343
+      "loc": 350
     },
     {
       "file": "test/render-latex.test.ts",

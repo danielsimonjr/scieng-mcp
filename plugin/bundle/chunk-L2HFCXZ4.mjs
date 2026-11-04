@@ -543,6 +543,9 @@ async function capture(cdp, req) {
   } else if (req.format === "png") {
     const data = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false }, s);
     bytes = Buffer.from(data.data, "base64");
+  } else if (req.format === "dom") {
+    const reply = await cdp.send("Runtime.evaluate", { expression: "document.documentElement.outerHTML", returnByValue: true }, s);
+    bytes = new TextEncoder().encode(typeof reply.result?.value === "string" ? reply.result.value : "");
   } else {
     throw new RenderError("E_INTERNAL", "the page format is not drawn by this stage");
   }
@@ -567,8 +570,8 @@ async function diagramBox(cdp, s) {
   return box === null || box === void 0 || box.width <= 0 || box.height <= 0 ? void 0 : box;
 }
 async function drawDiagram(cdp, s, req) {
-  if (req.format === "svg")
-    throw new RenderError("E_INTERNAL", "an svg is not drawn from a box");
+  if (req.format === "svg" || req.format === "dom")
+    throw new RenderError("E_INTERNAL", "an svg or dom is not drawn from a box");
   const box = await diagramBox(cdp, s);
   if (box === void 0)
     throw new RenderError("E_INPUT", "the diagram has no drawable size");

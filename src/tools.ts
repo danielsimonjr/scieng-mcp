@@ -9,6 +9,7 @@ import { engineConfig } from "./engine-config.ts";
 import { renderLatexSource, LATEX_FORMATS } from "./render-latex.ts";
 import { buildHtml, resolveStaticBlocks, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
+import { htmlToMarkdownFile } from "./render-markdown.ts";
 
 /** A tool handler. The handler takes the raw arguments of a call and returns the JSON text of the result. */
 export type ToolHandler = (raw: unknown) => Promise<string>;
@@ -173,6 +174,23 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: "html_to_markdown",
+    description: "Convert HTML to GitHub Flavored Markdown locally, through the sciengjs engine. Give exactly one of html (text) or input_path (an .html file). output_path is the .md file: it must end in .md, and an existing output_path is refused with E_INPUT. Each asset of the page is written into the folder of output_path under its asset name; an existing file is never overwritten (a new asset name gets -2, -3, and the image links follow it). A failure removes the files that the call created. download_images fetches remote images only when the engine config allows images; browser uses a headless browser. Returns {path, bytes, assets, warnings}. An engine error returns its code.",
+    annotations: { readOnlyHint: false, destructiveHint: false },
+    inputSchema: {
+      type: "object",
+      properties: {
+        html: { type: "string", description: "Inline HTML text. Provide exactly one of html / input_path." },
+        input_path: { type: "string", description: "Path to an .html file. Provide exactly one of html / input_path." },
+        output_path: { type: "string", description: "Output .md path (required). It must not exist." },
+        download_images: { type: "boolean", description: "Fetch remote images (default false)." },
+        browser: { type: "boolean", description: "Use a headless browser for the conversion (default false)." },
+      },
+      required: ["output_path"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "ooxml_replace",
     description: "Run-preserving batch find/replace on an UNPACKED Word document's word/document.xml (formatting <w:rPr> untouched). Replaces the matched text in the FIRST matching run per pair. Find and replace are plain text. An empty find is refused. A match does not cross a w:br, w:tab or w:cr element. A rewritten w:t element is re-encoded; other elements keep their bytes. For one-off edits prefer editing the XML directly; unpack/pack with the document-skills:docx scripts. Returns per-pair results and replaced_count.",
     annotations: { readOnlyHint: false, destructiveHint: true },
@@ -236,6 +254,14 @@ const HtmlArgs = z.object({
   }).strict()).min(1),
   title: z.string().optional(),
   output_path: z.string(),
+}).strict();
+
+const HtmlToMarkdownArgs = z.object({
+  html: z.string().optional(),
+  input_path: z.string().optional(),
+  output_path: z.string(),
+  download_images: z.boolean().optional(),
+  browser: z.boolean().optional(),
 }).strict();
 
 const OoxmlArgs = z.object({
@@ -305,6 +331,10 @@ export function makeHandlers(): Record<string, ToolHandler> {
       const html = buildHtml(blocks, a.title);
       writeOutput(a.output_path, html);
       return result(a.output_path, html);
+    },
+    html_to_markdown: async (raw) => {
+      const a = HtmlToMarkdownArgs.parse(raw ?? {});
+      return JSON.stringify(await htmlToMarkdownFile(a));
     },
     ooxml_replace: async (raw) => {
       const a = OoxmlArgs.parse(raw ?? {});
