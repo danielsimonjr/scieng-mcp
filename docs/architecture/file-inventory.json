@@ -201,7 +201,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 206
+      "loc": 212
     },
     {
       "file": "test/render-lib.test.ts",

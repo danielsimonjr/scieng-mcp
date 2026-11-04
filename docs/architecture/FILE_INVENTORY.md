@@ -69,7 +69,7 @@ This report lists each source file that the map census finds, with a disposition
 | `test/render-any.test.ts` | (root) | tests | test | 32 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
 | `test/render-html.test.ts` | (root) | tests | test | 210 |
-| `test/render-latex.test.ts` | (root) | tests | test | 206 |
+| `test/render-latex.test.ts` | (root) | tests | test | 212 |
 | `test/render-lib.test.ts` | (root) | tests | test | 175 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 55 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |

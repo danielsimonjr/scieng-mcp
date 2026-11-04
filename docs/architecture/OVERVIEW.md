@@ -15,7 +15,7 @@ The census is the list of code files in [FILE_INVENTORY.md](FILE_INVENTORY.md). 
 | Metric | Value | Scope | Source |
 |---|---|---|---|
 | `totalSourceFiles` | 31 | The census. | `dependency-graph.json` |
-| `totalLinesOfCode` | 4172 | The census. | `dependency-graph.json` |
+| `totalLinesOfCode` | 4178 | The census. | `dependency-graph.json` |
 | `totalExports` | 86 | The census. See `dependency-graph.json` for the count per file. | `dependency-graph.json` |
 | `runtimeCircularDeps` | 0 | Runtime import cycles in the census. | `dependency-graph.json` |
 | `typeOnlyCircularDeps` | 0 | Type-only import cycles in the census. | `dependency-graph.json` |
@@ -29,7 +29,7 @@ The 31 exports in `src/` are the declarations that start at the first column of 
 ```
 scieng-mcp/
 ├── src/                    Server source. 10 files, 1129 lines.
-├── test/                   node:test suites. 15 files, 1834 lines.
+├── test/                   node:test suites. 15 files, 1840 lines.
 ├── scripts/                Bundle build, network guard for the tests, handshake check. 3 files, 127 lines.
 ├── smoke/                  Live-service smoke test. 1 file, 67 lines. No package script runs it.
 ├── plugin/                 Files that the plugin installs.
@@ -46,7 +46,7 @@ scieng-mcp/
 └── package-lock.json       npm lockfile. Dependabot reads it.
 ```
 
-The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4172. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
+The line counts of the five code folders (`src/`, `test/`, `scripts/`, `smoke/` and the two code files under `plugin/skills/scieng/`) add up to 4178. This total equals `totalLinesOfCode`. Source: the Lines column of [FILE_INVENTORY.md](FILE_INVENTORY.md).
 
 ## Tools
 
@@ -115,7 +115,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 31 | dependency-graph.json |
-| totalLinesOfCode | 4172 | dependency-graph.json |
+| totalLinesOfCode | 4178 | dependency-graph.json |
 | totalExports | 86 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

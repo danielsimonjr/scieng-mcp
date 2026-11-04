@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-04
+
 ### Changed
 
 - `render_latex` renders each block on this machine through the sciengjs `math` type. It makes no network request. The latex.codecogs.com service is removed.
