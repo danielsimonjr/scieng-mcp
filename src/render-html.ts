@@ -71,6 +71,35 @@ const BLOCK_STYLES: Partial<Record<BlockType, string>> = {
 const hasOwnDelimiters = (tex: string): boolean =>
   tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
 
+const inputError = (message: string): Error => Object.assign(new Error(message), { name: "RenderError", code: "E_INPUT" });
+
+// Decodes the numeric and named character references that can hide a "javascript:" scheme.
+const decodeRefs = (s: string): string =>
+  s.replace(/&#x([0-9a-f]+);?/gi, (_, h: string) => String.fromCodePoint(parseInt(h, 16) % 0x110000))
+    .replace(/&#(\d+);?/g, (_, d: string) => String.fromCodePoint(Number(d) % 0x110000))
+    .replace(/&colon;/gi, ":").replace(/&(tab|newline);/gi, "");
+
+/** Returns a description of the first active content in an SVG, or undefined when the SVG has none. */
+function unsafeSvg(svg: string): string | undefined {
+  if (/<script/i.test(svg)) return "a script tag";
+  if (/<foreignObject/i.test(svg)) return "a foreignObject element";
+  if (/[\s/"']on\w+\s*=/i.test(svg)) return "an event-handler attribute";
+  if (/javascript:/i.test(decodeRefs(svg).replace(/[\s\x00-\x1f]/g, ""))) return "a javascript: URL";
+  return undefined;
+}
+
+// The engine gives fixed ids (for example clip0), so two static blocks on one page would collide.
+// Each id and each url(#id) and href="#id" reference to it gets the suffix of its block.
+function scopeSvgIds(svg: string, suffix: string): string {
+  const ids = new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]!));
+  if (ids.size === 0) return svg;
+  const scoped = (id: string): string => (ids.has(id) ? id + suffix : id);
+  return svg
+    .replace(/\bid="([^"]+)"/g, (_, id: string) => `id="${scoped(id)}"`)
+    .replace(/url\(\s*(['"]?)#([^'")\s]+)\1\s*\)/g, (_, q: string, id: string) => `url(${q}#${scoped(id)}${q})`)
+    .replace(/(href=")#([^"]+)"/g, (_, h: string, id: string) => `${h}#${scoped(id)}"`);
+}
+
 function renderBlock(b: HtmlBlock, i: number): string {
   switch (b.type) {
     case "mermaid":
@@ -84,8 +113,9 @@ function renderBlock(b: HtmlBlock, i: number): string {
     case "plotly": {
       if (b.static) {
         if (b.svg === undefined) throw new Error(`plotly block ${i}: a static block needs its SVG (the svg field is missing)`);
-        if (/<script/i.test(b.svg)) throw new Error(`plotly block ${i}: the SVG of a static block must not contain a script tag`);
-        return `<div class="plotly-static">${b.svg}</div>`;
+        const unsafe = unsafeSvg(b.svg);
+        if (unsafe) throw new Error(`plotly block ${i}: the SVG of a static block must not contain ${unsafe}`);
+        return `<div class="plotly-static">${scopeSvgIds(b.svg, `-b${i}`)}</div>`;
       }
       let spec: { data?: unknown; layout?: unknown };
       try { spec = JSON.parse(b.source) as typeof spec; }
@@ -112,9 +142,15 @@ function renderBlock(b: HtmlBlock, i: number): string {
  * Builds one HTML page from the blocks, in the order given.
  * The page loads only the pinned CDN files that the block types need. Each file has a Subresource Integrity hash.
  * The call throws when blocks is empty. The call also throws when a plotly source is not valid JSON, or when a wavedrom source contains "</script".
+ * The call throws an E_INPUT error when a block that is not plotly sets static.
+ * The call throws when the SVG of a static block holds a script tag, a foreignObject element, an event-handler attribute or a javascript: URL.
+ * Each static block gets its own suffix on the ids of its SVG, so two blocks on one page do not collide.
  */
 export function buildHtml(blocks: HtmlBlock[], title = "scieng playground"): string {
   if (blocks.length === 0) throw new Error("buildHtml needs at least one block");
+  blocks.forEach((b, i) => {
+    if (b.static && b.type !== "plotly") throw inputError(`${b.type} block ${i}: static is valid only on a plotly block`);
+  });
   // A static plotly block draws through the engine, so it does not need the Plotly CDN file.
   const types = new Set(blocks.map((b) => (b.type === "plotly" && b.static ? "static-plotly" : b.type)));
   const imports = (Object.keys(HEAD_IMPORTS) as (keyof typeof HEAD_IMPORTS)[])
