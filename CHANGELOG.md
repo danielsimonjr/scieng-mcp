@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-03
+
 ### Added
 
 - `render` tool. It renders any input type and output format of the sciengjs engine to a file, on this machine. Its arguments are `type`, `format`, `options` and one of `source` or `input_path`. Its result is `{path, bytes, mime, backend, warnings}`. An engine error returns its code. The tool count is seven.
