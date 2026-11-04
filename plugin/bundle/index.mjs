@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-NOFGNUDY.mjs";
+} from "./chunk-6APOSV2P.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35187,9 +35187,35 @@ import { Worker } from "node:worker_threads";
 import { extname as extname2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 var DEFAULT_TERMINATE_WAIT_MS = 5e3;
+var VALUE_FLAGS = /* @__PURE__ */ new Set(["-e", "--eval", "-p", "--print", "--input-type"]);
+var MODE_FLAGS = /* @__PURE__ */ new Set(["-i", "--interactive", "-c", "--check"]);
+var SHORT_GROUP = /^-[epic]{2,}$/;
+function workerExecArgv(parentArgv) {
+  const kept = [];
+  for (let i = 0; i < parentArgv.length; i++) {
+    const token = parentArgv[i];
+    if (MODE_FLAGS.has(token))
+      continue;
+    if (SHORT_GROUP.test(token)) {
+      if (/[ep]/.test(token))
+        i++;
+      continue;
+    }
+    const eq = token.indexOf("=");
+    const name = eq === -1 ? token : token.slice(0, eq);
+    if (VALUE_FLAGS.has(name)) {
+      if (eq === -1)
+        i++;
+      continue;
+    }
+    kept.push(token);
+  }
+  return kept;
+}
 function createDefaultWorker(entry, data, maxMemoryMb) {
   return new Worker(entry, {
     workerData: data,
+    execArgv: workerExecArgv(process.execArgv),
     resourceLimits: { maxOldGenerationSizeMb: maxMemoryMb }
   });
 }

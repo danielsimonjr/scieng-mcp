@@ -5,7 +5,7 @@
     "": {
       "name": "scieng-mcp",
       "dependencies": {
-        "@danielsimonjr/sciengjs": "^0.3.0",
+        "@danielsimonjr/sciengjs": "^0.3.1",
         "@modelcontextprotocol/core": "^2.4.0",
         "@modelcontextprotocol/server": "^2.4.0",
         "zod": "^4.6.7",
@@ -18,7 +18,7 @@
     },
   },
   "packages": {
-    "@danielsimonjr/sciengjs": ["@danielsimonjr/sciengjs@0.3.0", "", { "dependencies": { "@resvg/resvg-wasm": "2.6.2", "@viz-js/viz": "3.31.0" } }, "sha512-3UZMr5y0Gwh1Z+iFX4VPT36x/bSrLau1KXMQa07kMS1Pmi/GIEHdk+spytzmggnGpYIbfulxT6BRRhPVOTwbaw=="],
+    "@danielsimonjr/sciengjs": ["@danielsimonjr/sciengjs@0.3.1", "", { "dependencies": { "@resvg/resvg-wasm": "2.6.2", "@viz-js/viz": "3.31.0" } }, "sha512-1vgTf78E0udNJm941cb/JiNo77BcSJkXLx5tXAP8hQN266bf2B4Js0vkeVGcZV8NXlY1k6te8lbAx8bwH4IoNg=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.28.2", "", { "os": "aix", "cpu": "ppc64" }, "sha512-XExcO+dvLKvVtNTibSTBej1NCAbaGhWn9Ww1ZPx80qsahhPFe/8jgWP0IchNe0F3HwkU7n8ejhH8bjonqht8mQ=="],
 

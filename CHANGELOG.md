@@ -11,7 +11,7 @@
 ### Changed
 
 - `render_mermaid` renders on this machine through the sciengjs engine. The source no longer goes to mermaid.ink. Class, state and sequence diagrams need no browser. Other diagram types need `SCIENG_BROWSER`, and return `E_STAGE_MISSING` without it.
-- The sciengjs engine dependency moves from `^0.2.0` to `^0.3.0`.
+- The sciengjs engine dependency moves from `^0.2.0` to `^0.3.1`. Release 0.3.1 renders under `node --input-type=module -e`.
 - The `render_html` description states that each block source occurs two times in the page. It also states that a `raw-html` fragment must be valid inside a `div`.
 - The WaveDrom panel of `render_html` has a 1 px border. The panel keeps its light background.
 - The bundle includes every backend in the engine registry. Before, the Mermaid and PDF backends were missing.
