@@ -35459,12 +35459,14 @@ var LATEX_FORMATS = ["svg", "png", "pdf"];
 function extractBlocks(texSource) {
   const isDocument = texSource.includes("\\documentclass") || texSource.includes("\\begin{document}");
   if (!isDocument) return [{ label: "math", tex: texSource.trim() }];
-  let blocks = [];
+  const found = [];
   const envRegex = /\\begin\{(align|equation|gather|multline|array|cases)\*?\}[\s\S]*?\\end\{\1\*?\}/g;
   let m;
-  while ((m = envRegex.exec(texSource)) !== null) blocks.push({ label: m[1], tex: m[0] });
+  while ((m = envRegex.exec(texSource)) !== null) found.push({ label: m[1], tex: m[0], index: m.index });
   const displayRegex = /\\\[[\s\S]*?\\\]/g;
-  while ((m = displayRegex.exec(texSource)) !== null) blocks.push({ label: "display", tex: m[0].slice(2, -2).trim() });
+  while ((m = displayRegex.exec(texSource)) !== null) found.push({ label: "display", tex: m[0].slice(2, -2).trim(), index: m.index });
+  found.sort((x, y) => x.index - y.index);
+  let blocks = found.map(({ label, tex }) => ({ label, tex }));
   const preamble = texSource.split("\\begin{document}")[0] || "";
   const newcmds = preamble.match(/\\(newcommand|DeclareMathOperator)\*?\{[^}]+\}(\[[^\]]*\])?\{[^}]+\}/g) || [];
   const cmdPrefix = newcmds.join("\n");

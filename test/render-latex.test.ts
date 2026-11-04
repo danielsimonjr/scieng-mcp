@@ -38,6 +38,19 @@ test("extractBlocks: document env + display + newcommand prefix", () => {
   assert.ok(b.every((x) => x.tex.includes("\\newcommand{\\R}")));
 });
 
+test("extractBlocks keeps source order: a display block between two environments", () => {
+  const src = [
+    "\\documentclass{article}",
+    "\\begin{document}",
+    "\\begin{equation} a \\end{equation}",
+    "\\[ b \\]",
+    "\\begin{align} c \\end{align}",
+    "\\end{document}",
+  ].join("\n");
+  const b = extractBlocks(src);
+  assert.deepEqual(b.map((x) => x.label), ["equation", "display", "align"]);
+});
+
 test("combineSvgs stacks multiple SVGs into one root", () => {
   const a = "<?xml version='1.0'?><svg width='100pt' height='20pt'>A</svg>";
   const c = "<svg width='200pt' height='40pt'>B</svg>";

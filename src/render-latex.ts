@@ -12,20 +12,23 @@ export interface Block { label: string; tex: string; }
 
 /**
  * Splits a LaTeX source into blocks.
- * A bare math source gives one block. A document gives one block for each equation, align, gather, multline, array, cases and display block.
+ * A bare math source gives one block. A document gives one block for each equation, align, gather, multline, array, cases and display block, in source order.
  * Each block gets the \newcommand and \DeclareMathOperator definitions of the preamble. A document with no such block gives one block for the whole source.
  */
 export function extractBlocks(texSource: string): Block[] {
   const isDocument = texSource.includes("\\documentclass") || texSource.includes("\\begin{document}");
   if (!isDocument) return [{ label: "math", tex: texSource.trim() }];
 
-  let blocks: Block[] = [];
+  const found: (Block & { index: number })[] = [];
   const envRegex = /\\begin\{(align|equation|gather|multline|array|cases)\*?\}[\s\S]*?\\end\{\1\*?\}/g;
   let m: RegExpExecArray | null;
-  while ((m = envRegex.exec(texSource)) !== null) blocks.push({ label: m[1], tex: m[0] });
+  while ((m = envRegex.exec(texSource)) !== null) found.push({ label: m[1], tex: m[0], index: m.index });
 
   const displayRegex = /\\\[[\s\S]*?\\\]/g;
-  while ((m = displayRegex.exec(texSource)) !== null) blocks.push({ label: "display", tex: m[0].slice(2, -2).trim() });
+  while ((m = displayRegex.exec(texSource)) !== null) found.push({ label: "display", tex: m[0].slice(2, -2).trim(), index: m.index });
+
+  found.sort((x, y) => x.index - y.index);
+  let blocks: Block[] = found.map(({ label, tex }) => ({ label, tex }));
 
   const preamble = texSource.split("\\begin{document}")[0] || "";
   const newcmds = preamble.match(/\\(newcommand|DeclareMathOperator)\*?\{[^}]+\}(\[[^\]]*\])?\{[^}]+\}/g) || [];
