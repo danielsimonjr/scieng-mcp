@@ -310,3 +310,47 @@ test("ooxml_replace refuses an empty find through dispatchTool and changes nothi
   assert.match(res.content[0].text, /\[EMPTY_FIND\]/);
   assert.equal(readFileSync(p, "utf-8"), original);
 });
+
+test("render_latex: dpi is a deprecated alias of scale for png (dpi 200 gives scale 2)", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const viaDpi = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "a.svg"), format: "png", dpi: 200 }));
+  const viaScale = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "b.svg"), format: "png", scale: 2 }));
+  assert.equal(viaDpi.path, join(dir, "a.png"));
+  assert.deepEqual(readFileSync(viaDpi.path), readFileSync(viaScale.path));
+  assert.ok(viaDpi.warnings.some((w: string) => /dpi/.test(w) && /deprecated/.test(w)));
+});
+
+test("render_latex: scale wins over dpi for png", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  const both = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "a.png"), format: "png", scale: 1, dpi: 300 }));
+  const one = JSON.parse(await h.render_latex({ source: "E=mc^2", output_path: join(dir, "b.png"), format: "png", scale: 1 }));
+  assert.deepEqual(readFileSync(both.path), readFileSync(one.path));
+});
+
+test("render_latex: svg ignores dpi and scale with a warning each", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const res = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg"), dpi: 200, scale: 3 }));
+  assert.match(readFileSync(res.path, "utf-8"), /<svg/);
+  assert.ok(res.warnings.some((w: string) => /dpi/.test(w)), "no dpi warning");
+  assert.ok(res.warnings.some((w: string) => /scale/.test(w)), "no scale warning");
+  const plain = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "p.svg") }));
+  assert.deepEqual(plain.warnings, []);
+});
+
+test("render_latex: the scale schema says png only and dpi is a deprecated alias", () => {
+  const t = TOOLS.find((x) => x.name === "render_latex")!;
+  const props = t.inputSchema.properties as Record<string, { description?: string }>;
+  assert.match(props.scale.description ?? "", /png only/i);
+  assert.match(props.dpi.description ?? "", /deprecated/i);
+});
+
+test("render_latex: png changes a .svg output_path extension and keeps any other extension", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const h = makeHandlers();
+  assert.equal(JSON.parse(await h.render_latex({ source: "x", output_path: join(dir, "a.svg"), format: "png" })).path, join(dir, "a.png"));
+  assert.equal(JSON.parse(await h.render_latex({ source: "x", output_path: join(dir, "b.img"), format: "png" })).path, join(dir, "b.img"));
+  const t = TOOLS.find((x) => x.name === "render_latex")!;
+  assert.match(t.description ?? "", /other extension is kept/);
+});

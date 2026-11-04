@@ -35905,14 +35905,15 @@ var TOOLS = [
   },
   {
     name: "render_latex",
-    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf; a png or pdf takes one block. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures}.",
+    description: "Render LaTeX (bare math or a full document's equation/align/display blocks) to an SVG, PNG or PDF file locally, through the sciengjs engine. format is svg (default), png or pdf; a png or pdf takes one block. For png or pdf, an output_path that ends in .svg gets the .png or .pdf extension; any other extension is kept. Partial failures are reported in a failures array, not thrown. Returns {path, bytes, failures, warnings}.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
       properties: {
         ...renderIo,
         format: { type: "string", enum: [...LATEX_FORMATS], description: "Output format (default svg)." },
-        scale: { type: "number", description: "Scale of a png or pdf render, passed to the engine." }
+        scale: { type: "number", description: "Scale of the render. Applies to png only; svg and pdf ignore it with a warning." },
+        dpi: { type: "number", description: "Deprecated alias of scale: for png with no scale, scale is dpi/100. svg and pdf ignore it with a warning." }
       },
       additionalProperties: false
     }
@@ -36008,6 +36009,21 @@ var OoxmlArgs = external_exports.object({
   replacements: external_exports.array(external_exports.object({ find: external_exports.string(), replace: external_exports.string() }).strict()).min(1),
   preserve_space: external_exports.boolean().optional()
 }).strict();
+function latexScale(format, scale, dpi) {
+  const warnings = [];
+  if (format !== "png") {
+    if (dpi !== void 0) warnings.push(`dpi is deprecated and applies to png only; ignored for ${format}`);
+    if (scale !== void 0) warnings.push(`scale applies to png only; ignored for ${format}`);
+    return { scale: void 0, warnings };
+  }
+  if (dpi === void 0) return { scale, warnings };
+  if (scale !== void 0) {
+    warnings.push("dpi is deprecated; ignored because scale is set");
+    return { scale, warnings };
+  }
+  warnings.push(`dpi is deprecated; use scale (dpi ${dpi} gives scale ${dpi / 100})`);
+  return { scale: dpi / 100, warnings };
+}
 function makeHandlers() {
   return {
     render_mermaid: async (raw) => {
@@ -36033,11 +36049,12 @@ function makeHandlers() {
       return JSON.stringify({ capabilities: await capabilities(engineConfig()) });
     },
     render_latex: async (raw) => {
-      const { code, out, args } = resolveRenderIo(raw, { format: external_exports.enum(LATEX_FORMATS).optional(), scale: external_exports.number().optional() }, ".svg");
+      const { code, out, args } = resolveRenderIo(raw, { format: external_exports.enum(LATEX_FORMATS).optional(), scale: external_exports.number().optional(), dpi: external_exports.number().optional() }, ".svg");
       const format = args.format ?? "svg";
       const outPath = format === "svg" ? out : out.replace(/\.svg$/i, `.${format}`);
-      const { bytes, failures } = await renderLatexSource(code, outPath, { format, scale: args.scale });
-      return JSON.stringify({ path: outPath, bytes, failures });
+      const { scale, warnings } = latexScale(format, args.scale, args.dpi);
+      const { bytes, failures } = await renderLatexSource(code, outPath, scale === void 0 ? { format } : { format, scale });
+      return JSON.stringify({ path: outPath, bytes, failures, warnings });
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});
