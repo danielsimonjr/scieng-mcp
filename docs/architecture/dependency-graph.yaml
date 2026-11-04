@@ -4,7 +4,7 @@ metadata:
   language: typescript
   totalFiles: 31
   totalModules: 3
-  totalExports: 86
+  totalExports: 88
 modules:
   src:
     plugin/skills/scieng/engineering-patterns.ts:
@@ -136,6 +136,7 @@ modules:
           typeOnly: false
       exports:
         - AnyRenderResult
+        - renderPlotSvg
         - renderAny
     src/render-dot.ts:
       externalDependencies:
@@ -160,6 +161,7 @@ modules:
         - BlockType
         - HtmlBlock
         - buildHtml
+        - resolveStaticBlocks
     src/render-latex.ts:
       externalDependencies:
         - '@danielsimonjr/sciengjs'
@@ -236,6 +238,7 @@ modules:
         - file: src/render-any.ts
           imports:
             - renderAny
+            - renderPlotSvg
           typeOnly: false
         - file: src/render-dot.ts
           imports:
@@ -253,6 +256,7 @@ modules:
         - file: src/render-html.ts
           imports:
             - buildHtml
+            - resolveStaticBlocks
             - HtmlBlock
           typeOnly: false
         - file: src/ooxml-edit.ts
@@ -406,6 +410,11 @@ modules:
         - file: src/render-html.ts
           imports:
             - buildHtml
+            - resolveStaticBlocks
+          typeOnly: false
+        - file: src/tools.ts
+          imports:
+            - '*'
           typeOnly: false
       exports: []
     test/render-latex.test.ts:
@@ -505,8 +514,8 @@ statistics:
   totalTypeScriptFiles: 31
   totalSourceFiles: 31
   totalModules: 3
-  totalLinesOfCode: 4178
-  totalExports: 86
+  totalLinesOfCode: 4315
+  totalExports: 88
   entryRoots: 1
   reachableFiles: 10
   dormantFiles: 3
@@ -516,7 +525,7 @@ statistics:
   typeOnlyCircularDeps: 0
   totalTypeOnlyImports: 0
   noImporterFileCount: 3
-  unusedExportsCount: 57
+  unusedExportsCount: 56
   circularDepsTruncated: false
   runtimeCyclicComponents: 0
   typeOnlyCyclicComponents: 0
@@ -524,7 +533,7 @@ statistics:
   typeOnlyFilesInCycles: 0
   totalClasses: 12
   totalInterfaces: 7
-  totalFunctions: 20
+  totalFunctions: 22
   totalTypeGuards: 0
   totalEnums: 0
   totalConstants: 11

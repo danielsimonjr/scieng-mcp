@@ -63,6 +63,7 @@
     ],
     "src/tools.ts": [
       "test/plugin-content.test.ts",
+      "test/render-html.test.ts",
       "test/tools.test.ts"
     ]
   },
@@ -86,7 +87,8 @@
       "src/render-dot.ts"
     ],
     "test/render-html.test.ts": [
-      "src/render-html.ts"
+      "src/render-html.ts",
+      "src/tools.ts"
     ],
     "test/render-latex.test.ts": [
       "src/render-latex.ts"

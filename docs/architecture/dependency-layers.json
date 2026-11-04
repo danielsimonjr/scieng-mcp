@@ -279,12 +279,14 @@
         ],
         "workspaceDependencies": [],
         "exports": [
+          "renderPlotSvg",
           "renderAny"
         ],
         "interfaces": [
           "AnyRenderResult"
         ],
         "functions": [
+          "renderPlotSvg",
           "renderAny"
         ]
       },
@@ -328,13 +330,15 @@
         "internalDependencies": [],
         "workspaceDependencies": [],
         "exports": [
-          "buildHtml"
+          "buildHtml",
+          "resolveStaticBlocks"
         ],
         "interfaces": [
           "HtmlBlock"
         ],
         "functions": [
-          "buildHtml"
+          "buildHtml",
+          "resolveStaticBlocks"
         ]
       },
       "src/render-latex.ts": {
@@ -516,7 +520,8 @@
           {
             "file": "./render-any.ts",
             "imports": [
-              "renderAny"
+              "renderAny",
+              "renderPlotSvg"
             ]
           },
           {
@@ -542,6 +547,7 @@
             "file": "./render-html.ts",
             "imports": [
               "buildHtml",
+              "resolveStaticBlocks",
               "HtmlBlock"
             ]
           },
