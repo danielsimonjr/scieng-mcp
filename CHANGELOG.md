@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- `html_to_markdown` tool. It converts HTML (inline text or an `.html` file) to GitHub Flavored Markdown through the sciengjs engine. It writes each asset into the folder of `output_path`. It never overwrites a file: a taken asset name gets `-2`, `-3`.
+- `/scieng-mcp:markdown` command. It converts an HTML file or HTML text to Markdown with `html_to_markdown`.
+
+### Changed
+
+- `render_html` writes `data-scieng-type` on each `scieng-block`, so the engine reads the block type before it infers it.
+- The sciengjs dependency moves to `^0.6.0`, which adds the `html` input type and the `md` output format.
+
 ## [0.9.0] - 2026-11-04
 
 ### Added
