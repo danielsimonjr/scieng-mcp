@@ -229,7 +229,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
 | totalExports | 86 | dependency-graph.json |
 
 The census counts 80 exports. Thirty are in `src/`. The other 50 are in two reference files of the skill, which the server does not load.

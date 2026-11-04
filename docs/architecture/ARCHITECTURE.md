@@ -37,7 +37,7 @@ The modules of `src/` form four layers. The table gives the imports of each laye
 | Renderers and builders | `src/render-mermaid.ts`, `src/render-latex.ts`, `src/render-dot.ts`, `src/render-html.ts`, `src/ooxml-edit.ts` | `src/render-lib.ts` and `src/engine-config.ts`, where each module needs them. `src/render-html.ts` and `src/ooxml-edit.ts` import nothing from `src/`. |
 | Utilities | `src/render-lib.ts`, `src/engine-config.ts` | None |
 
-Every import points down the table. The census finds no import cycle among the 29 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
+Every import points down the table. The census finds no import cycle among the 31 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
 
 ## Key design decisions
 
@@ -193,6 +193,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 29 | dependency-graph.json |
+| totalSourceFiles | 31 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |
