@@ -117,7 +117,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 140
+      "loc": 147
     },
     {
       "file": "src/render-markdown.ts",
@@ -222,7 +222,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 175
+      "loc": 193
     },
     {
       "file": "test/render-mermaid.test.ts",

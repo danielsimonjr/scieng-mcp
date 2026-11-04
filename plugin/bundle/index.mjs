@@ -35409,7 +35409,8 @@ function capabilities(config2) {
 }
 
 // src/render-lib.ts
-import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync, rmSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { dirname, join, basename, extname as extname3 } from "node:path";
 function readInput(path, maxBytes = 512 * 1024) {
   const size = statSync(path).size;
@@ -35423,9 +35424,14 @@ function deriveOutputPath(input2, ext = ".svg") {
 }
 function writeOutput(path, content) {
   mkdirSync(dirname(path), { recursive: true });
-  const tmp = path + ".tmp";
-  writeFileSync(tmp, content, "utf-8");
-  renameSync(tmp, path);
+  const tmp = join(dirname(path), `.${basename(path)}.${randomUUID()}.tmp`);
+  try {
+    writeFileSync(tmp, content, { encoding: "utf-8", flag: "wx" });
+    renameSync(tmp, path);
+  } catch (error62) {
+    rmSync(tmp, { force: true });
+    throw error62;
+  }
 }
 
 // src/engine-config.ts
@@ -35742,7 +35748,7 @@ async function resolveStaticBlocks(blocks, renderPlot) {
 }
 
 // src/ooxml-edit.ts
-import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2, rmSync } from "node:fs";
+import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2, rmSync as rmSync2 } from "node:fs";
 import { basename as basename2, dirname as dirname2, join as join2 } from "node:path";
 function assertNoDoctype(xml) {
   const low = xml.toLowerCase();
@@ -35870,7 +35876,7 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
       writeFileSync2(tmp, xml, "utf-8");
       renameSync2(tmp, documentXmlPath);
     } catch (err) {
-      rmSync(tmp, { force: true });
+      rmSync2(tmp, { force: true });
       throw err;
     }
   }
@@ -35879,7 +35885,7 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
 
 // src/render-markdown.ts
 import { existsSync, linkSync, mkdirSync as mkdirSync2, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { randomUUID as randomUUID2 } from "node:crypto";
 import { basename as basename3, dirname as dirname3, extname as extname4, isAbsolute, join as join3 } from "node:path";
 var DEVICE_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
 function assetFilePath(dir, name) {
@@ -36002,7 +36008,7 @@ async function htmlToMarkdownFile(a, engine = render, fs = realFs) {
   const text = new TextDecoder().decode(res.bytes);
   mkdirSync2(dir, { recursive: true });
   const created = [];
-  const tmp = join3(dir, `.${basename3(a.output_path)}.${randomUUID()}.tmp`);
+  const tmp = join3(dir, `.${basename3(a.output_path)}.${randomUUID2()}.tmp`);
   const renames = /* @__PURE__ */ new Map();
   const taken = /* @__PURE__ */ new Set();
   const plan = assets.map((asset) => {
@@ -36351,7 +36357,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.10.0" : "0.0.0-dev";
+var VERSION = true ? "0.10.1" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

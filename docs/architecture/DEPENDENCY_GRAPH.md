@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.10.0
+**Version**: 0.10.1
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -195,7 +195,8 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync, renameSync, statSync, mkdirSync` |
+| `fs` | `readFileSync, writeFileSync, renameSync, statSync, mkdirSync, rmSync` |
+| `crypto` | `randomUUID` |
 | `path` | `dirname, join, basename, extname` |
 
 **Exports:**
@@ -396,7 +397,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 33 |
 | Subsystems | 4 |
-| Total Lines of Code | 4925 |
+| Total Lines of Code | 4950 |
 | Total Exports | 95 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
@@ -412,4 +413,4 @@ graph TD
 
 ---
 
-*Version*: 0.10.0
+*Version*: 0.10.1

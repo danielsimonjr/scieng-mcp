@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-04
+
+### Fixed
+
+- The output write of `render`, `render_mermaid`, `render_dot` and `render_latex` no longer uses the fixed temporary name `<output_path>.tmp`. It writes a new temporary file with a unique name, with an exclusive create, so an existing file named `<output_path>.tmp` stays as it is. A failed write or rename removes the temporary file.
+
 ## [0.10.0] - 2026-11-04
 
 ### Added

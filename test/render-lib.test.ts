@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { httpText, readInput, writeOutput, deriveOutputPath, mapLimit } from "../src/render-lib.ts";
@@ -43,6 +43,24 @@ test("writeOutput is atomic (no .tmp left behind)", () => {
   writeOutput(f, "<svg/>");
   assert.equal(readFileSync(f, "utf-8"), "<svg/>");
   assert.throws(() => readFileSync(f + ".tmp", "utf-8"));
+});
+
+test("writeOutput keeps an existing file named path plus .tmp", () => {
+  const dir = mkdtempSync(join(tmpdir(), "scieng-"));
+  const f = join(dir, "o.svg");
+  writeFileSync(f + ".tmp", "KEEP");
+  writeOutput(f, "<svg/>");
+  assert.equal(readFileSync(f, "utf-8"), "<svg/>");
+  assert.equal(readFileSync(f + ".tmp", "utf-8"), "KEEP");
+  assert.deepEqual(readdirSync(dir).sort(), ["o.svg", "o.svg.tmp"]);
+});
+
+test("writeOutput removes its temporary file when the rename fails", () => {
+  const dir = mkdtempSync(join(tmpdir(), "scieng-"));
+  const f = join(dir, "target");
+  mkdirSync(join(f, "child"), { recursive: true }); // a non-empty folder: the rename cannot replace it
+  assert.throws(() => writeOutput(f, "<svg/>"));
+  assert.deepEqual(readdirSync(dir), ["target"]);
 });
 
 test("writeOutput creates a missing parent folder (no ENOENT on the .tmp file)", () => {

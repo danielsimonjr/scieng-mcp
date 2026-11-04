@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, renameSync, statSync, mkdirSync, rmSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { dirname, join, basename, extname } from "node:path";
 
 /** The type of a fetch function. The render modules accept a fetch function to replace the global fetch. */
@@ -94,15 +95,21 @@ export function deriveOutputPath(input: string, ext = ".svg"): string {
 }
 
 /**
- * The function writes content to path in two steps. The first step writes a temporary file named path plus .tmp.
+ * The function writes content to path in two steps. The first step writes a new temporary file with a unique name in the folder of path.
  * The second step renames the temporary file to path.
- * The rename replaces an existing file.
+ * The rename replaces an existing file at path. The function never writes to any other existing file.
+ * When a step fails, the function removes the temporary file and throws the error.
  */
 export function writeOutput(path: string, content: string | Uint8Array): void {
   mkdirSync(dirname(path), { recursive: true });
-  const tmp = path + ".tmp";
-  writeFileSync(tmp, content, "utf-8");
-  renameSync(tmp, path);
+  const tmp = join(dirname(path), `.${basename(path)}.${randomUUID()}.tmp`);
+  try {
+    writeFileSync(tmp, content, { encoding: "utf-8", flag: "wx" });
+    renameSync(tmp, path);
+  } catch (error) {
+    rmSync(tmp, { force: true });
+    throw error;
+  }
 }
 
 /**
