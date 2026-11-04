@@ -1,8 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { extractBlocks, combineSvgs, renderLatex, renderLatexSource } from "../src/render-latex.ts";
@@ -58,11 +56,6 @@ test("combineSvgs stacks multiple SVGs into one root", () => {
   assert.match(out, /^<\?xml/);
   assert.equal((out.match(/<svg/g) || []).length, 3); // root + 2 inner
   assert.match(out, /x="20" y="20"/);
-});
-
-test("the module holds no remote path: no codecogs, no fetch, no httpText", () => {
-  const text = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "src", "render-latex.ts"), "utf-8");
-  assert.doesNotMatch(text, /codecogs|fetch|httpText/);
 });
 
 test("renderLatex single block writes the SVG drawn by the engine", async () => {

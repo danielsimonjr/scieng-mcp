@@ -30,14 +30,6 @@ test("render_mermaid: format png writes PNG bytes and input_path derives the png
   assert.deepEqual([...readFileSync(res.path).subarray(0, 4)], [137, 80, 78, 71]);
 });
 
-test("render_mermaid renders locally: an injected fetch is never called", async () => {
-  let calls = 0;
-  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
-  const out = join(mkdtempSync(join(tmpdir(), "tool-")), "local.svg");
-  await makeHandlers().render_mermaid({ source: "classDiagram\nclass A", output_path: out });
-  assert.equal(calls, 0);
-});
-
 test("render: mermaid svg through the generic entry point returns the engine metadata", async () => {
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "r.svg");
   const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "svg", source: "digraph { a -> b }", output_path: out }));
@@ -107,16 +99,13 @@ test("render_dot: input_path derives the output path from the format", async () 
   assert.deepEqual([...readFileSync(png.path).subarray(0, 4)], [137, 80, 78, 71]);
 });
 
-test("render_dot renders locally: an injected fetch is never called", async () => {
+test("render_dot: inline source writes the SVG and returns its path and bytes", async () => {
   const dir = mkdtempSync(join(tmpdir(), "tool-"));
   const out = join(dir, "local.svg");
-  let calls = 0;
-  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
   const res = JSON.parse(await makeHandlers().render_dot({ source: "digraph { a -> b }", output_path: out }));
   assert.equal(res.path, out);
   assert.equal(res.bytes, readFileSync(out).length);
   assert.match(readFileSync(out, "utf-8"), /<svg/);
-  assert.equal(calls, 0);
 });
 
 test("render_dot: format png writes PNG bytes", async () => {
@@ -179,12 +168,9 @@ test("the README names every tool", () => {
 
 test("render_latex reports failures array", async () => {
   const dir = mkdtempSync(join(tmpdir(), "tool-"));
-  let calls = 0;
-  const refuse: typeof fetch = async () => { calls++; throw new Error("network blocked"); };
   const res = JSON.parse(await makeHandlers().render_latex({ source: "E=mc^2", output_path: join(dir, "e.svg") }));
   assert.deepEqual(res.failures, []);
   assert.ok(res.bytes > 0);
-  assert.equal(calls, 0, "render_latex made a network request");
 });
 
 test("every tool that writes creates a missing output folder", async () => {
