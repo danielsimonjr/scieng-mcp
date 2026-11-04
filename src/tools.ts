@@ -3,11 +3,11 @@ import { z } from "zod";
 import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
 import { readInput, deriveOutputPath, writeOutput } from "./render-lib.ts";
 import { renderMermaidSource, MERMAID_FORMATS } from "./render-mermaid.ts";
-import { renderAny } from "./render-any.ts";
+import { renderAny, renderPlotSvg } from "./render-any.ts";
 import { renderDotSource } from "./render-dot.ts";
 import { engineConfig } from "./engine-config.ts";
 import { renderLatexSource, LATEX_FORMATS } from "./render-latex.ts";
-import { buildHtml, type HtmlBlock } from "./render-html.ts";
+import { buildHtml, resolveStaticBlocks, type HtmlBlock } from "./render-html.ts";
 import { applyEdits } from "./ooxml-edit.ts";
 
 /** A tool handler. The handler takes the raw arguments of a call and returns the JSON text of the result. */
@@ -159,6 +159,7 @@ export const TOOLS: Tool[] = [
               type: { type: "string", enum: ["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"] },
               source: { type: "string" },
               title: { type: "string", description: "Optional section heading." },
+              static: { type: "boolean", description: "plotly only: draw the figure through the engine as inline SVG, with no Plotly script for this block." },
             },
             required: ["type", "source"],
             additionalProperties: false,
@@ -231,6 +232,7 @@ const HtmlArgs = z.object({
     type: z.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
     source: z.string(),
     title: z.string().optional(),
+    static: z.boolean().optional(),
   }).strict()).min(1),
   title: z.string().optional(),
   output_path: z.string(),
@@ -299,7 +301,8 @@ export function makeHandlers(): Record<string, ToolHandler> {
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});
-      const html = buildHtml(a.blocks as HtmlBlock[], a.title);
+      const blocks = await resolveStaticBlocks(a.blocks as HtmlBlock[], renderPlotSvg);
+      const html = buildHtml(blocks, a.title);
       writeOutput(a.output_path, html);
       return result(a.output_path, html);
     },

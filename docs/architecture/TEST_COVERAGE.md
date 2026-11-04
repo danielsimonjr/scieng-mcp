@@ -42,7 +42,7 @@ The following 3 source files are not directly imported by any test file:
 | `src/render-latex.ts` | `render-latex.test.ts` |
 | `src/render-lib.ts` | `render-lib.test.ts` |
 | `src/render-mermaid.ts` | `render-mermaid.test.ts` |
-| `src/tools.ts` | `plugin-content.test.ts`, `tools.test.ts` |
+| `src/tools.ts` | `plugin-content.test.ts`, `render-html.test.ts`, `tools.test.ts` |
 
 ---
 
@@ -58,7 +58,7 @@ The following 3 source files are not directly imported by any test file:
 | `test/plugin-content.test.ts` | 1 files |
 | `test/render-any.test.ts` | 1 files |
 | `test/render-dot.test.ts` | 1 files |
-| `test/render-html.test.ts` | 1 files |
+| `test/render-html.test.ts` | 2 files |
 | `test/render-latex.test.ts` | 1 files |
 | `test/render-lib.test.ts` | 1 files |
 | `test/render-mermaid.test.ts` | 1 files |

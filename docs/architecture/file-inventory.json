@@ -89,7 +89,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 28
+      "loc": 34
     },
     {
       "file": "src/render-dot.ts",
@@ -103,7 +103,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 141
+      "loc": 217
     },
     {
       "file": "src/render-latex.ts",
@@ -131,7 +131,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 311
+      "loc": 314
     },
     {
       "file": "test/bundle-gate.test.ts",
@@ -173,14 +173,14 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 141
+      "loc": 158
     },
     {
       "file": "test/render-any.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 32
+      "loc": 46
     },
     {
       "file": "test/render-dot.test.ts",
@@ -194,7 +194,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 210
+      "loc": 343
     },
     {
       "file": "test/render-latex.test.ts",

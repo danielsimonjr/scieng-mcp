@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.8.0
+**Version**: 0.9.0
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -138,7 +138,7 @@ The codebase is organized into the following modules:
 
 **Exports:**
 - Interfaces: `AnyRenderResult`
-- Functions: `renderAny`
+- Functions: `renderPlotSvg`, `renderAny`
 
 ---
 
@@ -165,7 +165,7 @@ The codebase is organized into the following modules:
 **Exports:**
 - Interfaces: `HtmlBlock`
 - Types: `BlockType`
-- Functions: `buildHtml`
+- Functions: `buildHtml`, `resolveStaticBlocks`
 
 ---
 
@@ -240,11 +240,11 @@ The codebase is organized into the following modules:
 |------|---------|------|
 | `./render-lib.ts` | `readInput, deriveOutputPath, writeOutput` | Import |
 | `./render-mermaid.ts` | `renderMermaidSource, MERMAID_FORMATS` | Import |
-| `./render-any.ts` | `renderAny` | Import |
+| `./render-any.ts` | `renderAny, renderPlotSvg` | Import |
 | `./render-dot.ts` | `renderDotSource` | Import |
 | `./engine-config.ts` | `engineConfig` | Import |
 | `./render-latex.ts` | `renderLatexSource, LATEX_FORMATS` | Import |
-| `./render-html.ts` | `buildHtml, HtmlBlock` | Import |
+| `./render-html.ts` | `buildHtml, resolveStaticBlocks, HtmlBlock` | Import |
 | `./ooxml-edit.ts` | `applyEdits` | Import |
 
 **Exports:**
@@ -364,12 +364,12 @@ graph TD
 |----------|-------|
 | Total Source Files | 31 |
 | Subsystems | 4 |
-| Total Lines of Code | 4178 |
-| Total Exports | 86 |
+| Total Lines of Code | 4427 |
+| Total Exports | 88 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
 | Total Interfaces | 7 |
-| Total Functions | 20 |
+| Total Functions | 22 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
 | Type-only Imports | 0 |
@@ -380,4 +380,4 @@ graph TD
 
 ---
 
-*Version*: 0.8.0
+*Version*: 0.9.0

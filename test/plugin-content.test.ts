@@ -139,3 +139,20 @@ test("no shipped file of the plugin names mermaid.ink", () => {
     assert.doesNotMatch(readFileSync(join(PLUGIN, f), "utf-8"), /mermaid\.ink/, `${f} names mermaid.ink`);
   }
 });
+
+test("plot command documents --static as a render plot svg call", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const text = readFileSync(join(import.meta.dirname, "..", "plugin", "commands", "plot.md"), "utf-8");
+  assert.match(text, /--static/);
+  assert.match(text, /`render`/);
+  assert.match(text, /`type` set to `plot`/);
+  assert.match(text, /`format` set to `svg`/);
+  assert.match(text, /@danielsimonjr\/sciengjs\/plot/);
+});
+
+test("the skill documents the --static route of plot and the static field of a plotly block", () => {
+  const text = readFileSync(join(PLUGIN, "skills", "scieng", "SKILL.md"), "utf-8");
+  assert.match(text, /`\/scieng-mcp:plot`[^\n]*`--static`[^\n]*`render`/);
+  assert.match(text, /`static`[^\n]*`plotly` block|`plotly` block[^\n]*`static`/);
+});

@@ -10,9 +10,9 @@
 - **Dormant files**: 3
   - **Orphaned (reachable from nothing)**: 3
   - **Test-only (only a test reaches them)**: 0
-- **Potentially unused exports**: 57
+- **Potentially unused exports**: 56
   - **Unreferenced anywhere**: 19
-  - **Referenced in their own module**: 38
+  - **Referenced in their own module**: 37
   - **Not classified**: 0
 
 ## Caveats
@@ -82,7 +82,6 @@ No other file imports these names, but their own module uses them.
 - `src/render-any.ts`: `AnyRenderResult`
 - `src/render-html.ts`: `BlockType`
 - `src/render-latex.ts`: `Block`, `LatexFailure`, `LatexFormat`
-- `src/tools.ts`: `ToolResult`
 
 ## Exports not classified
 

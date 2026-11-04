@@ -5,7 +5,7 @@
     "language": "typescript",
     "totalFiles": 31,
     "totalModules": 3,
-    "totalExports": 86
+    "totalExports": 88
   },
   "modules": {
     "src": {
@@ -176,6 +176,7 @@
         ],
         "exports": [
           "AnyRenderResult",
+          "renderPlotSvg",
           "renderAny"
         ]
       },
@@ -211,7 +212,8 @@
         "exports": [
           "BlockType",
           "HtmlBlock",
-          "buildHtml"
+          "buildHtml",
+          "resolveStaticBlocks"
         ]
       },
       "src/render-latex.ts": {
@@ -320,7 +322,8 @@
           {
             "file": "src/render-any.ts",
             "imports": [
-              "renderAny"
+              "renderAny",
+              "renderPlotSvg"
             ],
             "typeOnly": false
           },
@@ -350,6 +353,7 @@
             "file": "src/render-html.ts",
             "imports": [
               "buildHtml",
+              "resolveStaticBlocks",
               "HtmlBlock"
             ],
             "typeOnly": false
@@ -558,7 +562,15 @@
           {
             "file": "src/render-html.ts",
             "imports": [
-              "buildHtml"
+              "buildHtml",
+              "resolveStaticBlocks"
+            ],
+            "typeOnly": false
+          },
+          {
+            "file": "src/tools.ts",
+            "imports": [
+              "*"
             ],
             "typeOnly": false
           }
@@ -697,8 +709,8 @@
     "totalTypeScriptFiles": 31,
     "totalSourceFiles": 31,
     "totalModules": 3,
-    "totalLinesOfCode": 4178,
-    "totalExports": 86,
+    "totalLinesOfCode": 4427,
+    "totalExports": 88,
     "entryRoots": 1,
     "reachableFiles": 10,
     "dormantFiles": 3,
@@ -708,7 +720,7 @@
     "typeOnlyCircularDeps": 0,
     "totalTypeOnlyImports": 0,
     "noImporterFileCount": 3,
-    "unusedExportsCount": 57,
+    "unusedExportsCount": 56,
     "circularDepsTruncated": false,
     "runtimeCyclicComponents": 0,
     "typeOnlyCyclicComponents": 0,
@@ -716,7 +728,7 @@
     "typeOnlyFilesInCycles": 0,
     "totalClasses": 12,
     "totalInterfaces": 7,
-    "totalFunctions": 20,
+    "totalFunctions": 22,
     "totalTypeGuards": 0,
     "totalEnums": 0,
     "totalConstants": 11,

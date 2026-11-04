@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-CBVLJN63.mjs";
+} from "./chunk-KB4UG3Z6.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35174,6 +35174,9 @@ var DEFAULT_REGISTRY = {
   "math:svg": { backend: "math/mathjax", moduleUrl: backendUrl("math/backend-svg") },
   "math:png": { backend: "math/mathjax+raster/resvg", moduleUrl: backendUrl("math/backend-png") },
   "math:pdf": { backend: "math/mathjax+browser/chromium", moduleUrl: backendUrl("math/backend-pdf") },
+  "plot:svg": { backend: "plot/svg", moduleUrl: backendUrl("plot/backend-svg") },
+  "plot:png": { backend: "plot/svg+raster/resvg", moduleUrl: backendUrl("plot/backend-png") },
+  "plot:html": { backend: "plot/plotly", moduleUrl: backendUrl("plot/backend-html") },
   "mermaid:svg": { backend: "mermaid/native", moduleUrl: backendUrl("mermaid/backend-svg") },
   "mermaid:png": { backend: "mermaid/native+raster/resvg", moduleUrl: backendUrl("mermaid/backend-png") },
   "dot:pdf": { backend: "graph/viz+browser/chromium", moduleUrl: backendUrl("graph/backend-pdf") },
@@ -35440,6 +35443,10 @@ async function renderMermaidSource(source, output2, format) {
 }
 
 // src/render-any.ts
+async function renderPlotSvg(source) {
+  const result2 = await render({ type: "plot", format: "svg", source }, engineConfig());
+  return new TextDecoder().decode(result2.bytes);
+}
 async function renderAny(type, format, source, output2, options) {
   const req = options === void 0 ? { type, format, source } : { type, format, source, options };
   const result2 = await render(req, engineConfig());
@@ -35613,6 +35620,22 @@ var BLOCK_STYLES = {
   wavedrom: `.wavedrom-block { background: #fff; color: #000; padding: 1rem; border: 1px solid #8a8a8a; border-radius: 4px; overflow-x: auto; }`
 };
 var hasOwnDelimiters = (tex) => tex.includes("\\[") || tex.includes("$$") || tex.includes("\\begin{");
+var inputError = (message) => Object.assign(new Error(message), { name: "RenderError", code: "E_INPUT" });
+var decodeRefs = (s) => s.replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCodePoint(parseInt(h, 16) % 1114112)).replace(/&#(\d+);?/g, (_, d) => String.fromCodePoint(Number(d) % 1114112)).replace(/&colon;/gi, ":").replace(/&(tab|newline);/gi, "");
+function unsafeSvg(svg) {
+  if (/<script/i.test(svg)) return "a script tag";
+  if (/<foreignObject/i.test(svg)) return "a foreignObject element";
+  const tags = (svg.match(/<[^>]*>/g) ?? []).join("");
+  if (/[\s/"']on\w+\s*=/i.test(tags)) return "an event-handler attribute";
+  if (/javascript:/i.test(decodeRefs(tags).replace(/[\s\x00-\x1f]/g, ""))) return "a javascript: URL";
+  return void 0;
+}
+function scopeSvgIds(svg, suffix) {
+  const ids = new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+  if (ids.size === 0) return svg;
+  const scoped = (id) => ids.has(id) ? id + suffix : id;
+  return svg.replace(/\bid="([^"]+)"/g, (_, id) => `id="${scoped(id)}"`).replace(/url\(\s*(['"]?)#([^'")\s]+)\1\s*\)/g, (_, q, id) => `url(${q}#${scoped(id)}${q})`).replace(/(href=")#([^"]+)"/g, (_, h, id) => `${h}#${scoped(id)}"`);
+}
 function renderBlock(b, i) {
   switch (b.type) {
     case "mermaid":
@@ -35625,6 +35648,12 @@ function renderBlock(b, i) {
       return `<div class="latex-block">${esc2(tex)}</div>`;
     }
     case "plotly": {
+      if (b.static) {
+        if (b.svg === void 0) throw new Error(`plotly block ${i}: a static block needs its SVG (the svg field is missing)`);
+        const unsafe = unsafeSvg(b.svg);
+        if (unsafe) throw new Error(`plotly block ${i}: the SVG of a static block must not contain ${unsafe}`);
+        return `<div class="plotly-static">${scopeSvgIds(b.svg, `-b${i}`)}</div>`;
+      }
       let spec;
       try {
         spec = JSON.parse(b.source);
@@ -35646,7 +35675,10 @@ function renderBlock(b, i) {
 }
 function buildHtml(blocks, title = "scieng playground") {
   if (blocks.length === 0) throw new Error("buildHtml needs at least one block");
-  const types = new Set(blocks.map((b) => b.type));
+  blocks.forEach((b, i) => {
+    if (b.static && b.type !== "plotly") throw inputError(`${b.type} block ${i}: static is valid only on a plotly block`);
+  });
+  const types = new Set(blocks.map((b) => b.type === "plotly" && b.static ? "static-plotly" : b.type));
   const imports = Object.keys(HEAD_IMPORTS).filter((t) => types.has(t)).map((t) => HEAD_IMPORTS[t]);
   const inits = Object.keys(INIT_SCRIPTS).filter((t) => types.has(t)).map((t) => INIT_SCRIPTS[t]);
   const styles = Object.keys(BLOCK_STYLES).filter((t) => types.has(t)).map((t) => `
@@ -35683,6 +35715,25 @@ ${inits.join("\n")}
 </body>
 </html>
 `;
+}
+async function resolveStaticBlocks(blocks, renderPlot) {
+  const out = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (b.type !== "plotly" || !b.static) {
+      out.push(b);
+      continue;
+    }
+    try {
+      out.push({ ...b, svg: await renderPlot(b.source) });
+    } catch (err) {
+      const code = err.code;
+      if (typeof code !== "string") throw err;
+      const msg = err instanceof Error ? err.message : String(err);
+      throw Object.assign(new Error(`plotly block ${i}: [${code}] ${msg}`), { name: "RenderError", code });
+    }
+  }
+  return out;
 }
 
 // src/ooxml-edit.ts
@@ -35933,7 +35984,8 @@ var TOOLS = [
             properties: {
               type: { type: "string", enum: ["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"] },
               source: { type: "string" },
-              title: { type: "string", description: "Optional section heading." }
+              title: { type: "string", description: "Optional section heading." },
+              static: { type: "boolean", description: "plotly only: draw the figure through the engine as inline SVG, with no Plotly script for this block." }
             },
             required: ["type", "source"],
             additionalProperties: false
@@ -35999,7 +36051,8 @@ var HtmlArgs = external_exports.object({
   blocks: external_exports.array(external_exports.object({
     type: external_exports.enum(["mermaid", "dot", "latex", "plotly", "wavedrom", "raw-html"]),
     source: external_exports.string(),
-    title: external_exports.string().optional()
+    title: external_exports.string().optional(),
+    static: external_exports.boolean().optional()
   }).strict()).min(1),
   title: external_exports.string().optional(),
   output_path: external_exports.string()
@@ -36058,7 +36111,8 @@ function makeHandlers() {
     },
     render_html: async (raw) => {
       const a = HtmlArgs.parse(raw ?? {});
-      const html = buildHtml(a.blocks, a.title);
+      const blocks = await resolveStaticBlocks(a.blocks, renderPlotSvg);
+      const html = buildHtml(blocks, a.title);
       writeOutput(a.output_path, html);
       return result(a.output_path, html);
     },
@@ -36070,7 +36124,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.8.0" : "0.0.0-dev";
+var VERSION = true ? "0.9.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

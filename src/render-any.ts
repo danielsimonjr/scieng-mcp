@@ -13,6 +13,12 @@ export interface AnyRenderResult {
   warnings: string[];
 }
 
+/** Renders a Plotly JSON source to an SVG string through the engine. Used for static plotly blocks of render_html. */
+export async function renderPlotSvg(source: string): Promise<string> {
+  const result = await render({ type: "plot", format: "svg", source }, engineConfig());
+  return new TextDecoder().decode(result.bytes);
+}
+
 /** Renders a source of the given input type to the given format, writes the file, and returns the engine's metadata. */
 export async function renderAny(
   type: InputType,
