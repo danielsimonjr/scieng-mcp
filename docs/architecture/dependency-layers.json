@@ -439,12 +439,13 @@
         ]
       },
       "src/render-markdown.ts": {
-        "description": "Converts HTML (inline or from a file) to Markdown at output_path.",
+        "description": "Returns the path of an asset in the folder dir. Throws when the name is empty, holds a separator, \"..\", \":\" or NUL,",
         "externalDependencies": [
           {
             "package": "@danielsimonjr/sciengjs",
             "imports": [
-              "render"
+              "render",
+              "RenderError"
             ]
           }
         ],
@@ -453,15 +454,25 @@
             "module": "fs",
             "imports": [
               "existsSync",
+              "linkSync",
               "mkdirSync",
+              "unlinkSync",
               "writeFileSync"
+            ]
+          },
+          {
+            "module": "crypto",
+            "imports": [
+              "randomUUID"
             ]
           },
           {
             "module": "path",
             "imports": [
+              "basename",
               "dirname",
               "extname",
+              "isAbsolute",
               "join"
             ]
           }
@@ -470,8 +481,7 @@
           {
             "file": "./render-lib.ts",
             "imports": [
-              "readInput",
-              "writeOutput"
+              "readInput"
             ]
           },
           {
@@ -485,15 +495,18 @@
         "exports": [
           "assetFilePath",
           "uniquePath",
+          "rewriteImageLinks",
           "htmlToMarkdownFile"
         ],
         "interfaces": [
           "MarkdownResult",
-          "HtmlToMarkdownArgs"
+          "HtmlToMarkdownArgs",
+          "MarkdownFs"
         ],
         "functions": [
           "assetFilePath",
           "uniquePath",
+          "rewriteImageLinks",
           "htmlToMarkdownFile"
         ]
       },

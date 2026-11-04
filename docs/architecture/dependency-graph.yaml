@@ -4,7 +4,7 @@ metadata:
   language: typescript
   totalFiles: 33
   totalModules: 3
-  totalExports: 93
+  totalExports: 95
 modules:
   src:
     plugin/skills/scieng/engineering-patterns.ts:
@@ -204,13 +204,13 @@ modules:
       externalDependencies:
         - '@danielsimonjr/sciengjs'
       nodeDependencies:
+        - node:crypto
         - node:fs
         - node:path
       internalDependencies:
         - file: src/render-lib.ts
           imports:
             - readInput
-            - writeOutput
           typeOnly: false
         - file: src/engine-config.ts
           imports:
@@ -220,7 +220,9 @@ modules:
         - MarkdownResult
         - assetFilePath
         - uniquePath
+        - rewriteImageLinks
         - HtmlToMarkdownArgs
+        - MarkdownFs
         - htmlToMarkdownFile
     src/render-mermaid.ts:
       externalDependencies:
@@ -357,7 +359,8 @@ modules:
           typeOnly: false
       exports: []
     test/html-to-markdown.test.ts:
-      externalDependencies: []
+      externalDependencies:
+        - '@danielsimonjr/sciengjs'
       nodeDependencies:
         - node:assert/strict
         - node:fs
@@ -368,6 +371,7 @@ modules:
         - file: src/tools.ts
           imports:
             - makeHandlers
+            - dispatchTool
           typeOnly: false
         - file: src/render-markdown.ts
           imports:
@@ -558,8 +562,8 @@ statistics:
   totalTypeScriptFiles: 33
   totalSourceFiles: 33
   totalModules: 3
-  totalLinesOfCode: 4628
-  totalExports: 93
+  totalLinesOfCode: 4925
+  totalExports: 95
   entryRoots: 1
   reachableFiles: 11
   dormantFiles: 3
@@ -576,8 +580,8 @@ statistics:
   runtimeFilesInCycles: 0
   typeOnlyFilesInCycles: 0
   totalClasses: 12
-  totalInterfaces: 9
-  totalFunctions: 25
+  totalInterfaces: 10
+  totalFunctions: 26
   totalTypeGuards: 0
   totalEnums: 0
   totalConstants: 11

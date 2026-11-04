@@ -124,7 +124,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 84
+      "loc": 249
     },
     {
       "file": "src/render-mermaid.ts",
@@ -166,7 +166,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 80
+      "loc": 212
     },
     {
       "file": "test/no-network.test.ts",

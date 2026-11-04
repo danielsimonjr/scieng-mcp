@@ -206,28 +206,29 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-markdown.ts` - Converts HTML (inline or from a file) to Markdown at output_path.
+### `src/render-markdown.ts` - Returns the path of an asset in the folder dir. Throws when the name is empty, holds a separator, "..", ":" or NUL,
 
 **External Dependencies:**
 | Package | Import |
 |---------|--------|
-| `@danielsimonjr/sciengjs` | `render` |
+| `@danielsimonjr/sciengjs` | `render, RenderError` |
 
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `existsSync, mkdirSync, writeFileSync` |
-| `path` | `dirname, extname, join` |
+| `fs` | `existsSync, linkSync, mkdirSync, unlinkSync, writeFileSync` |
+| `crypto` | `randomUUID` |
+| `path` | `basename, dirname, extname, isAbsolute, join` |
 
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
-| `./render-lib.ts` | `readInput, writeOutput` | Import |
+| `./render-lib.ts` | `readInput` | Import |
 | `./engine-config.ts` | `engineConfig` | Import |
 
 **Exports:**
-- Interfaces: `MarkdownResult`, `HtmlToMarkdownArgs`
-- Functions: `assetFilePath`, `uniquePath`, `htmlToMarkdownFile`
+- Interfaces: `MarkdownResult`, `HtmlToMarkdownArgs`, `MarkdownFs`
+- Functions: `assetFilePath`, `uniquePath`, `rewriteImageLinks`, `htmlToMarkdownFile`
 
 ---
 
@@ -395,12 +396,12 @@ graph TD
 |----------|-------|
 | Total Source Files | 33 |
 | Subsystems | 4 |
-| Total Lines of Code | 4628 |
-| Total Exports | 93 |
+| Total Lines of Code | 4925 |
+| Total Exports | 95 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
-| Total Interfaces | 9 |
-| Total Functions | 25 |
+| Total Interfaces | 10 |
+| Total Functions | 26 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
 | Type-only Imports | 0 |

@@ -58,13 +58,13 @@ This report lists each source file that the map census finds, with a disposition
 | `src/render-html.ts` | scieng-mcp | src | reachable | 217 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 200 |
 | `src/render-lib.ts` | scieng-mcp | src | reachable | 140 |
-| `src/render-markdown.ts` | scieng-mcp | src | reachable | 84 |
+| `src/render-markdown.ts` | scieng-mcp | src | reachable | 249 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
 | `src/tools.ts` | scieng-mcp | src | reachable | 344 |
 | `test/bundle-gate.test.ts` | (root) | tests | test | 192 |
 | `test/docs-latex.test.ts` | (root) | tests | test | 21 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
-| `test/html-to-markdown.test.ts` | (root) | tests | test | 80 |
+| `test/html-to-markdown.test.ts` | (root) | tests | test | 212 |
 | `test/no-network.test.ts` | (root) | tests | test | 39 |
 | `test/ooxml-edit.test.ts` | (root) | tests | test | 199 |
 | `test/plugin-content.test.ts` | (root) | tests | test | 158 |
