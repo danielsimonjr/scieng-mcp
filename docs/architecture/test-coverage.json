@@ -1,17 +1,17 @@
 {
   "metadata": {
-    "totalSourceFiles": 11,
-    "totalTestFiles": 12,
-    "testedCount": 8,
+    "totalSourceFiles": 12,
+    "totalTestFiles": 13,
+    "testedCount": 9,
     "untestedCount": 3,
-    "coveragePercent": "72.7",
+    "coveragePercent": "75.0",
     "effectiveCoverage": {
       "policyLoaded": false,
-      "activeFiles": 11,
-      "testedActive": 8,
+      "activeFiles": 12,
+      "testedActive": 9,
       "activeUntested": 3,
       "excludedTotal": 0,
-      "percent": "72.7",
+      "percent": "75.0",
       "breakdown": {
         "active_untested": 3
       }
@@ -25,6 +25,7 @@
   "testedFiles": [
     "src/engine-config.ts",
     "src/ooxml-edit.ts",
+    "src/render-any.ts",
     "src/render-dot.ts",
     "src/render-html.ts",
     "src/render-latex.ts",
@@ -41,6 +42,9 @@
     "src/index.ts": [],
     "src/ooxml-edit.ts": [
       "test/ooxml-edit.test.ts"
+    ],
+    "src/render-any.ts": [
+      "test/render-any.test.ts"
     ],
     "src/render-dot.ts": [
       "test/render-dot.test.ts"
@@ -72,6 +76,9 @@
     ],
     "test/plugin-content.test.ts": [
       "src/tools.ts"
+    ],
+    "test/render-any.test.ts": [
+      "src/render-any.ts"
     ],
     "test/render-dot.test.ts": [
       "src/render-dot.ts"

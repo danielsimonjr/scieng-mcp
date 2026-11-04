@@ -4,12 +4,12 @@
 
 The server turns source text into files. An MCP client starts the server as a child process. The client sends one JSON request for each tool call. The server runs the requested renderer or edit, writes its output file, and returns the path and the byte count of that file.
 
-Three tools render diagram or formula source. Two of them send the source to a public rendering service. The third draws Graphviz DOT on the local machine. One tool builds one HTML page from typed blocks. One tool edits the text of an unpacked Word document in place. A sixth tool reports the render pairs of the local engine. The server keeps no state between calls.
+Four tools render diagram or formula source. Three of them draw on the local machine, through the sciengjs engine: render_mermaid, render and render_dot. The fourth, render_latex, sends the source to a public rendering service. One tool builds one HTML page from typed blocks. One tool edits the text of an unpacked Word document in place. A seventh tool reports the render pairs of the local engine. The server keeps no state between calls.
 
 ## System context
 
 - **MCP client.** The client starts the server with `node` and the bundle. [plugin/.mcp.json](../../plugin/.mcp.json) defines the start. The client sends requests on standard input and reads responses on standard output.
-- **mermaid.ink.** `render_mermaid` puts the Mermaid source in the request URL.
+- **sciengjs engine.** `render_mermaid` and `render` draw on this machine. No request leaves the process for them.
 - **latex.codecogs.com.** `render_latex` puts the source of each LaTeX block in the request URL.
 - **Local engine (`@danielsimonjr/sciengjs`).** `render_dot` and `capabilities` run the engine on this machine. The engine starts a worker thread from its worker entry. In the bundle, the entry is `plugin/bundle/entry.mjs`. `renderDotSource` makes no network request, and a unit test checks that.
 - **File system.** The render tools read `input_path` files of at most 524288 bytes. `ooxml_replace` reads and writes the `word/document.xml` file of an unpacked document. Each tool writes its output at the path that the caller gives.
@@ -37,16 +37,16 @@ The modules of `src/` form four layers. The table gives the imports of each laye
 | Renderers and builders | `src/render-mermaid.ts`, `src/render-latex.ts`, `src/render-dot.ts`, `src/render-html.ts`, `src/ooxml-edit.ts` | `src/render-lib.ts` and `src/engine-config.ts`, where each module needs them. `src/render-html.ts` and `src/ooxml-edit.ts` import nothing from `src/`. |
 | Utilities | `src/render-lib.ts`, `src/engine-config.ts` | None |
 
-Every import points down the table. The census finds no import cycle among the 27 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
+Every import points down the table. The census finds no import cycle among the 29 files. The tests and the smoke script import the modules directly. The tests and the smoke script stand outside the layers.
 
 ## Key design decisions
 
 Each decision gives the choice, the reason for the choice, the cost of the choice, and the rejected alternative.
 
-### D1. Mermaid and LaTeX use public rendering services
+### D1. LaTeX uses a public rendering service
 
-- **Decision.** `render_mermaid` sends the Mermaid source to mermaid.ink. The source travels in the request path, as deflated JSON encoded in base64url. `render_latex` sends the source of each block to latex.codecogs.com, URL-encoded in the query string.
-- **Rationale.** The server needs no renderer package for these two formats. Each service renders the source that the URL carries.
+- **Decision.** `render_latex` sends the source of each block to latex.codecogs.com, URL-encoded in the query string. Mermaid renders on this machine, through the sciengjs engine.
+- **Rationale.** The server needs no renderer package for LaTeX. The service renders the source that the URL carries.
 - **Trade-offs.** Each render needs network access. The source leaves the machine. The service sets the size and rate limits, and a service outage ends the render.
 - **Alternative.** A local renderer for each format. The repository contains no local renderer for these formats.
 
@@ -193,6 +193,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
 | runtimeCircularDeps | 0 | dependency-graph.json |
 | typeOnlyCircularDeps | 0 | dependency-graph.json |

@@ -8,37 +8,37 @@ This report lists each source file that the map census finds, with a disposition
 
 **Language**: typescript
 
-**Total files**: 27
+**Total files**: 29
 
 ## Disposition counts
 
 | Disposition | Count | Meaning |
 | --- | --: | --- |
-| `reachable` | 8 | A `src`-area file that an entry root reaches. |
+| `reachable` | 9 | A `src`-area file that an entry root reaches. |
 | `build-entry` | 1 | A `src`-area file that is an entry root. |
 | `test-only` | 0 | A `src`-area file that only a test reaches. |
 | `orphan` | 3 | A `src`-area file that nothing reaches. Delete it, or wire it to a root. |
-| `test` | 12 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
+| `test` | 13 | A file in a `test/` or `tests/` folder, or a `*.test.ts` or `*.spec.ts` file. |
 | `tool` | 3 | A file in a `tools/` or `scripts/` folder outside `src/`. |
 | `config` | 0 | A `*.config.*` file of TypeScript or JavaScript. |
 | `example` | 0 | A file in `examples/` or `docs/`. |
 | `bench` | 0 | A file in `bench/` or `benchmarks/`, or a `*.bench.*` file. |
-| **Total** | **27** | |
+| **Total** | **29** | |
 
 ## Per-area counts
 
 | Area | Files |
 | --- | --: |
-| `src` | 12 |
-| `tests` | 12 |
+| `src` | 13 |
+| `tests` | 13 |
 | `tools` | 3 |
 
 ## Per-package counts
 
 | Package | Files |
 | --- | --: |
-| `(root)` | 18 |
-| `scieng-mcp` | 9 |
+| `(root)` | 19 |
+| `scieng-mcp` | 10 |
 
 ## All files
 
@@ -47,30 +47,32 @@ This report lists each source file that the map census finds, with a disposition
 | `plugin/skills/scieng/engineering-patterns.ts` | (root) | src | orphan | 962 |
 | `plugin/skills/scieng/stubs/docx.d.ts` | (root) | src | orphan | 53 |
 | `scripts/block-network.mjs` | (root) | tools | tool | 37 |
-| `scripts/bundle.mjs` | (root) | tools | tool | 59 |
+| `scripts/bundle.mjs` | (root) | tools | tool | 68 |
 | `scripts/smoke-handshake.mjs` | (root) | tools | tool | 22 |
-| `smoke/render.smoke.ts` | (root) | src | orphan | 67 |
+| `smoke/render.smoke.ts` | (root) | src | orphan | 68 |
 | `src/engine-config.ts` | scieng-mcp | src | reachable | 23 |
 | `src/index.ts` | scieng-mcp | src | build-entry | 34 |
 | `src/ooxml-edit.ts` | scieng-mcp | src | reachable | 213 |
+| `src/render-any.ts` | scieng-mcp | src | reachable | 28 |
 | `src/render-dot.ts` | scieng-mcp | src | reachable | 16 |
-| `src/render-html.ts` | scieng-mcp | src | reachable | 136 |
+| `src/render-html.ts` | scieng-mcp | src | reachable | 141 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 173 |
 | `src/render-lib.ts` | scieng-mcp | src | reachable | 139 |
-| `src/render-mermaid.ts` | scieng-mcp | src | reachable | 26 |
-| `src/tools.ts` | scieng-mcp | src | reachable | 249 |
-| `test/bundle-gate.test.ts` | (root) | tests | test | 181 |
+| `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
+| `src/tools.ts` | scieng-mcp | src | reachable | 284 |
+| `test/bundle-gate.test.ts` | (root) | tests | test | 192 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
 | `test/ooxml-edit.test.ts` | (root) | tests | test | 199 |
-| `test/plugin-content.test.ts` | (root) | tests | test | 131 |
+| `test/plugin-content.test.ts` | (root) | tests | test | 144 |
+| `test/render-any.test.ts` | (root) | tests | test | 32 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
-| `test/render-html.test.ts` | (root) | tests | test | 126 |
+| `test/render-html.test.ts` | (root) | tests | test | 199 |
 | `test/render-latex.test.ts` | (root) | tests | test | 210 |
 | `test/render-lib.test.ts` | (root) | tests | test | 167 |
-| `test/render-mermaid.test.ts` | (root) | tests | test | 27 |
+| `test/render-mermaid.test.ts` | (root) | tests | test | 55 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
 | `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
-| `test/tools.test.ts` | (root) | tests | test | 227 |
+| `test/tools.test.ts` | (root) | tests | test | 273 |
 
 ## Skipped links
 

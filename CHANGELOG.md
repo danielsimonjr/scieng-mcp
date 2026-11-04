@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Added
+
+- `render` tool. It renders any input type and output format of the sciengjs engine to a file, on this machine. Its arguments are `type`, `format`, `options` and one of `source` or `input_path`. Its result is `{path, bytes, mime, backend, warnings}`. An engine error returns its code. The tool count is seven.
+- `render_mermaid` takes `format`: `svg` (the default), `png` or `pdf`.
+- `render_html` puts a `data-scieng-source` attribute on the wrapper of each block. The value is the exact block source, HTML-attribute-escaped.
+
+### Changed
+
+- `render_mermaid` renders on this machine through the sciengjs engine. The source no longer goes to mermaid.ink. Class, state and sequence diagrams need no browser. Other diagram types need `SCIENG_BROWSER`, and return `E_STAGE_MISSING` without it.
+- The sciengjs engine dependency moves from `^0.2.0` to `^0.3.0`.
+- The WaveDrom panel of `render_html` has a 1 px border. The panel keeps its light background.
+- The bundle includes every backend in the engine registry. Before, the Mermaid and PDF backends were missing.
+
+### Removed
+
+- `encodePako` and the mermaid.ink request path of `render_mermaid`.
+
+
 ## [0.6.1] - 2026-11-03
 
 ### Added

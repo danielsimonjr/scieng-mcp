@@ -32,7 +32,7 @@ The codebase is organized into the following modules:
 
 - **plugin/skills**: 2 files
 - **smoke**: 1 file
-- **root**: 8 files
+- **root**: 9 files
 - **entry**: 1 file
 
 ---
@@ -88,7 +88,7 @@ The codebase is organized into the following modules:
 | File | Imports | Type |
 |------|---------|------|
 | `../src/render-dot.ts` | `renderDotSource` | Import |
-| `../src/render-mermaid.ts` | `renderMermaid` | Import |
+| `../src/render-mermaid.ts` | `renderMermaidSource` | Import |
 | `../src/render-latex.ts` | `renderLatex` | Import |
 
 ---
@@ -120,6 +120,25 @@ The codebase is organized into the following modules:
 **Exports:**
 - Interfaces: `EditResult`
 - Functions: `assertNoDoctype`, `replaceInRuns`, `applyEdits`
+
+---
+
+### `src/render-any.ts` - Renders any input type and output format that the sciengjs engine supports, and writes the bytes to disk.
+
+**External Dependencies:**
+| Package | Import |
+|---------|--------|
+| `@danielsimonjr/sciengjs` | `render, InputType, OutputFormat, RenderOptions` |
+
+**Internal Dependencies:**
+| File | Imports | Type |
+|------|---------|------|
+| `./render-lib.ts` | `writeOutput` | Import |
+| `./engine-config.ts` | `engineConfig` | Import |
+
+**Exports:**
+- Interfaces: `AnyRenderResult`
+- Functions: `renderAny`
 
 ---
 
@@ -179,20 +198,23 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-mermaid.ts` - Renders Mermaid source to SVG through the mermaid.ink service, and writes the SVG to the output path.
+### `src/render-mermaid.ts` - Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count plus any engine warnings.
 
-**Node.js Built-in Dependencies:**
-| Module | Import |
-|--------|--------|
-| `zlib` | `deflateSync` |
+**External Dependencies:**
+| Package | Import |
+|---------|--------|
+| `@danielsimonjr/sciengjs` | `render` |
 
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
-| `./render-lib.ts` | `readInput, writeOutput, httpText, FetchLike` | Import |
+| `./render-lib.ts` | `writeOutput` | Import |
+| `./engine-config.ts` | `engineConfig` | Import |
 
 **Exports:**
-- Functions: `encodePako`, `renderMermaidSource`, `renderMermaid`
+- Types: `MermaidFormat`
+- Functions: `renderMermaidSource`
+- Constants: `MERMAID_FORMATS`
 
 ---
 
@@ -203,13 +225,14 @@ The codebase is organized into the following modules:
 |---------|--------|
 | `@modelcontextprotocol/server` | `Tool` |
 | `zod` | `z` |
-| `@danielsimonjr/sciengjs` | `RENDER_ERROR_CODES, capabilities` |
+| `@danielsimonjr/sciengjs` | `RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities` |
 
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
 | `./render-lib.ts` | `readInput, deriveOutputPath, writeOutput, FetchLike` | Import |
-| `./render-mermaid.ts` | `renderMermaidSource` | Import |
+| `./render-mermaid.ts` | `renderMermaidSource, MERMAID_FORMATS` | Import |
+| `./render-any.ts` | `renderAny` | Import |
 | `./render-dot.ts` | `renderDotSource` | Import |
 | `./engine-config.ts` | `engineConfig` | Import |
 | `./render-latex.ts` | `renderLatexSource` | Import |
@@ -250,13 +273,14 @@ The codebase is organized into the following modules:
 
 | File | Imports From | Exports To |
 |------|--------------|------------|
-| `src/tools` | 7 files | 1 file |
+| `src/tools` | 8 files | 1 file |
+| `src/render-lib` | 0 files | 5 files |
+| `src/engine-config` | 0 files | 4 files |
 | `src/render-dot` | 2 files | 2 files |
-| `src/render-lib` | 0 files | 4 files |
+| `src/render-mermaid` | 2 files | 2 files |
 | `smoke/render.smoke` | 3 files | 0 files |
+| `src/render-any` | 2 files | 1 file |
 | `src/render-latex` | 1 file | 2 files |
-| `src/render-mermaid` | 1 file | 2 files |
-| `src/engine-config` | 0 files | 2 files |
 | `src/index` | 1 file | 0 files |
 | `src/ooxml-edit` | 0 files | 1 file |
 | `src/render-html` | 0 files | 1 file |
@@ -288,33 +312,38 @@ graph TD
     subgraph Root
         N3[engine-config]
         N4[ooxml-edit]
-        N5[render-dot]
-        N6[render-html]
-        N7[render-latex]
-        N8[render-lib]
-        N9[render-mermaid]
-        N10[tools]
+        N5[render-any]
+        N6[render-dot]
+        N7[render-html]
+        N8[render-latex]
+        N9[render-lib]
+        N10[render-mermaid]
+        N11[tools]
     end
 
     subgraph Entry
-        N11[index]
+        N12[index]
     end
 
-    N2 --> N5
-    N2 --> N9
-    N2 --> N7
-    N11 --> N10
-    N5 --> N8
+    N2 --> N6
+    N2 --> N10
+    N2 --> N8
+    N12 --> N11
+    N5 --> N9
     N5 --> N3
-    N7 --> N8
-    N9 --> N8
-    N10 --> N8
+    N6 --> N9
+    N6 --> N3
+    N8 --> N9
     N10 --> N9
-    N10 --> N5
     N10 --> N3
-    N10 --> N7
-    N10 --> N6
-    N10 --> N4
+    N11 --> N9
+    N11 --> N10
+    N11 --> N5
+    N11 --> N6
+    N11 --> N3
+    N11 --> N8
+    N11 --> N7
+    N11 --> N4
 ```
 
 ---
@@ -324,14 +353,14 @@ graph TD
 
 | Category | Count |
 |----------|-------|
-| Total Source Files | 27 |
+| Total Source Files | 29 |
 | Subsystems | 4 |
-| Total Lines of Code | 3699 |
-| Total Exports | 81 |
+| Total Lines of Code | 3977 |
+| Total Exports | 83 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
-| Total Interfaces | 5 |
-| Total Functions | 21 |
+| Total Interfaces | 6 |
+| Total Functions | 20 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
 | Type-only Imports | 0 |

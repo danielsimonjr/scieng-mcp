@@ -8,11 +8,11 @@
 
 | Metric | Count |
 |--------|-------|
-| Total Source Files | 11 |
-| Total Test Files | 12 |
-| Source Files with Tests | 8 |
+| Total Source Files | 12 |
+| Total Test Files | 13 |
+| Source Files with Tests | 9 |
 | Source Files without Tests | 3 |
-| Coverage (raw, direct-import) | **72.7%** |
+| Coverage (raw, direct-import) | **75.0%** |
 ---
 
 ## Source Files Not Imported By A Test
@@ -36,6 +36,7 @@ The following 3 source files are not directly imported by any test file:
 |-------------|------------|
 | `src/engine-config.ts` | `engine-config.test.ts` |
 | `src/ooxml-edit.ts` | `ooxml-edit.test.ts` |
+| `src/render-any.ts` | `render-any.test.ts` |
 | `src/render-dot.ts` | `render-dot.test.ts` |
 | `src/render-html.ts` | `render-html.test.ts` |
 | `src/render-latex.ts` | `render-latex.test.ts` |
@@ -53,6 +54,7 @@ The following 3 source files are not directly imported by any test file:
 | `test/engine-config.test.ts` | 1 files |
 | `test/ooxml-edit.test.ts` | 1 files |
 | `test/plugin-content.test.ts` | 1 files |
+| `test/render-any.test.ts` | 1 files |
 | `test/render-dot.test.ts` | 1 files |
 | `test/render-html.test.ts` | 1 files |
 | `test/render-latex.test.ts` | 1 files |

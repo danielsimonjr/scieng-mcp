@@ -10,9 +10,9 @@
 - **Dormant files**: 3
   - **Orphaned (reachable from nothing)**: 3
   - **Test-only (only a test reaches them)**: 0
-- **Potentially unused exports**: 54
+- **Potentially unused exports**: 55
   - **Unreferenced anywhere**: 19
-  - **Referenced in their own module**: 35
+  - **Referenced in their own module**: 36
   - **Not classified**: 0
 
 ## Caveats
@@ -79,6 +79,7 @@ No other file imports these names, but their own module uses them.
 
 - `plugin/skills/scieng/engineering-patterns.ts`: `createApprovalTable`, `createCaution`, `createCodeBlock`, `createComparisonTable`, `createEquipmentTable`, `createFigure`, `createFigureCaption`, `createFigureRef`, `createImage`, `createImageWithSize`, `createIntegrationEffortTable`, `createListOfFigures`, `createListOfTables`, `createNote`, `createRequirementsTable`, `createRevisionHistory`, `createRiskAssessmentTable`, `createSignalTable`, `createSpecsTable`, `createTableCaption`, `createTableOfContents`, `createTableRef`, `createTestProcedure`, `createTitlePage`, `createTitledTable`, `createWarning`, `engineeringFooter`, `engineeringHeader`, `engineeringStyles`, `formatValue`, `mathSymbols`
 - `src/ooxml-edit.ts`: `EditResult`
+- `src/render-any.ts`: `AnyRenderResult`
 - `src/render-html.ts`: `BlockType`
 - `src/render-latex.ts`: `Block`
 - `src/tools.ts`: `ToolResult`

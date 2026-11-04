@@ -1,6 +1,6 @@
 # scieng-mcp API
 
-This document describes the public surface of the server. The surface holds six MCP tools. Each tool has a name, arguments, a result and error results. The module exports are internal to the repository. The package exports nothing. [COMPONENTS.md](COMPONENTS.md) describes each module. [DATAFLOW.md](DATAFLOW.md) traces each call.
+This document describes the public surface of the server. The surface holds seven MCP tools. Each tool has a name, arguments, a result and error results. The module exports are internal to the repository. The package exports nothing. [COMPONENTS.md](COMPONENTS.md) describes each module. [DATAFLOW.md](DATAFLOW.md) traces each call.
 
 ## Transport
 
@@ -13,7 +13,8 @@ This document describes the public surface of the server. The surface holds six 
 
 | Tool | Writes | Reads | Remote service | Annotations |
 |---|---|---|---|---|
-| `render_mermaid` | One SVG file | A source file, when `input_path` is given | `mermaid.ink` | Not read-only. Not destructive. |
+| `render_mermaid` | One SVG, PNG or PDF file | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
+| `render` | One file of any type and format that the engine supports | A source file, when `input_path` is given | None. The sciengjs engine renders on this machine. | Not read-only. Not destructive. |
 | `render_dot` | One SVG or PNG file | A source file, when `input_path` is given | None | Not read-only. Not destructive. |
 | `render_latex` | One SVG file | A source file, when `input_path` is given | `latex.codecogs.com` | Not read-only. Not destructive. |
 | `render_html` | One HTML file | None | None | Not read-only. Not destructive. |
@@ -32,10 +33,17 @@ This document describes the public surface of the server. The surface holds six 
 
 ### render_mermaid
 
-- Purpose: renders Mermaid source to an SVG file through mermaid.ink.
-- Arguments: the shared render arguments.
-- Result: `{"path": string, "bytes": number}`. The `bytes` value is the UTF-8 byte count of the SVG.
-- Errors: an argument error, `input too large`, an HTTP error from the service, `no SVG in response`, or the network error of the last attempt.
+- Purpose: renders Mermaid source to an SVG, PNG or PDF file, through the sciengjs engine on this machine.
+- Arguments: the shared render arguments, and `format`, which is `svg` (default), `png` or `pdf`.
+- Result: `{"path": string, "bytes": number, "warnings": string[]}`. The `bytes` value is the byte count of the file.
+- Errors: an argument error, `input too large`, or an engine error with its code. Without a browser, a diagram type other than class, state and sequence returns `E_STAGE_MISSING`.
+
+### render
+
+- Purpose: renders any input type and output format that the sciengjs engine supports, on this machine.
+- Arguments: the shared render arguments, `type` (an engine input type), `format` (an engine output format) and `options` (per-type options, passed to the engine unchanged).
+- Result: `{"path": string, "bytes": number, "mime": string, "backend": string, "warnings": string[]}`.
+- Errors: an argument error, `input too large`, or an engine error with its code, such as `E_UNSUPPORTED` for a pair that has no backend.
 
 ### render_dot
 
@@ -132,7 +140,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 | `ToolHandler` | Type | `(raw: unknown) => Promise<string>` | The handler of one tool. The handler returns the JSON text of the result. |
 | `ToolResult` | Interface | `{ content, isError? }` | The MCP result of a tool call. |
 | `dispatchTool` | Function | `(handlers, name, args) => Promise<ToolResult>` | Runs the named handler and returns the MCP result. |
-| `TOOLS` | Constant | `Tool[]` | The six tool definitions. |
+| `TOOLS` | Constant | `Tool[]` | The seven tool definitions. |
 | `makeHandlers` | Function | `(fetchImpl?) => Record<string, ToolHandler>` | Returns one handler for each tool name. |
 
 ### src/render-lib.ts
@@ -211,7 +219,7 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 27 | dependency-graph.json |
-| totalExports | 81 | dependency-graph.json |
+| totalSourceFiles | 29 | dependency-graph.json |
+| totalExports | 83 | dependency-graph.json |
 
 The census counts 80 exports. Thirty are in `src/`. The other 50 are in two reference files of the skill, which the server does not load.
