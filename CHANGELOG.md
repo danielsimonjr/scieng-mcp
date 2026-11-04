@@ -4,7 +4,7 @@
 
 ### Added
 
-- `html_to_markdown` tool. It converts HTML (inline text or an `.html` file) to GitHub Flavored Markdown through the sciengjs engine. It writes each asset into the folder of `output_path`. It never overwrites a file: a taken asset name gets `-2`, `-3`.
+- `html_to_markdown` tool. It converts HTML (inline text or an `.html` file) to GitHub Flavored Markdown through the sciengjs engine. It writes each asset into the folder of `output_path`. It never overwrites a file. An existing `output_path`, or one that does not end in `.md`, gives E_INPUT. A taken asset name gets `-2`, `-3`, and only the image links that name the asset follow the new name. The tool refuses an asset name with `:`, NUL, a Windows device name, or a trailing dot or space. An empty `html` gives "html is empty". A failure removes every file that the call created.
 - `/scieng-mcp:markdown` command. It converts an HTML file or HTML text to Markdown with `html_to_markdown`.
 
 ### Changed

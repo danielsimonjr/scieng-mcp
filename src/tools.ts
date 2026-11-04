@@ -175,14 +175,14 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "html_to_markdown",
-    description: "Convert HTML to GitHub Flavored Markdown locally, through the sciengjs engine. Give exactly one of html (text) or input_path (an .html file). output_path is the .md file. Each asset of the page is written into the folder of output_path under its asset name; an existing file is never overwritten (a new name gets -2, -3). download_images fetches remote images only when the engine config allows images; browser uses a headless browser. Returns {path, bytes, assets, warnings}. An engine error returns its code.",
+    description: "Convert HTML to GitHub Flavored Markdown locally, through the sciengjs engine. Give exactly one of html (text) or input_path (an .html file). output_path is the .md file: it must end in .md, and an existing output_path is refused with E_INPUT. Each asset of the page is written into the folder of output_path under its asset name; an existing file is never overwritten (a new asset name gets -2, -3, and the image links follow it). A failure removes the files that the call created. download_images fetches remote images only when the engine config allows images; browser uses a headless browser. Returns {path, bytes, assets, warnings}. An engine error returns its code.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
       properties: {
         html: { type: "string", description: "Inline HTML text. Provide exactly one of html / input_path." },
         input_path: { type: "string", description: "Path to an .html file. Provide exactly one of html / input_path." },
-        output_path: { type: "string", description: "Output .md path (required)." },
+        output_path: { type: "string", description: "Output .md path (required). It must not exist." },
         download_images: { type: "boolean", description: "Fetch remote images (default false)." },
         browser: { type: "boolean", description: "Use a headless browser for the conversion (default false)." },
       },
