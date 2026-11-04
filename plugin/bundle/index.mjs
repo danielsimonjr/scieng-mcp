@@ -35936,7 +35936,7 @@ var TOOLS = [
   },
   {
     name: "render_html",
-    description: "Assemble a self-contained HTML playground from typed blocks (mermaid | dot | latex | plotly | wavedrom | raw-html). Emits only the CDN imports the present block types need (pins per the scieng skill's RENDERERS.md). plotly source must be JSON {data, layout}; raw-html passes through verbatim. Returns {path, bytes}. Open the result with `start <path>`.",
+    description: "Build a self-contained HTML playground from typed blocks (mermaid | dot | latex | plotly | wavedrom | raw-html). The page has only the CDN imports that the present block types need (pins per the scieng skill's RENDERERS.md). plotly source must be JSON {data, layout}; raw-html passes through verbatim, inside a div: the tool does not support an unbalanced or table-only fragment. Each block source occurs two times: in the rendered element and in its data-scieng-source attribute. Returns {path, bytes}. Open the result with `start <path>`.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",

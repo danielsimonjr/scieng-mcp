@@ -198,7 +198,7 @@ The codebase is organized into the following modules:
 
 ---
 
-### `src/render-mermaid.ts` - Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count plus any engine warnings.
+### `src/render-mermaid.ts` - Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.
 
 **External Dependencies:**
 | Package | Import |
@@ -355,7 +355,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 29 |
 | Subsystems | 4 |
-| Total Lines of Code | 3977 |
+| Total Lines of Code | 4005 |
 | Total Exports | 83 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |

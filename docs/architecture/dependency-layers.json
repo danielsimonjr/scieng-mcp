@@ -418,7 +418,7 @@
         ]
       },
       "src/render-mermaid.ts": {
-        "description": "Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count plus any engine warnings.",
+        "description": "Draws a Mermaid source to an SVG, PNG or PDF file and returns the written byte count and any engine warnings.",
         "externalDependencies": [
           {
             "package": "@danielsimonjr/sciengjs",

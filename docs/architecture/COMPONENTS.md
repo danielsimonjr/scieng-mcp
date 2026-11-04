@@ -132,7 +132,7 @@ export async function renderMermaidSource(source: string, output: string, format
 Behaviour:
 
 - `renderMermaidSource` calls the engine `render` with the Mermaid type, the format and the source. It writes the bytes with `writeOutput`, and returns the byte count and the engine warnings.
-- Engine errors propagate unchanged. A diagram type that needs the browser stage rejects with `E_STAGE_MISSING` when `SCIENG_BROWSER` is not set.
+- Engine errors pass through unchanged. A diagram type that needs the browser stage rejects with `E_STAGE_MISSING` when `SCIENG_BROWSER` has no value.
 
 Imports: `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts`.
 
@@ -145,7 +145,7 @@ export interface AnyRenderResult { path: string; bytes: number; mime: string; ba
 export async function renderAny(type, format, source, output, options?): Promise<AnyRenderResult>;
 ```
 
-Behaviour: calls the engine `render`. The pair decides the output. An unsupported pair rejects with `E_UNSUPPORTED`, which propagates unchanged.
+Behaviour: calls the engine `render`. The pair decides the output. An unsupported pair rejects with `E_UNSUPPORTED`. The error passes through unchanged.
 
 Imports: `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts`.
 

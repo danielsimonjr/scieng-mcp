@@ -156,6 +156,17 @@ test("the attribute round-trips tricky text: quotes, ampersands, angle brackets,
   assert.deepEqual(sourceAttrs(html), [TRICKY + "\r\nend"]);
 });
 
+test("the attribute encodes a carriage return as &#13; and keeps no raw carriage return", () => {
+  const html = buildHtml([{ type: "mermaid", source: "a\r\nb" }]);
+  assert.match(html, /data-scieng-source="a&#13;\nb"/);
+  for (const m of html.matchAll(/data-scieng-source="([^"]*)"/g)) assert.doesNotMatch(m[1]!, /\r/);
+});
+
+test("the attribute encodes a single quote as &#39;", () => {
+  const html = buildHtml([{ type: "mermaid", source: "it's" }]);
+  assert.match(html, /data-scieng-source="it&#39;s"/);
+});
+
 test("the attribute value holds no raw quote, ampersand or angle bracket", () => {
   const html = buildHtml(EVERY_BLOCK);
   for (const m of html.matchAll(/data-scieng-source="([^"]*)"/g)) {

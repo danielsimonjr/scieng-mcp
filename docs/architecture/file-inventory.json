@@ -61,7 +61,7 @@
       "package": "(root)",
       "area": "src",
       "disposition": "orphan",
-      "loc": 68
+      "loc": 67
     },
     {
       "file": "src/engine-config.ts",
@@ -180,7 +180,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 199
+      "loc": 210
     },
     {
       "file": "test/render-latex.test.ts",
@@ -222,7 +222,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 273
+      "loc": 291
     }
   ],
   "skippedLinks": [],

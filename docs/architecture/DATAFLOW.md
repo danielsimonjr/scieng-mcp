@@ -19,10 +19,10 @@ This document traces one tool call from the request to the result. This document
 
 ### render_mermaid
 
-1. `resolveRenderIo` checks the arguments. It requires exactly one of `source` and `input_path`. `format` selects the extension of the default output path.
+1. `resolveRenderIo` checks the arguments. The function requires exactly one of `source` and `input_path`. `format` selects the extension of the default output path.
 2. With `input_path`, `readInput` reads the file. A file of more than 524288 bytes fails with `input too large`.
 3. `renderMermaidSource` calls the sciengjs engine with `render` and the Mermaid type, the format and the source. The engine draws the file on this machine.
-4. A diagram type that needs the browser stage fails with `E_STAGE_MISSING` when `SCIENG_BROWSER` is not set. The engine error passes through unchanged.
+4. A diagram type that needs the browser stage fails with `E_STAGE_MISSING` when `SCIENG_BROWSER` has no value. The engine error passes through unchanged.
 5. `writeOutput` writes `<output>.tmp` and renames it to `<output>`.
 6. The result holds the path, the byte count and the engine warnings.
 
@@ -114,7 +114,7 @@ No other tool sends a request. The browser requests the pinned files of a genera
 | Tool | Reads | Writes |
 |---|---|---|
 | `render_mermaid` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
-| `render_mermaid` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
+| `render` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_dot` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_latex` | `input_path`, at most 524288 bytes | `output_path`, through `<output_path>.tmp` |
 | `render_html` | None | `output_path`, through `<output_path>.tmp` |

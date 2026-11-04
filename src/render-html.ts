@@ -11,7 +11,7 @@ const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 // Encodes a value for a double-quoted attribute. A carriage return becomes &#13; so that no parser
-// normalises it away; a line feed stays literal, which the parser keeps.
+// removes it; a line feed stays literal, which the parser keeps.
 const escAttr = (s: string): string =>
   esc(s).replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r/g, "&#13;");
 

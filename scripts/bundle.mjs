@@ -16,7 +16,7 @@ const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
 const engineRoot = dirname(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json"));
 const engineDist = join(engineRoot, "dist");
 
-// The backends come from the engine's own registry, so a new backend cannot be left out of the bundle.
+// The backends come from the engine's own registry, so the bundle always includes each new backend.
 const { DEFAULT_REGISTRY } = await import(pathToFileURL(join(engineDist, "registry.js")).href);
 const backendEntries = Object.fromEntries(
   Object.values(DEFAULT_REGISTRY).map(({ moduleUrl }) => {

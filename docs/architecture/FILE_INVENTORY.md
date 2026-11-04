@@ -49,7 +49,7 @@ This report lists each source file that the map census finds, with a disposition
 | `scripts/block-network.mjs` | (root) | tools | tool | 37 |
 | `scripts/bundle.mjs` | (root) | tools | tool | 68 |
 | `scripts/smoke-handshake.mjs` | (root) | tools | tool | 22 |
-| `smoke/render.smoke.ts` | (root) | src | orphan | 68 |
+| `smoke/render.smoke.ts` | (root) | src | orphan | 67 |
 | `src/engine-config.ts` | scieng-mcp | src | reachable | 23 |
 | `src/index.ts` | scieng-mcp | src | build-entry | 34 |
 | `src/ooxml-edit.ts` | scieng-mcp | src | reachable | 213 |
@@ -66,13 +66,13 @@ This report lists each source file that the map census finds, with a disposition
 | `test/plugin-content.test.ts` | (root) | tests | test | 144 |
 | `test/render-any.test.ts` | (root) | tests | test | 32 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
-| `test/render-html.test.ts` | (root) | tests | test | 199 |
+| `test/render-html.test.ts` | (root) | tests | test | 210 |
 | `test/render-latex.test.ts` | (root) | tests | test | 210 |
 | `test/render-lib.test.ts` | (root) | tests | test | 167 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 55 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
 | `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
-| `test/tools.test.ts` | (root) | tests | test | 273 |
+| `test/tools.test.ts` | (root) | tests | test | 291 |
 
 ## Skipped links
 

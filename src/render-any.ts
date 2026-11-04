@@ -1,5 +1,5 @@
 // Renders any input type and output format that the sciengjs engine supports, and writes the bytes to disk.
-// The engine decides which pairs exist. An unsupported pair rejects with E_UNSUPPORTED, and that error propagates unchanged.
+// The engine decides which pairs exist. An unsupported pair rejects with E_UNSUPPORTED. The error passes through unchanged.
 import { render, type InputType, type OutputFormat, type RenderOptions } from "@danielsimonjr/sciengjs";
 import { writeOutput } from "./render-lib.ts";
 import { engineConfig } from "./engine-config.ts";

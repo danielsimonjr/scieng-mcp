@@ -17,14 +17,14 @@ Four tools render diagram or formula source. Three of them draw on the local mac
 
 ## Architecture principles
 
-1. Source text leaves the machine only for the two remote renderers, Mermaid and LaTeX.
+1. Source text leaves the machine only for the remote renderer, LaTeX.
 2. A render call writes one output file. The call returns the path and the size of the file, not its content.
 3. A generated page loads only exact-version files. Each file carries a Subresource Integrity hash.
 4. Each tool input object refuses an unknown key. The `capabilities` tool is the exception. The tool reads no input, and its handler accepts any argument.
 5. The committed bundle is the shipped artifact. A source change and its bundle change share one commit. CI rejects a stale bundle.
 6. The server needs no install step at run time. The bundle carries the engine assets that the engine reads.
 7. A failed tool call does not end the session. The error travels in the tool result.
-8. The two remote renderers take an injectable fetch function. The tests replace the network through that function.
+8. The remote renderer, LaTeX, takes an injectable fetch function. The tests replace the network through that function.
 
 ## Component architecture
 
@@ -97,7 +97,7 @@ Each decision gives the choice, the reason for the choice, the cost of the choic
 - **Trade-offs.** An unbundled run uses the engine's own assets folder. Its path differs from the shipped path. The bundle gate test covers the shipped path.
 - **Alternative.** An environment variable or a working-directory path. Neither follows a folder that moves with the plugin.
 
-### D8. Remote renderers retry only transient failures
+### D8. The remote renderer retries only transient failures
 
 - **Decision.** `httpText` retries a network error and the statuses 429, 500, 502, 503 and 504. `httpText` makes up to four attempts in total. The wait before each retry is 500 ms, doubled after each attempt. A retried status with a numeric `Retry-After` header waits for the number of seconds that the header gives.
 - **Rationale.** These failures can clear within a short time. Other error statuses describe the request. A repeated request receives the same answer.
@@ -158,9 +158,9 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 ## Performance
 
 - The server keeps no cache. Each call does its work again.
-- The two remote renderers wait on the network. Each attempt has a timeout of 20 seconds. A request makes up to four attempts (D8).
+- The LaTeX renderer waits on the network. Each attempt has a timeout of 20 seconds. A request makes up to four attempts (D8).
 - The LaTeX renderer sends up to four block requests at the same time.
-- The DOT renderer, the HTML builder and the Word edit make no network request.
+- The Mermaid, DOT and generic renderers, the HTML builder and the Word edit make no network request.
 - The 524288-byte limit bounds the size of an `input_path` file. A request line of 10,485,760 bytes or more, not counting the line feed, makes the server stop answering requests. The server writes `scieng-mcp: ReadBuffer exceeded maximum size of 10485760 bytes` to standard error. The process stays alive until the client closes standard input. The process then exits with code 0. [plugin/README.md](../../plugin/README.md) states the 10,485,760-byte limit.
 
 ## Security architecture
@@ -168,19 +168,19 @@ The continuous integration workflow in `.github/workflows/ci.yml` works as follo
 The server has five trust boundaries.
 
 1. **Client to server.** Every argument is untrusted. The schemas check types and keys. The schemas do not check the content of a source.
-2. **Server to remote services.** The source text reaches the service. An `input_path` file reaches the service as well, because the server reads the file and sends its content.
+2. **Server to the remote service.** The LaTeX source reaches latex.codecogs.com. An `input_path` file of `render_latex` reaches the service as well, because the server reads the file and sends its content.
 3. **Generated page to CDN.** The pins and hashes (D4) limit the files that a browser loads.
 4. **Generated page content.** The trust rule of each block type (D5) limits what the content can do.
 5. **Server to the file system.** The server writes to any path that the process may write. The server confines no path.
 
-The server source reads no environment variable. The remote services need no key, and the requests carry none. The Word edit refuses a `DOCTYPE` or `ENTITY` declaration in `word/document.xml`. The source comment states that the port uses no entity-expanding parser. The refusal is therefore defense in depth.
+The server source reads no environment variable. The remote service needs no key, and the requests carry none. The Word edit refuses a `DOCTYPE` or `ENTITY` declaration in `word/document.xml`. The source comment states that the port uses no entity-expanding parser. The refusal is therefore defense in depth.
 
 ## Testing strategy
 
-- The test runner is `node --test`. `bun run test` starts the runner. Ten test files hold 88 test cases.
+- The test runner is `node --test`. `bun run test` starts the runner. Thirteen test files hold 149 test cases.
 - The bundle gate starts the bundle with `scripts/block-network.mjs` preloaded. The preload refuses socket connections, DNS lookups and `fetch` calls, and it logs each attempt. The gate then renders SVG and PNG output, and it checks that the bundle sends no network request.
 - The bundle gate runs the bundle in a fresh folder with no `node_modules`. The bundle gate compares each engine asset with the file in the engine package. On systems other than Windows, it checks that each bundle file has mode 0644.
-- The other tests pass a fake fetch function to the remote renderers.
+- The other tests pass a fake fetch function to the LaTeX renderer.
 - The plugin-content test checks that each command and the skill name only tools and reference files that exist.
 - `bun run smoke` starts the bundle and sends an `initialize` request. CI does not run this script.
 - `smoke/render.smoke.ts` calls the live services. No package script runs `smoke/render.smoke.ts`.

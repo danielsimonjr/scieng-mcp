@@ -48,6 +48,24 @@ test("render: mermaid svg through the generic entry point returns the engine met
   assert.ok(Array.isArray(res.warnings));
 });
 
+test("render: an input_path with no output_path derives the name from the format", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const input = join(dir, "graph.dot");
+  writeFileSync(input, "digraph { a -> b }");
+  const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "png", input_path: input }));
+  assert.equal(res.path, join(dir, "graph.png"));
+  assert.ok(existsSync(join(dir, "graph.png")));
+});
+
+test("render: an input_path with format pdf and no output_path derives <name>.pdf", { skip: !process.env.SCIENG_BROWSER && "needs SCIENG_BROWSER" }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-"));
+  const input = join(dir, "graph.dot");
+  writeFileSync(input, "digraph { a -> b }");
+  const res = JSON.parse(await makeHandlers().render({ type: "dot", format: "pdf", input_path: input }));
+  assert.equal(res.path, join(dir, "graph.pdf"));
+  assert.ok(existsSync(join(dir, "graph.pdf")));
+});
+
 test("render: the type and format enums are the engine lists, not a copy", () => {
   const tool = TOOLS.find((t) => t.name === "render")!;
   const props = tool.inputSchema.properties as Record<string, { enum?: string[] }>;

@@ -41,7 +41,8 @@ This document describes the public surface of the server. The surface holds seve
 ### render
 
 - Purpose: renders any input type and output format that the sciengjs engine supports, on this machine.
-- Arguments: the shared render arguments, `type` (an engine input type), `format` (an engine output format) and `options` (per-type options, passed to the engine unchanged).
+- Arguments: the shared render arguments, `type` (an engine input type), `format` (an engine output format) and `options`.
+- `options` holds the per-type options. The server passes them to the engine unchanged.
 - Result: `{"path": string, "bytes": number, "mime": string, "backend": string, "warnings": string[]}`.
 - Errors: an argument error, `input too large`, or an engine error with its code, such as `E_UNSUPPORTED` for a pair that has no backend.
 
@@ -71,6 +72,8 @@ This document describes the public surface of the server. The surface holds seve
 | `output_path` | string | Required. The output path of the HTML file. |
 
 - Block types: `mermaid`, `dot`, `latex`, `plotly`, `wavedrom` and `raw-html`. The rules of each type are in [COMPONENTS.md](COMPONENTS.md). A `plotly` source is a JSON object with `data` and `layout`. A `raw-html` source passes through unchanged.
+- Each block source occurs two times in the page. The rendered element holds one copy. The `data-scieng-source` attribute of the block wrapper holds the other copy.
+- A `div` element wraps each block, `raw-html` blocks too. Thus a `raw-html` fragment must be balanced HTML that is valid inside a `div`. The tool does not support a fragment with an unclosed tag or a table-only element, such as `tr` or `td`.
 - Result: `{"path": string, "bytes": number}`.
 - Errors: an argument error, a `plotly` source that is not valid JSON, or a `wavedrom` source that holds `</script`.
 
@@ -169,9 +172,16 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 
 | Export | Kind | Signature | Purpose |
 |---|---|---|---|
-| `encodePako` | Function | `(mermaidCode) => string` | Returns the deflated and base64url-encoded Mermaid JSON. |
-| `renderMermaidSource` | Function | `(code, output, fetchImpl?) => Promise<string>` | Renders Mermaid source and writes the SVG. |
-| `renderMermaid` | Function | `(input, output, fetchImpl?) => Promise<string>` | Reads a file, renders it, and returns the SVG text. |
+| `MERMAID_FORMATS` | Constant | `readonly ["svg", "png", "pdf"]` | The output formats of a Mermaid render. |
+| `MermaidFormat` | Type | One of `MERMAID_FORMATS` | One output format. |
+| `renderMermaidSource` | Function | `(source, output, format) => Promise<{ bytes, warnings }>` | Draws Mermaid source with the engine and writes the file. |
+
+### src/render-any.ts
+
+| Export | Kind | Signature | Purpose |
+|---|---|---|---|
+| `AnyRenderResult` | Interface | `{ path, bytes, mime, backend, warnings }` | The result of one generic render. |
+| `renderAny` | Function | `(type, format, source, output, options?) => Promise<AnyRenderResult>` | Draws a source of any engine type and format and writes the file. |
 
 ### src/render-dot.ts
 
