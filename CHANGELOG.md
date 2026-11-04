@@ -7,6 +7,10 @@
 - `render_html` takes `static: true` on a `plotly` block. The engine draws that block as inline SVG, and the block loads no Plotly script. A page loads Plotly only when a non-static `plotly` block is present.
 - `/scieng-mcp:plot --static` writes `<name>.svg` through `render` (type `plot`, format `svg`) instead of an HTML page.
 
+### Security
+
+- Each static `plotly` block gets its own suffix on the SVG ids and their `url(#id)` and `href="#id"` references, so two blocks on one page do not collide. The static SVG check also refuses `<foreignObject`, event-handler attributes and `javascript:` URLs. `static: true` on a block that is not `plotly` gives E_INPUT.
+
 ### Changed
 
 - The sciengjs dependency moves to `^0.5.0`, which adds the `plot` input type (svg, png and html) and the `@danielsimonjr/sciengjs/plot` helpers.
