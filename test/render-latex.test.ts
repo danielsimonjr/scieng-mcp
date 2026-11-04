@@ -70,6 +70,12 @@ test("renderLatexSource renders a PNG and a PDF of one block", async () => {
   await renderLatexSource("E=mc^2", png, { format: "png" });
   assert.deepEqual([...readFileSync(png).subarray(0, 8)], PNG_SIGNATURE);
   const pdf = join(scratch(), "e.pdf");
+  if (process.env.SCIENG_BROWSER) {
+    // A browser is set: the engine draws the pdf.
+    await renderLatexSource("E=mc^2", pdf, { format: "pdf" });
+    assert.equal(readFileSync(pdf).subarray(0, 5).toString("latin1"), "%PDF-");
+    return;
+  }
   await assert.rejects(renderLatexSource("E=mc^2", pdf, { format: "pdf" }), (err: unknown) => {
     assert.equal((err as { code?: string }).code, "E_STAGE_MISSING");
     return true;
