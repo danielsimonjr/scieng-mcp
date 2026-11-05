@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- The cad command states that each node of a CAD document names its kind in the key `type`. Without the rule, a document with another key rejected with E_INPUT.
+
 ## [1.0.0] - 2026-11-05
 
 ### Changed
