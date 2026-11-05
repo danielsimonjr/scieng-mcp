@@ -10,7 +10,7 @@ Four tools render diagram or formula source. Three of them draw on the local mac
 
 - **MCP client.** The client starts the server with `node` and the bundle. [plugin/.mcp.json](../../plugin/.mcp.json) defines the start. The client sends requests on standard input and reads responses on standard output.
 - **sciengjs engine.** `render_mermaid` and `render` draw on this machine. No request leaves the process for them.
-- **The sciengjs engine.** `render_latex` draws each LaTeX block on this machine. It makes no network request.
+- **The sciengjs engine.** `render_latex` draws each LaTeX block on this machine. The tool makes no network request.
 - **Local engine (`@danielsimonjr/sciengjs`).** `render_dot` and `capabilities` run the engine on this machine. The engine starts a worker thread from its worker entry. In the bundle, the entry is `plugin/bundle/entry.mjs`. `renderDotSource` makes no network request, and a unit test checks that.
 - **File system.** The render tools read `input_path` files of at most 524288 bytes. `ooxml_replace` reads and writes the `word/document.xml` file of an unpacked document. Each tool writes its output at the path that the caller gives.
 - **Browser and CDN hosts.** A generated page loads pinned scripts and styles from `cdn.jsdelivr.net`, `cdnjs.cloudflare.com` and `cdn.plot.ly` when the page opens. The server contacts none of these hosts.

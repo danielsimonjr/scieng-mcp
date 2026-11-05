@@ -13,6 +13,8 @@ Diagram, math and engineering-document tools for Claude Code.
 | `/scieng-mcp:plot` | a Plotly chart: data, Bode, step response, pole-zero, FFT |
 | `/scieng-mcp:circuit` | a circuit schematic as SVG |
 | `/scieng-mcp:playground` | one HTML page with several blocks |
+| `/scieng-mcp:markdown` | GitHub Flavored Markdown from an HTML file or HTML text |
+| `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file, as a viewer page, a glb file or a PNG image |
 
 Give each command a description or the path of a source file. Example:
 
@@ -27,6 +29,7 @@ Give each command a description or the path of a source file. Example:
 - `mermaid` renders the source on your machine, with the sciengjs engine, and saves an SVG file. Class, state and sequence diagrams need no browser. Other diagram types need `SCIENG_BROWSER`. Add `--local` to make an HTML page that renders in your browser.
 - `latex` draws the source on your machine through the sciengjs engine and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
+- `markdown` and `step` run on your machine, with the sciengjs engine. A `step` PNG needs `SCIENG_BROWSER`. The `step` viewer page loads six pinned Three.js files from a CDN, each with an integrity hash.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 
 ## Output

@@ -47,7 +47,7 @@
       "package": "(root)",
       "area": "tools",
       "disposition": "tool",
-      "loc": 68
+      "loc": 75
     },
     {
       "file": "scripts/smoke-handshake.mjs",
@@ -117,7 +117,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 147
+      "loc": 156
     },
     {
       "file": "src/render-markdown.ts",
@@ -138,14 +138,14 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 344
+      "loc": 353
     },
     {
       "file": "test/bundle-gate.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 192
+      "loc": 205
     },
     {
       "file": "test/docs-latex.test.ts",
@@ -187,7 +187,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 158
+      "loc": 163
     },
     {
       "file": "test/render-any.test.ts",
@@ -222,7 +222,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 193
+      "loc": 201
     },
     {
       "file": "test/render-mermaid.test.ts",
@@ -250,7 +250,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 342
+      "loc": 364
     }
   ],
   "skippedLinks": [],

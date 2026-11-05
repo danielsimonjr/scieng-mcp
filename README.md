@@ -1,13 +1,13 @@
 # scieng-mcp
 
-scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp exposes seven tools over stdio through the Model Context Protocol. The tools render diagram and math sources (Mermaid, DOT, LaTeX) to SVG. The tools assemble self-contained HTML playgrounds from mixed content blocks. The tools apply run-preserving find and replace edits to unpacked Word (OOXML) documents.
+scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp exposes eight tools over stdio through the Model Context Protocol. The tools render diagram and math sources (Mermaid, DOT, LaTeX) to SVG. The tools assemble self-contained HTML playgrounds from mixed content blocks. The tools apply run-preserving find and replace edits to unpacked Word (OOXML) documents.
 
 ## Tools
 
 | Tool | Inputs | Behavior |
 |---|---|---|
 | `render_mermaid` | `source` \| `input_path`, `output_path`, `format` | Renders Mermaid diagram source to an SVG file (`format` `svg`, the default), a PNG file or a PDF file on this machine, with the sciengjs engine. Class, state and sequence diagrams need no browser; other types need `SCIENG_BROWSER`. Returns `{path, bytes, warnings}`. |
-| `render` | `type`, `format`, `options`, `source` \| `input_path`, `output_path` | Renders any input type and output format that the local engine supports. Returns `{path, bytes, mime, backend, warnings}`. An engine error returns its code. |
+| `render` | `type`, `format`, `options`, `source` \| `input_path`, `output_path` | Renders any input type and output format that the local engine supports. STEP, IGES and BREP take `input_path` only. Returns `{path, bytes, mime, backend, warnings}`. An engine error returns its code. |
 | `render_dot` | `source` \| `input_path`, `output_path`, `format` | Renders Graphviz DOT source to an SVG file (`format` `svg`, the default) or a PNG file (`format` `png`) on this machine, with the sciengjs engine. Returns `{path, bytes, warnings}`. |
 | `render_latex` | `source` \| `input_path`, `output_path`, `format`, `scale`, `dpi` (deprecated) | Renders LaTeX (bare math or a document's equation/align/display blocks) to an SVG, PNG or PDF file, drawn on this machine by the sciengjs engine. A PNG or PDF takes one block. `scale` applies to png only. `dpi` is a deprecated alias: for png with no `scale`, the scale is `dpi`/100. For png or pdf, an `output_path` that ends in `.svg` gets the new extension. The tool keeps any other extension. The tool reports partial failures in a `failures` array instead of throwing them. Returns `{path, bytes, failures, warnings}`. |
 | `render_html` | `blocks` (typed `mermaid`/`dot`/`latex`/`plotly`/`wavedrom`/`raw-html`), `title`, `output_path` | Assembles a self-contained HTML playground from the given blocks, emitting only the CDN imports the present block types require. `plotly` source must be JSON `{data, layout}`; a `plotly` block with `static: true` is drawn by the engine as inline SVG with no Plotly script; `raw-html` passes through verbatim. Returns `{path, bytes}`. |
@@ -17,7 +17,7 @@ scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp ex
 
 ## Commands
 
-The plugin adds one slash command per diagram type: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit` and `playground`. `plugin/README.md` gives the arguments and tells where each command sends its source.
+The plugin adds one slash command per diagram type: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit`, `playground`, `markdown` and `step`. `plugin/README.md` gives the arguments and tells where each command sends its source.
 
 ## Development
 

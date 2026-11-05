@@ -5,7 +5,7 @@
     "language": "typescript",
     "totalFiles": 33,
     "totalModules": 3,
-    "totalExports": 95
+    "totalExports": 96
   },
   "modules": {
     "src": {
@@ -263,6 +263,7 @@
           "RETRY_AFTER_CAP_MS",
           "httpText",
           "readInput",
+          "readInputBytes",
           "deriveOutputPath",
           "writeOutput",
           "mapLimit"
@@ -342,6 +343,7 @@
             "file": "src/render-lib.ts",
             "imports": [
               "readInput",
+              "readInputBytes",
               "deriveOutputPath",
               "writeOutput"
             ],
@@ -689,6 +691,7 @@
             "imports": [
               "httpText",
               "readInput",
+              "readInputBytes",
               "writeOutput",
               "deriveOutputPath",
               "mapLimit",
@@ -782,8 +785,8 @@
     "totalTypeScriptFiles": 33,
     "totalSourceFiles": 33,
     "totalModules": 3,
-    "totalLinesOfCode": 4950,
-    "totalExports": 95,
+    "totalLinesOfCode": 5023,
+    "totalExports": 96,
     "entryRoots": 1,
     "reachableFiles": 11,
     "dormantFiles": 3,
@@ -801,7 +804,7 @@
     "typeOnlyFilesInCycles": 0,
     "totalClasses": 12,
     "totalInterfaces": 10,
-    "totalFunctions": 26,
+    "totalFunctions": 27,
     "totalTypeGuards": 0,
     "totalEnums": 0,
     "totalConstants": 11,
