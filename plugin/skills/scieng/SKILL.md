@@ -1,6 +1,6 @@
 ---
 name: scieng
-description: "Write, fix and render science and engineering diagrams and documents. Diagrams: Mermaid (flowchart, sequence, class, state, ER, gantt, mindmap, timeline), Graphviz DOT, LaTeX math, WaveDrom timing, Plotly charts (Bode, step response, pole-zero, FFT) and SVG circuit schematics, as SVG files or self-contained HTML pages. Also LaTeX papers (algorithms, theorems, BibTeX, ACM, IEEE and NeurIPS classes, conversion to DOCX or PDF) and engineering Word documents (part numbers, revision and approval blocks, ATP and ESS procedures, MIL-STD warnings, SI units). Use when someone asks for a diagram, chart, timing diagram, schematic or equation image, when Mermaid, DOT or LaTeX gives a syntax or compile error, or when a technical paper or Word document needs its layout. The commands /scieng-mcp:mermaid, dot, latex, wavedrom, plot, circuit and playground run one diagram type each."
+description: "Write, fix and render science and engineering diagrams and documents. Diagrams: Mermaid (flowchart, sequence, class, state, ER, gantt, mindmap, timeline), Graphviz DOT, LaTeX math, WaveDrom timing, Plotly charts (Bode, step response, pole-zero, FFT) and SVG circuit schematics, as SVG files or self-contained HTML pages. Also LaTeX papers (algorithms, theorems, BibTeX, ACM, IEEE and NeurIPS classes, conversion to DOCX or PDF) and engineering Word documents (part numbers, revision and approval blocks, ATP and ESS procedures, MIL-STD warnings, SI units). Use when someone asks for a diagram, chart, timing diagram, schematic or equation image, when Mermaid, DOT or LaTeX gives a syntax or compile error, or when a technical paper or Word document needs its layout. Also TikZ pictures, SysML v2 views, CAD parts and STEP models, drawn on this machine. The commands /scieng-mcp:mermaid, dot, latex, wavedrom, plot, circuit, tikz, sysml, cad, step, markdown and playground run one type each."
 ---
 
 # Science and engineering authoring
@@ -16,8 +16,8 @@ Each command makes one type of diagram from a description or from a source file.
 | Command | Makes | Default output | Renderer |
 |---|---|---|---|
 | `/scieng-mcp:mermaid` | flowchart, sequence, class, state, ER, gantt, mindmap, timeline | SVG file through `render_mermaid` | sciengjs engine (local) |
-| `/scieng-mcp:dot` | Graphviz graphs: clusters, record nodes, state machines | SVG file through `render_dot` | Graphviz engine on this machine |
-| `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | on this machine (sciengjs engine) |
+| `/scieng-mcp:dot` | Graphviz graphs: clusters, record nodes, state machines | SVG file through `render_dot` | sciengjs engine (local) |
+| `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | sciengjs engine (local) |
 | `/scieng-mcp:wavedrom` | digital timing diagrams | HTML page through `render_html` | WaveDrom in the browser |
 | `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html`. With `--static`, an SVG file through `render` with `type` set to `plot` | Plotly in the browser. With `--static`, the sciengjs engine (local) |
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes; with `--tikz`, a circuitikz picture to SVG, PNG or PDF through `render` | none; sciengjs engine (local) with `--tikz` |
@@ -33,7 +33,7 @@ The default render of mermaid, dot and latex keeps the source on this machine. `
 ## Privacy
 
 - `render_latex`, `render_mermaid` and `render_dot` render the source on this machine through the sciengjs engine. They make no network request. No source leaves the machine.
-- Use `--local` when the source holds private, internal or personal content. Stop and use `--local` when the source holds a password, a key, a token or a personal detail.
+- Every tool call runs on this machine. The TeX stage downloads its bundles once, from the release of the engine, and sends no source.
 - An HTML page from `render_html` loads its renderer from a CDN, with a pinned version and a Subresource Integrity hash. The page sends no diagram source. The browser renders it.
 - `render_dot` removes each `image` and `stylesheet` attribute from the source. The result holds a warning for each attribute that it removes. Tell the user about each warning.
 
