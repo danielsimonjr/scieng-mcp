@@ -6,3 +6,7 @@ plugin/bundle/**/*.txt text eol=lf
 plugin/bundle/**/*.wasm binary
 plugin/bundle/**/*.ttf binary
 plugin/bundle/assets/** -text
+# The occt licence texts are verbatim copies of the occt-import-js package, with its CRLF line endings.
+plugin/bundle/occt*.LICENSE.txt -text
+# Test fixtures are byte-exact copies of their sources. Their SHA-256 values are in their README.
+test/fixtures/** -text

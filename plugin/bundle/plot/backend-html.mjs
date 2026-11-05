@@ -1,15 +1,17 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
-  PLOTLY_CDN_URL,
-  PLOTLY_SRI,
   plotlyPageHtml
-} from "../chunk-7NNWVETH.mjs";
+} from "../chunk-USVSPPCS.mjs";
+import {
+  PLOTLY_CDN_URL,
+  PLOTLY_SRI
+} from "../chunk-UDEV2G2S.mjs";
 import {
   readPlotFigure,
   readPlotOptions
 } from "../chunk-Z4UEFC4G.mjs";
 import "../chunk-JFFRTQ6A.mjs";
-import "../chunk-Y7HUHYVH.mjs";
+import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/plot/backend-html.js
 async function render(request) {

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { httpText, readInput, writeOutput, deriveOutputPath, mapLimit } from "../src/render-lib.ts";
+import { httpText, readInput, readInputBytes, writeOutput, deriveOutputPath, mapLimit } from "../src/render-lib.ts";
 import { createRequire, syncBuiltinESMExports } from "node:module";
 
 const cjsFs = createRequire(import.meta.url)("node:fs") as typeof import("node:fs");
@@ -190,4 +190,12 @@ test("mapLimit runs every item and reports each failure (F31)", async () => {
       return true;
     },
   );
+});
+
+test("readInputBytes returns the bytes of a file and rejects a file over the cap", () => {
+  const dir = mkdtempSync(join(tmpdir(), "readbytes-"));
+  const f = join(dir, "b.bin");
+  writeFileSync(f, Buffer.from([0, 1, 2, 255]));
+  assert.deepEqual([...readInputBytes(f, 4)], [0, 1, 2, 255]);
+  assert.throws(() => readInputBytes(f, 3), /too large/);
 });

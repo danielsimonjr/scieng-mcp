@@ -340,3 +340,25 @@ test("render_latex: png changes a .svg output_path extension and keeps any other
   const t = TOOLS.find((x) => x.name === "render_latex")!;
   assert.match(t.description ?? "", /other extension is kept/);
 });
+
+test("render: a STEP file is read as bytes and renders to glb", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-step-"));
+  const input = join(dir, "part.step");
+  writeFileSync(input, readFileSync(join(import.meta.dirname, "fixtures", "mesh", "red_cube_blue_cylinder.step")));
+  const res = JSON.parse(await makeHandlers().render({ type: "step", format: "glb", input_path: input }));
+  assert.equal(res.path, join(dir, "part.glb"));
+  assert.equal(readFileSync(res.path).subarray(0, 4).toString("latin1"), "glTF");
+});
+
+test("render: a STEP file larger than 512 KB is not refused by the text cap", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tool-step-big-"));
+  const input = join(dir, "big.step");
+  writeFileSync(input, Buffer.alloc(600 * 1024, 0x20));
+  // The engine reads the file and rejects the blank model. The adapter does not stop it at 512 KB.
+  await assert.rejects(makeHandlers().render({ type: "step", format: "glb", input_path: input }), (e: unknown) => !/too large/.test(String(e)));
+});
+
+test("render: inline source for a binary type is refused and names input_path", async () => {
+  const out = join(mkdtempSync(join(tmpdir(), "tool-step-inline-")), "p.glb");
+  await assert.rejects(makeHandlers().render({ type: "step", format: "glb", source: "ISO-10303-21;", output_path: out }), /input_path/);
+});

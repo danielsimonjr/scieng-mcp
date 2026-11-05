@@ -475,7 +475,11 @@ var Interceptor = class {
       cdp.send("Fetch.fulfillRequest", {
         requestId: paused.requestId,
         responseCode: 200,
-        responseHeaders: [{ name: "Content-Type", value: asset.mime }],
+        // A module script and a script with integrity are cross-origin requests, so the reply allows any origin.
+        responseHeaders: [
+          { name: "Content-Type", value: asset.mime },
+          { name: "Access-Control-Allow-Origin", value: "*" }
+        ],
         body: Buffer.from(asset.bytes).toString("base64")
       }, sessionId).catch(this.record);
       return;
@@ -528,6 +532,11 @@ async function capture(cdp, req) {
     });
   }
   let bytes;
+  if (req.awaitReady === true) {
+    const done = await awaitDoneReport(cdp, s);
+    if (!done.ok)
+      throw new RenderError(done.internal === true ? "E_INTERNAL" : "E_INPUT", done.message);
+  }
   if (req.awaitDone === true) {
     const done = await awaitDoneReport(cdp, s);
     if (!done.ok)

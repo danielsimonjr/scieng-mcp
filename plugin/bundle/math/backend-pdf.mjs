@@ -1,9 +1,10 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   drawSvgToPdf
-} from "../chunk-K6Q3O3PL.mjs";
-import "../chunk-7NNWVETH.mjs";
-import "../chunk-L2HFCXZ4.mjs";
+} from "../chunk-EH5H6JDM.mjs";
+import "../chunk-USVSPPCS.mjs";
+import "../chunk-UDEV2G2S.mjs";
+import "../chunk-RPY43LZL.mjs";
 import "../chunk-T5W7ILUB.mjs";
 import {
   mathToSvg
@@ -11,7 +12,7 @@ import {
 import {
   RenderError
 } from "../chunk-JFFRTQ6A.mjs";
-import "../chunk-Y7HUHYVH.mjs";
+import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/math/backend-pdf.js
 async function render(request) {

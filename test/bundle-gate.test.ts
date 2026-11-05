@@ -13,6 +13,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BUNDLE = join(REPO, "plugin", "bundle");
 const PRELOAD = join(REPO, "scripts", "block-network.mjs");
+const STEP_FIXTURE = join(REPO, "test", "fixtures", "mesh", "red_cube_blue_cylinder.step");
+const VIEWER_PAGE_SPECIFIERS = ["three", "@@ORBIT@@", "@@GLTF@@"];
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
 const TEST_TIMEOUT_MS = 120_000;
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -88,7 +90,10 @@ test("every import of the bundle, static or dynamic, names a builtin or a file o
   for (const f of modulesOf(BUNDLE)) {
     const specs = importSpecifiers(join(BUNDLE, f));
     seen += specs.length;
-    const packages = specs.filter((s) => !s.startsWith("node:") && !s.startsWith("."));
+    // The mesh viewer page is text inside a module. Its browser import map names three and two placeholders. The page
+    // gets them from the pinned files in assets/, not from node_modules. The exception holds only in the module of that page.
+    const pageText = readFileSync(join(BUNDLE, f), "utf-8").includes("GLB_BASE64") ? VIEWER_PAGE_SPECIFIERS : [];
+    const packages = specs.filter((s) => !s.startsWith("node:") && !s.startsWith(".") && !pageText.includes(s));
     assert.deepEqual(packages, [], `plugin/bundle/${f} imports a package`);
   }
   assert.ok(seen > 0, "the scan found no import in the bundle, so it proves nothing");
@@ -131,6 +136,14 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     const pngPath = join(dir, "g.png");
     await callTool(s, 4, "render_dot", { source: "digraph { a -> b }", output_path: pngPath, format: "png" });
     assert.deepEqual([...readFileSync(pngPath).subarray(0, 8)], PNG_SIGNATURE);
+
+    // A CAD file goes to the engine as bytes. The mesh stage loads its WASM reader from the bundle.
+    const stepPath = join(dir, "part.step");
+    cpSync(STEP_FIXTURE, stepPath);
+    const glb = await callTool(s, 10, "render", { type: "step", format: "glb", input_path: stepPath, output_path: join(dir, "part.glb") });
+    assert.equal(readFileSync(glb.path).subarray(0, 4).toString("latin1"), "glTF");
+    const page = await callTool(s, 11, "render", { type: "step", format: "html", input_path: stepPath, output_path: join(dir, "part.html") });
+    assert.match(readFileSync(page.path, "utf-8"), /GLB_BASE64/);
 
     const img = await callTool(s, 5, "render_dot", {
       source: 'digraph { a [image="/tmp/x.png"] }', output_path: join(dir, "i.svg"),

@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-A3MBHSDV.mjs";
+} from "./chunk-4AHA64HQ.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -10,7 +10,7 @@ import {
 } from "./chunk-JFFRTQ6A.mjs";
 import {
   __export
-} from "./chunk-Y7HUHYVH.mjs";
+} from "./chunk-OP543J2H.mjs";
 
 // node_modules/@modelcontextprotocol/server/dist/chunk-vYduTEsO.mjs
 var __create = Object.create;
@@ -35183,7 +35183,16 @@ var DEFAULT_REGISTRY = {
   "mermaid:pdf": { backend: "mermaid/browser/chromium", moduleUrl: backendUrl("mermaid/backend-pdf") },
   "html:png": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-png") },
   "html:pdf": { backend: "browser/chromium", moduleUrl: backendUrl("browser/backend-pdf") },
-  "html:md": { backend: "html/md", moduleUrl: backendUrl("html/backend-md") }
+  "html:md": { backend: "html/md", moduleUrl: backendUrl("html/backend-md") },
+  "step:glb": { backend: "mesh/occt+glb", moduleUrl: backendUrl("mesh/backend-glb") },
+  "iges:glb": { backend: "mesh/occt+glb", moduleUrl: backendUrl("mesh/backend-glb") },
+  "brep:glb": { backend: "mesh/occt+glb", moduleUrl: backendUrl("mesh/backend-glb") },
+  "step:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
+  "iges:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
+  "brep:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
+  "step:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "iges:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "brep:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35418,6 +35427,13 @@ function readInput(path, maxBytes = 512 * 1024) {
     throw new Error(`input too large: ${size} bytes (max ${maxBytes})`);
   }
   return readFileSync(path).toString("utf-8");
+}
+function readInputBytes(path, maxBytes) {
+  const size = statSync(path).size;
+  if (size > maxBytes) {
+    throw new Error(`input too large: ${size} bytes (max ${maxBytes})`);
+  }
+  return new Uint8Array(readFileSync(path));
 }
 function deriveOutputPath(input2, ext = ".svg") {
   return join(dirname(input2), basename(input2, extname3(input2)) + ext);
@@ -36129,7 +36145,7 @@ var TOOLS = [
   },
   {
     name: "render",
-    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
+    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. STEP, IGES and BREP are binary: give input_path, not source. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
@@ -36315,10 +36331,18 @@ function makeHandlers() {
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
     render: async (raw) => {
-      const pre = external_exports.object({ format: external_exports.enum(OUTPUT_FORMATS) }).passthrough().parse(raw ?? {});
-      const { code, out, args } = resolveRenderIo(raw, RenderAnyExtra, `.${pre.format}`);
-      const format = args.format;
-      return JSON.stringify(await renderAny(args.type, format, code, out, args.options));
+      const pre = external_exports.object({ format: external_exports.enum(OUTPUT_FORMATS), type: external_exports.enum(INPUT_TYPES) }).passthrough().parse(raw ?? {});
+      const format = pre.format;
+      const options = raw.options;
+      if (BINARY_INPUT_TYPES.includes(pre.type)) {
+        const a = RenderArgs.extend(RenderAnyExtra).strict().parse(raw ?? {});
+        if (a.source !== void 0 || a.input_path === void 0) throw new Error(`${pre.type} is a binary input type: give input_path, not source`);
+        const { maxSourceBytes } = await loadConfig(engineConfig());
+        const out2 = a.output_path ?? deriveOutputPath(a.input_path, `.${format}`);
+        return JSON.stringify(await renderAny(pre.type, format, readInputBytes(a.input_path, maxSourceBytes), out2, options));
+      }
+      const { code, out } = resolveRenderIo(raw, RenderAnyExtra, `.${format}`);
+      return JSON.stringify(await renderAny(pre.type, format, code, out, options));
     },
     render_dot: async (raw) => {
       const format = DotFormat.parse(raw?.format ?? "svg");
