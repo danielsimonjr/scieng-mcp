@@ -11,7 +11,8 @@ Diagram, math and engineering-document tools for Claude Code.
 | `/scieng-mcp:latex` | LaTeX math |
 | `/scieng-mcp:wavedrom` | a digital timing diagram |
 | `/scieng-mcp:plot` | a Plotly chart: data, Bode, step response, pole-zero, FFT |
-| `/scieng-mcp:circuit` | a circuit schematic as SVG |
+| `/scieng-mcp:circuit` | a circuit schematic as SVG; with `--tikz`, a circuitikz picture in SVG, PNG or PDF |
+| `/scieng-mcp:tikz` | a TikZ picture (plain TikZ, circuitikz, tikz-cd, chemfig, mhchem, bussproofs) in SVG, PNG or PDF. The first render downloads the TeX bundles (about 10 MB) into the cache |
 | `/scieng-mcp:playground` | one HTML page with several blocks |
 | `/scieng-mcp:markdown` | GitHub Flavored Markdown from an HTML file or HTML text |
 | `/scieng-mcp:sysml` | a SysML v2 model from a description or a `.sysml` file, as a block definition, internal block or requirements view in SVG, PNG or PDF |

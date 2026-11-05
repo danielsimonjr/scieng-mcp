@@ -321,24 +321,6 @@ async function dotToSvg(source, getViz = vizInstance) {
   return { svg: sheets.svg, warnings };
 }
 
-// node_modules/@danielsimonjr/sciengjs/dist/graph/text.js
-function sourceText(source) {
-  return typeof source === "string" ? source : new TextDecoder().decode(source);
-}
-function xmlSafe(text) {
-  return text.replace(/[^\u{9}\u{A}\u{D}\u{20}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}]/gu, "\uFFFD");
-}
-function escapeDot(text) {
-  return xmlSafe(text).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-function escapeRecord(text) {
-  return xmlSafe(text).replace(/\\/g, "\\\\").replace(/[{}|<>"]/g, "\\$&");
-}
-
 export {
-  dotToSvg,
-  sourceText,
-  xmlSafe,
-  escapeDot,
-  escapeRecord
+  dotToSvg
 };

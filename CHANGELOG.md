@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-05
+
+### Added
+
+- The `render` tool renders the type `tikz` to `svg`, `png` and `pdf` through the TeX stage of the engine (sciengjs 0.10.0). The first render downloads the TeX bundles from the release of the engine into the cache folder.
+- The `/scieng-mcp:tikz` command writes a TikZ picture from a description, saves it, and renders it.
+- The `/scieng-mcp:circuit` command has a `--tikz` route: a circuitikz picture from the netlist, rendered by the engine.
+- The bundle gate renders a tikz picture from the built bundle. The test fetches the core bundle and checks its pinned hash. The server reads the bundle from a `file:` URL and makes no network request.
+
 ## [0.13.0] - 2026-11-05
 
 ### Added

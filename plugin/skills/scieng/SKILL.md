@@ -20,7 +20,8 @@ Each command makes one type of diagram from a description or from a source file.
 | `/scieng-mcp:latex` | equations and equation blocks | SVG file through `render_latex` | on this machine (sciengjs engine) |
 | `/scieng-mcp:wavedrom` | digital timing diagrams | HTML page through `render_html` | WaveDrom in the browser |
 | `/scieng-mcp:plot` | data charts, Bode, step response, pole-zero, FFT | HTML page through `render_html`. With `--static`, an SVG file through `render` with `type` set to `plot` | Plotly in the browser. With `--static`, the sciengjs engine (local) |
-| `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
+| `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes; with `--tikz`, a circuitikz picture to SVG, PNG or PDF through `render` | none; sciengjs engine (local) with `--tikz` |
+| `/scieng-mcp:tikz` | a TikZ picture (plain TikZ, circuitikz, tikz-cd, chemfig, mhchem, bussproofs) from a description or a `.tex` file | SVG file, PNG image or PDF file through `render` | sciengjs engine (local). The first render downloads the TeX bundles. PDF needs a browser |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 | `/scieng-mcp:markdown` | Markdown from an HTML file or HTML text, with the images as files beside it | Markdown file through `html_to_markdown` | sciengjs engine (local) |
 | `/scieng-mcp:sysml` | a SysML v2 model from a description or a `.sysml` file (block definition, internal block or requirements view) | SVG file, PNG image or PDF file through `render` | sciengjs engine (local). PDF needs a browser |

@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, sep } from "node:path";
@@ -223,4 +223,47 @@ test("every backend module of the engine registry is in the bundle", async () =>
     .map(([key, entry]) => ({ key, rel: relative(dist, fileURLToPath(entry.moduleUrl)).replace(/\.js$/, ".mjs").split(sep).join("/") }))
     .filter(({ rel }) => !existsSync(join(BUNDLE, rel)));
   assert.deepEqual(missing, [], "these registry backends are not in plugin/bundle");
+});
+
+test("tikz renders from the built bundle with the TeX bundles in a local folder, offline", { timeout: 300_000 }, async (t) => {
+  // The test process fetches the release bundles of the engine version and checks each pinned hash. The server then
+  // reads them from a file: URL, so the server itself makes no network request.
+  const pins = JSON.parse(readFileSync(join(dirname(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json")), "dist", "tex", "bundles.json"), "utf-8")) as { name: string; file: string; sha256: string }[];
+  const version = JSON.parse(readFileSync(createRequire(import.meta.url).resolve("@danielsimonjr/sciengjs/package.json"), "utf-8")).version as string;
+  const root = mkdtempSync(join(tmpdir(), "bundle-gate-tikz-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const texDir = join(root, "tex");
+  mkdirSync(texDir);
+  const core = pins.find((p) => p.name === "core")!;
+  const res = await fetch(`https://github.com/danielsimonjr/sciengjs/releases/download/v${version}/${core.file}`);
+  assert.equal(res.status, 200, `the release asset ${core.file} of v${version} is not reachable`);
+  const bytes = Buffer.from(await res.arrayBuffer());
+  assert.equal(sha256(bytes), core.sha256, "the release asset does not match the pinned hash of the engine");
+  writeFileSync(join(texDir, core.file), bytes);
+
+  const dir = join(root, "fresh");
+  const netLog = join(root, "network.log");
+  cpSync(BUNDLE, join(dir, "bundle"), { recursive: true });
+  const child = spawn(process.execPath, ["--import", pathToFileURL(PRELOAD).href, join(dir, "bundle", "index.mjs")], {
+    cwd: dir,
+    env: { ...process.env, SCIENG_TEST_NET_LOG: netLog, SCIENG_CACHE_DIR: join(root, "cache"), SCIENG_TEX_BUNDLE_URL: pathToFileURL(texDir).href + "/" },
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  const exited = new Promise<void>((resolve) => child.once("exit", () => resolve()));
+  try {
+    const s = session(child);
+    await s.request(1, "initialize", { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "bundle-gate", version: "0" } });
+    s.notify("notifications/initialized", {});
+    const source = String.raw`\begin{tikzpicture}\draw (0,0) -- (2,1) node[right]{$x^2$};\end{tikzpicture}`;
+    const out = await callTool(s, 2, "render", { type: "tikz", format: "svg", source, output_path: join(dir, "pic.svg") });
+    const svg = readFileSync(out.path, "utf-8");
+    assert.ok(svg.startsWith("<svg"), "the tikz output is not an SVG");
+    assert.ok((svg.match(/<path/g) ?? []).length >= 3, "the tikz svg holds fewer than 3 paths");
+    assert.equal((svg.match(/<text/g) ?? []).length, 0, "the tikz svg holds a <text> element");
+  } finally {
+    child.kill();
+    await exited;
+  }
+  const log = existsSync(netLog) ? readFileSync(netLog, "utf-8") : "";
+  assert.equal(log, "", "the bundle attempted a network request");
 });

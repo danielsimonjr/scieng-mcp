@@ -69,7 +69,7 @@ test("render: the type and format enums are the engine lists, not a copy", () =>
 test("render: an unsupported pair returns the engine code in the error result", async () => {
   const h = makeHandlers();
   const out = join(mkdtempSync(join(tmpdir(), "tool-")), "x.svg");
-  const res = await dispatchTool(h, "render", { type: "tikz", format: "svg", source: "x", output_path: out });
+  const res = await dispatchTool(h, "render", { type: "tikz", format: "html", source: "x", output_path: out });
   assert.equal(res.isError, true);
   assert.equal(JSON.parse(res.content[0]!.text).code, "E_UNSUPPORTED");
 });
