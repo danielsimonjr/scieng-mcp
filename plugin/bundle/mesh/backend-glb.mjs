@@ -5,8 +5,8 @@ import {
   readMeshOptions,
   readMeshes,
   render
-} from "../chunk-Z75JKMCU.mjs";
-import "../chunk-JFFRTQ6A.mjs";
+} from "../chunk-HXUDKQKS.mjs";
+import "../chunk-WYJQ7P44.mjs";
 import "../chunk-OP543J2H.mjs";
 export {
   GLB_COPIES,

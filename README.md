@@ -17,7 +17,7 @@ scieng-mcp is an MCP server for science and engineering authoring. scieng-mcp ex
 
 ## Commands
 
-The plugin adds one slash command per diagram type: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit`, `playground`, `markdown`, `step` and `cad`. `plugin/README.md` gives the arguments and tells where each command sends its source.
+The plugin adds one slash command per diagram type: `/scieng-mcp:mermaid`, `dot`, `latex`, `wavedrom`, `plot`, `circuit`, `playground`, `markdown`, `step`, `cad` and `sysml`. `plugin/README.md` gives the arguments and tells where each command sends its source.
 
 ## Development
 

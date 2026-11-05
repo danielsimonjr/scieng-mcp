@@ -1,10 +1,14 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
-  dotToSvg
-} from "./chunk-6VQDK4UZ.mjs";
+  dotToSvg,
+  escapeDot,
+  escapeRecord,
+  xmlSafe
+} from "./chunk-4MDRDRCG.mjs";
 import {
-  RenderError
-} from "./chunk-JFFRTQ6A.mjs";
+  RenderError,
+  inputError
+} from "./chunk-WYJQ7P44.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/mermaid/common.js
 var HEADERS = /* @__PURE__ */ new Map([
@@ -54,15 +58,6 @@ function readLenient(options, extra) {
     }
   }
   return lenient;
-}
-function sourceText(source) {
-  return typeof source === "string" ? source : new TextDecoder().decode(source);
-}
-function xmlSafe(text) {
-  return text.replace(/[^\u{9}\u{A}\u{D}\u{20}-\u{D7FF}\u{E000}-\u{FFFD}\u{10000}-\u{10FFFF}]/gu, "\uFFFD");
-}
-function inputError(line, message) {
-  return new RenderError("E_INPUT", `line ${line}: ${message}`, { line });
 }
 function outside(ctx, line, text, why) {
   if (!ctx.lenient) {
@@ -275,12 +270,6 @@ var DOT_MARKERS = {
   diamond: "odiamond",
   "filled-diamond": "diamond"
 };
-function escapeDot(text) {
-  return xmlSafe(text).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-function escapeRecord(text) {
-  return xmlSafe(text).replace(/\\/g, "\\\\").replace(/[{}|<>"]/g, "\\$&");
-}
 function memberDisplay(text) {
   return escapeRecord(text.replace(/~([^~]*)~/g, "<$1>"));
 }
@@ -904,7 +893,6 @@ async function renderMermaidSvg(source, options) {
 
 export {
   readLenient,
-  sourceText,
   routesToBrowser,
   renderMermaidSvg
 };

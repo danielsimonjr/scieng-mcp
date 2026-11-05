@@ -33,9 +33,13 @@ function isRenderError(value) {
   }
   return RENDER_ERROR_CODES.includes(code);
 }
+function inputError(line, message) {
+  return new RenderError("E_INPUT", `line ${line}: ${message}`, { line });
+}
 
 export {
   RENDER_ERROR_CODES,
   RenderError,
-  isRenderError
+  isRenderError,
+  inputError
 };

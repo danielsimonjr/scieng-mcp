@@ -156,6 +156,16 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     const cadGlb = await callTool(s, 13, "render", { type: "cad", format: "glb", source: cadSource, output_path: join(dir, "cad.glb") });
     assert.equal(readFileSync(cadGlb.path).subarray(0, 4).toString("latin1"), "glTF");
 
+    // A SysML source goes through the engine parser, a view and the graph stage.
+    const sysmlSource = "part def Car { part wheels : Wheel [4]; } part def Wheel;";
+    const sysml = await callTool(s, 14, "render", { type: "sysml", format: "svg", source: sysmlSource, output_path: join(dir, "car.svg") });
+    const sysmlSvg = readFileSync(sysml.path, "utf8");
+    assert.ok(sysmlSvg.includes("<svg") && sysmlSvg.includes("wheels [4]"), "the sysml svg holds no composition label");
+    const ibd = await callTool(s, 15, "render", {
+      type: "sysml", format: "png", source: sysmlSource, options: { view: "ibd", root: "Car" }, output_path: join(dir, "car.png"),
+    });
+    assert.equal(readFileSync(ibd.path).subarray(0, 4).toString("latin1"), "\x89PNG");
+
     const img = await callTool(s, 5, "render_dot", {
       source: 'digraph { a [image="/tmp/x.png"] }', output_path: join(dir, "i.svg"),
     });

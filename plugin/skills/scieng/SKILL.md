@@ -23,6 +23,7 @@ Each command makes one type of diagram from a description or from a source file.
 | `/scieng-mcp:circuit` | circuit schematics | SVG file that the command writes | none |
 | `/scieng-mcp:playground` | one page with several block types | HTML page through `render_html` | the browser |
 | `/scieng-mcp:markdown` | Markdown from an HTML file or HTML text, with the images as files beside it | Markdown file through `html_to_markdown` | sciengjs engine (local) |
+| `/scieng-mcp:sysml` | a SysML v2 model from a description or a `.sysml` file (block definition, internal block or requirements view) | SVG file, PNG image or PDF file through `render` | sciengjs engine (local). PDF needs a browser |
 | `/scieng-mcp:cad` | a CAD part from a description or a CSG document in JSON (primitives, extrusions, booleans, transforms) | STL file, glb file, HTML viewer page or PNG image through `render` | sciengjs engine (local). PNG needs a browser |
 | `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file | HTML viewer page, glb file or PNG image through `render` | sciengjs engine (local). PNG needs a browser |
 
