@@ -95,6 +95,8 @@ export async function httpText(url: string, opts: HttpOptions = {}): Promise<str
 
 export function readInput(path: string, maxBytes = 512 * 1024): string;
 
+export function readInputBytes(path: string, maxBytes: number): Uint8Array;
+
 export function deriveOutputPath(input: string, ext = ".svg"): string;
 
 export function writeOutput(path: string, content: string | Uint8Array): void;
@@ -112,7 +114,8 @@ Behaviour:
 - `httpText` retries a network error. `httpText` retries the statuses 429, 500, 502, 503 and 504. The wait before the first retry is 500 ms. The wait doubles after each attempt. A numeric `Retry-After` header on a retried status sets the wait.
 - `httpText` throws at once for any other error status. The message names the host and gives the first 500 characters of the body.
 - `httpText` throws at once when the body read fails. `httpText` does not retry the failed read. The timeout timer is cleared after a successful body read. A failed body read leaves the timer armed until the timer fires.
-- `readInput` reads the whole file and then compares its size with `maxBytes`. The default limit is 524288 bytes. A larger file throws `input too large`.
+- `readInput` compares the file size with `maxBytes` before it reads the file. The default limit is 524288 bytes. A larger file throws `input too large`.
+- `readInputBytes` does the same check and returns the bytes. `readInputBytes` has no default limit. The `render` handler gives it the engine limit `maxSourceBytes`.
 - `deriveOutputPath` keeps the folder and the file name without its extension. `deriveOutputPath` adds the extension `ext`.
 - `writeOutput` writes `<path>.tmp` and then renames it to `path`. A failed rename leaves the temporary file in place.
 - `mapLimit` runs `fn` on each item with at most `limit` calls at the same time. The result keeps the order of the items. A thrown error rejects the returned promise. The other calls keep running.
@@ -145,7 +148,7 @@ export interface AnyRenderResult { path: string; bytes: number; mime: string; ba
 export async function renderAny(type, format, source, output, options?): Promise<AnyRenderResult>;
 ```
 
-Behaviour: calls the engine `render`. The pair decides the output. An unsupported pair rejects with `E_UNSUPPORTED`. The error passes through unchanged.
+Behaviour: calls the engine `render`. The pair decides the output. The `render` handler reads a binary input type (`BINARY_INPUT_TYPES` of the engine: `step`, `iges`, `brep`) from `input_path` as bytes, and refuses inline `source`. An unsupported pair rejects with `E_UNSUPPORTED`. The error passes through unchanged.
 
 Imports: `@danielsimonjr/sciengjs`, `src/render-lib.ts`, `src/engine-config.ts`.
 

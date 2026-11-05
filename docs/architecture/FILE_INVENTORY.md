@@ -47,7 +47,7 @@ This report lists each source file that the map census finds, with a disposition
 | `plugin/skills/scieng/engineering-patterns.ts` | (root) | src | orphan | 962 |
 | `plugin/skills/scieng/stubs/docx.d.ts` | (root) | src | orphan | 53 |
 | `scripts/block-network.mjs` | (root) | tools | tool | 37 |
-| `scripts/bundle.mjs` | (root) | tools | tool | 68 |
+| `scripts/bundle.mjs` | (root) | tools | tool | 75 |
 | `scripts/smoke-handshake.mjs` | (root) | tools | tool | 22 |
 | `smoke/render.smoke.ts` | (root) | src | orphan | 67 |
 | `src/engine-config.ts` | scieng-mcp | src | reachable | 23 |
@@ -57,26 +57,26 @@ This report lists each source file that the map census finds, with a disposition
 | `src/render-dot.ts` | scieng-mcp | src | reachable | 16 |
 | `src/render-html.ts` | scieng-mcp | src | reachable | 217 |
 | `src/render-latex.ts` | scieng-mcp | src | reachable | 200 |
-| `src/render-lib.ts` | scieng-mcp | src | reachable | 147 |
+| `src/render-lib.ts` | scieng-mcp | src | reachable | 156 |
 | `src/render-markdown.ts` | scieng-mcp | src | reachable | 249 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
-| `src/tools.ts` | scieng-mcp | src | reachable | 344 |
-| `test/bundle-gate.test.ts` | (root) | tests | test | 192 |
+| `src/tools.ts` | scieng-mcp | src | reachable | 353 |
+| `test/bundle-gate.test.ts` | (root) | tests | test | 205 |
 | `test/docs-latex.test.ts` | (root) | tests | test | 21 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
 | `test/html-to-markdown.test.ts` | (root) | tests | test | 212 |
 | `test/no-network.test.ts` | (root) | tests | test | 39 |
 | `test/ooxml-edit.test.ts` | (root) | tests | test | 199 |
-| `test/plugin-content.test.ts` | (root) | tests | test | 158 |
+| `test/plugin-content.test.ts` | (root) | tests | test | 163 |
 | `test/render-any.test.ts` | (root) | tests | test | 46 |
 | `test/render-dot.test.ts` | (root) | tests | test | 56 |
 | `test/render-html.test.ts` | (root) | tests | test | 350 |
 | `test/render-latex.test.ts` | (root) | tests | test | 212 |
-| `test/render-lib.test.ts` | (root) | tests | test | 193 |
+| `test/render-lib.test.ts` | (root) | tests | test | 201 |
 | `test/render-mermaid.test.ts` | (root) | tests | test | 55 |
 | `test/repo-metadata.test.ts` | (root) | tests | test | 46 |
 | `test/skill-cdn.test.ts` | (root) | tests | test | 105 |
-| `test/tools.test.ts` | (root) | tests | test | 342 |
+| `test/tools.test.ts` | (root) | tests | test | 364 |
 
 ## Skipped links
 

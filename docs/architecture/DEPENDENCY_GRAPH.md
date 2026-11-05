@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.10.1
+**Version**: 0.11.0
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -202,7 +202,7 @@ The codebase is organized into the following modules:
 **Exports:**
 - Interfaces: `HttpOptions`
 - Types: `FetchLike`
-- Functions: `httpText`, `readInput`, `deriveOutputPath`, `writeOutput`, `mapLimit`
+- Functions: `httpText`, `readInput`, `readInputBytes`, `deriveOutputPath`, `writeOutput`, `mapLimit`
 - Constants: `RETRY_AFTER_CAP_MS`
 
 ---
@@ -260,12 +260,12 @@ The codebase is organized into the following modules:
 |---------|--------|
 | `@modelcontextprotocol/server` | `Tool` |
 | `zod` | `z` |
-| `@danielsimonjr/sciengjs` | `RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities` |
+| `@danielsimonjr/sciengjs` | `RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, BINARY_INPUT_TYPES, loadConfig, capabilities` |
 
 **Internal Dependencies:**
 | File | Imports | Type |
 |------|---------|------|
-| `./render-lib.ts` | `readInput, deriveOutputPath, writeOutput` | Import |
+| `./render-lib.ts` | `readInput, readInputBytes, deriveOutputPath, writeOutput` | Import |
 | `./render-mermaid.ts` | `renderMermaidSource, MERMAID_FORMATS` | Import |
 | `./render-any.ts` | `renderAny, renderPlotSvg` | Import |
 | `./render-dot.ts` | `renderDotSource` | Import |
@@ -397,12 +397,12 @@ graph TD
 |----------|-------|
 | Total Source Files | 33 |
 | Subsystems | 4 |
-| Total Lines of Code | 4950 |
-| Total Exports | 95 |
+| Total Lines of Code | 5023 |
+| Total Exports | 96 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
 | Total Interfaces | 10 |
-| Total Functions | 26 |
+| Total Functions | 27 |
 | Total Type Guards | 0 |
 | Total Enums | 0 |
 | Type-only Imports | 0 |
@@ -413,4 +413,4 @@ graph TD
 
 ---
 
-*Version*: 0.10.1
+*Version*: 0.11.0

@@ -55,7 +55,7 @@ This document describes the public surface of the server. The surface holds seve
 
 ### render_latex
 
-- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG, PNG or PDF file on this machine, through the sciengjs engine.
+- Purpose: renders LaTeX math, or the math blocks of a LaTeX document, to an SVG, PNG or PDF file. The sciengjs engine draws it on this machine.
 - Arguments: the shared render arguments, `format`, `scale` and `dpi`. `format` is `svg` (the default), `png` or `pdf`. A png or pdf takes one block. `scale` is a number that applies to png only. `dpi` is a deprecated alias. For png with no `scale`, the scale is `dpi`/100 (200 gives 2). svg and pdf ignore `scale` and `dpi`. svg and pdf add a warning. For png or pdf, an `output_path` that ends in `.svg` gets the `.png` or `.pdf` extension. The call keeps any other extension.
 - Result: `{"path": string, "bytes": number, "failures": [{"index": number, "label": string, "message": string, "code"?: string}], "warnings": string[]}`. A failed block goes into `failures` in block order with the block index, label, message and engine code. The call does not fail for one failed block.
 - Errors: an argument error, `input too large`, or an engine error. When every block fails, the call rejects with the engine error of the first block. A png or pdf source with more than one block rejects with `E_UNSUPPORTED`.
@@ -154,6 +154,7 @@ Each table lists every export of a module in `src/`. The modules export 30 decla
 | `HttpOptions` | Interface | `{ method?, body?, headers?, timeoutMs?, retries?, fetchImpl? }` | The options of `httpText`. |
 | `httpText` | Function | `(url, opts?) => Promise<string>` | Sends a request with retries. Returns the body text. |
 | `readInput` | Function | `(path, maxBytes?) => string` | Reads a UTF-8 file of at most `maxBytes` bytes. |
+| `readInputBytes` | Function | `(path, maxBytes) => Uint8Array` | Reads the bytes of a file of at most `maxBytes` bytes. |
 | `deriveOutputPath` | Function | `(input, ext?) => string` | Returns the input path with its extension replaced. |
 | `writeOutput` | Function | `(path, content) => void` | Writes a file through a temporary file, then renames the temporary file. |
 | `mapLimit` | Function | `(items, limit, fn) => Promise<R[]>` | Runs `fn` on each item with a limit on the calls at the same time. |
@@ -230,6 +231,6 @@ Regenerate: `repo-tools map . --out=docs/architecture` · Check: `repo-tools che
 | Claim | Value | Source |
 |---|---|---|
 | totalSourceFiles | 33 | dependency-graph.json |
-| totalExports | 95 | dependency-graph.json |
+| totalExports | 96 | dependency-graph.json |
 
 The census counts 80 exports. Thirty are in `src/`. The other 50 are in two reference files of the skill, which the server does not load.
