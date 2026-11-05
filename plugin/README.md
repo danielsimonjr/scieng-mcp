@@ -33,6 +33,7 @@ Give each command a description or the path of a source file. Example:
 - `latex` draws the source on your machine through the sciengjs engine and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `dot` renders the graph on your machine, with the Graphviz engine, and saves an SVG file. Add `--local` to make an HTML page that renders in your browser.
 - `markdown` and `step` run on your machine, with the sciengjs engine. A `step` PNG needs `SCIENG_BROWSER`. The `step` viewer page loads six pinned Three.js files from a CDN, each with an integrity hash.
+- `tikz`, `sysml` and `cad` run on your machine, with the sciengjs engine. A PDF file or a `cad` PNG needs `SCIENG_BROWSER`. The first `tikz` render downloads the TeX bundles from the release of the engine. The download sends no source.
 - `wavedrom`, `plot`, `circuit` and `playground` always run on your machine. A page loads its renderer from a CDN, with a pinned version and an integrity hash.
 
 ## Output

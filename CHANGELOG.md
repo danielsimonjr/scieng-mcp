@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-05
+
+### Changed
+
+- The skill names every command and the local engine as the renderer of each. The privacy rules state that every tool call runs on this machine.
+- The plugin README describes where the source of `tikz`, `sysml` and `cad` goes.
+
+### Added
+
+- The offline bundle gate also calls `render_mermaid`, `render_latex`, `render_html`, `html_to_markdown` and `render` with the type `plot`, with every network request refused.
+
 ## [0.14.0] - 2026-11-05
 
 ### Added

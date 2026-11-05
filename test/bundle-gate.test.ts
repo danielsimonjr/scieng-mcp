@@ -166,6 +166,21 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     });
     assert.equal(readFileSync(ibd.path).subarray(0, 4).toString("latin1"), "\x89PNG");
 
+    // The other tools that a command calls. Each one runs on this machine with every network request refused.
+    const mmd = await callTool(s, 16, "render_mermaid", { source: "sequenceDiagram\n  A->>B: hi", output_path: join(dir, "m.svg") });
+    assert.match(readFileSync(mmd.path ?? join(dir, "m.svg"), "utf-8"), /<svg/);
+    await callTool(s, 17, "render_latex", { source: "$$E = mc^2$$", output_path: join(dir, "e.svg") });
+    assert.match(readFileSync(join(dir, "e.svg"), "utf-8"), /<svg/);
+    const plotSource = JSON.stringify({ data: [{ x: [1, 2, 3], y: [1, 4, 9], type: "scatter" }], layout: {} });
+    await callTool(s, 18, "render", { type: "plot", format: "svg", source: plotSource, output_path: join(dir, "p.svg") });
+    assert.match(readFileSync(join(dir, "p.svg"), "utf-8"), /<svg/);
+    await callTool(s, 19, "render_html", {
+      title: "t", blocks: [{ type: "mermaid", source: "graph TD; a-->b" }], output_path: join(dir, "page.html"),
+    });
+    assert.match(readFileSync(join(dir, "page.html"), "utf-8"), /<html/i);
+    await callTool(s, 20, "html_to_markdown", { html: "<h1>Title</h1><p>text</p>", output_path: join(dir, "x.md") });
+    assert.match(readFileSync(join(dir, "x.md"), "utf-8"), /# Title/);
+
     const img = await callTool(s, 5, "render_dot", {
       source: 'digraph { a [image="/tmp/x.png"] }', output_path: join(dir, "i.svg"),
     });
