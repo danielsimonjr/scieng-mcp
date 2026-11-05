@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-04
+
+### Added
+
+- The `render` tool renders the type `cad`, a CSG document in JSON, to `stl`, `glb`, `html` and `png` (sciengjs 0.8.0).
+- The `/scieng-mcp:cad` command writes a CAD document from a description, saves it, and renders it.
+- The bundle ships `manifold.wasm` and the Apache-2.0 licence text of `manifold-3d` beside `index.mjs`. The plugin README names them.
+
+### Changed
+
+- The engine dependency is `@danielsimonjr/sciengjs` ^0.8.0.
+- The bundle gate accepts a Node builtin without the `node:` prefix. The WASM loader of `manifold-3d` imports `module`.
+
 ## [0.11.0] - 2026-11-05
 
 ### Added

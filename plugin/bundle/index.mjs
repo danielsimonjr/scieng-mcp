@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-4AHA64HQ.mjs";
+} from "./chunk-KFEKUXKW.mjs";
 import "./chunk-T5W7ILUB.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35192,7 +35192,11 @@ var DEFAULT_REGISTRY = {
   "brep:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "step:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
   "iges:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
-  "brep:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") }
+  "brep:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "cad:glb": { backend: "mesh/manifold+glb", moduleUrl: backendUrl("mesh/backend-glb") },
+  "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
+  "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
+  "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -35380,6 +35384,8 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
         timeoutMs: cfg.timeoutMs,
         allowNetwork: cfg.allowNetwork,
         imageTimeoutMs: cfg.imageTimeoutMs,
+        maxCadNodes: cfg.maxCadNodes,
+        maxCadFacets: cfg.maxCadFacets,
         maxImageBytes: cfg.maxImageBytes
       }
     }
@@ -36381,7 +36387,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.11.0" : "0.0.0-dev";
+var VERSION = true ? "0.12.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

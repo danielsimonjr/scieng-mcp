@@ -9,6 +9,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { isBuiltin } from "node:module";
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BUNDLE = join(REPO, "plugin", "bundle");
@@ -93,7 +94,7 @@ test("every import of the bundle, static or dynamic, names a builtin or a file o
     // The mesh viewer page is text inside a module. Its browser import map names three and two placeholders. The page
     // gets them from the pinned files in assets/, not from node_modules. The exception holds only in the module of that page.
     const pageText = readFileSync(join(BUNDLE, f), "utf-8").includes("GLB_BASE64") ? VIEWER_PAGE_SPECIFIERS : [];
-    const packages = specs.filter((s) => !s.startsWith("node:") && !s.startsWith(".") && !pageText.includes(s));
+    const packages = specs.filter((s) => !isBuiltin(s) && !s.startsWith(".") && !pageText.includes(s));
     assert.deepEqual(packages, [], `plugin/bundle/${f} imports a package`);
   }
   assert.ok(seen > 0, "the scan found no import in the bundle, so it proves nothing");
@@ -144,6 +145,16 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     assert.equal(readFileSync(glb.path).subarray(0, 4).toString("latin1"), "glTF");
     const page = await callTool(s, 11, "render", { type: "step", format: "html", input_path: stepPath, output_path: join(dir, "part.html") });
     assert.match(readFileSync(page.path, "utf-8"), /GLB_BASE64/);
+
+    // A CAD document is JSON text. The solid operations load manifold.wasm from the bundle.
+    const cadSource = JSON.stringify({ version: 1, model: { type: "difference", children: [{ type: "cube", size: 2, center: true }, { type: "sphere", radius: 1.2 }] } });
+    const stl = await callTool(s, 12, "render", { type: "cad", format: "stl", source: cadSource, output_path: join(dir, "part.stl") });
+    const stlBytes = readFileSync(stl.path);
+    const facets = stlBytes.readUInt32LE(80);
+    assert.ok(facets > 0, "the stl holds no facet");
+    assert.equal(stlBytes.length, 84 + 50 * facets);
+    const cadGlb = await callTool(s, 13, "render", { type: "cad", format: "glb", source: cadSource, output_path: join(dir, "cad.glb") });
+    assert.equal(readFileSync(cadGlb.path).subarray(0, 4).toString("latin1"), "glTF");
 
     const img = await callTool(s, 5, "render_dot", {
       source: 'digraph { a [image="/tmp/x.png"] }', output_path: join(dir, "i.svg"),

@@ -8,5 +8,7 @@ plugin/bundle/**/*.ttf binary
 plugin/bundle/assets/** -text
 # The occt licence texts are verbatim copies of the occt-import-js package, with its CRLF line endings.
 plugin/bundle/occt*.LICENSE.txt -text
+# The manifold-3d licence text is a verbatim copy of the package file.
+plugin/bundle/manifold-3d.LICENSE.txt -text
 # Test fixtures are byte-exact copies of their sources. Their SHA-256 values are in their README.
 test/fixtures/** -text
