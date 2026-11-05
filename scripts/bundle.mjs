@@ -61,6 +61,13 @@ await build({
 // The engine assets: the bundled font, the licence texts and the WASM file of the raster stage.
 cpSync(join(engineRoot, "assets"), join(OUT, "assets"), { recursive: true });
 
+// The mesh stage reads its WASM file from the folder of the bundled module, beside index.mjs. The licence texts
+// of occt-import-js (LGPL-2.1) and of OCCT go beside it. The engine resolves the package; the bundle resolves it the same way.
+const occtDist = join(dirname(createRequire(join(engineRoot, "package.json")).resolve("occt-import-js")));
+for (const [from, to] of [["occt-import-js.wasm", "occt-import-js.wasm"], ["license.occt-import-js.txt", "occt-import-js.LICENSE.txt"], ["license.occt.txt", "occt.LICENSE.txt"]]) {
+  cpSync(join(occtDist, from), join(OUT, to));
+}
+
 // Git stores each bundle file with mode 0644. This loop sets that mode on every file that the build writes.
 for (const rel of readdirSync(OUT, { recursive: true })) {
   if (statSync(join(OUT, rel)).isFile()) chmodSync(join(OUT, rel), 0o644);

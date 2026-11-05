@@ -5,7 +5,7 @@ import {
 import {
   RenderError
 } from "../chunk-JFFRTQ6A.mjs";
-import "../chunk-Y7HUHYVH.mjs";
+import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/math/backend-svg.js
 async function render(request) {

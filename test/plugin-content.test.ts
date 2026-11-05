@@ -11,7 +11,7 @@ const ROOT = join(import.meta.dirname, "..");
 const PLUGIN = join(ROOT, "plugin");
 const COMMANDS = join(PLUGIN, "commands");
 const SKILL_DIR = join(PLUGIN, "skills", "scieng");
-const EXPECTED = ["circuit", "dot", "latex", "markdown", "mermaid", "playground", "plot", "wavedrom"];
+const EXPECTED = ["circuit", "dot", "latex", "markdown", "mermaid", "playground", "plot", "step", "wavedrom"];
 const TOOL_NAMES = new Set(TOOLS.map((t) => t.name));
 
 /** Splits a Markdown file into its YAML frontmatter keys and its body. */
@@ -119,6 +119,11 @@ test("the plugin README has a Third-party assets section that names every bundle
   const files = (readdirSync(assets, { recursive: true }) as string[]).filter((f) => statSync(join(assets, f)).isFile());
   assert.ok(files.length > 0, "no engine assets are bundled");
   for (const f of files) assert.ok(readme.includes(basename(f)), `the README does not name ${basename(f)}`);
+  // The mesh stage WASM and its licence texts sit beside index.mjs, not in assets/.
+  for (const f of ["occt-import-js.wasm", "occt-import-js.LICENSE.txt", "occt.LICENSE.txt"]) {
+    assert.ok(existsSync(join(PLUGIN, "bundle", f)), `plugin/bundle/${f} is missing`);
+    assert.ok(readme.includes(f), `the README does not name ${f}`);
+  }
 });
 
 test("the circuit command and SCIENG.md forbid a wire that crosses a part", () => {

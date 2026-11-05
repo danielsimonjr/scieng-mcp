@@ -284,7 +284,7 @@ function dropStylesheetInstructions(svg) {
 // node_modules/@danielsimonjr/sciengjs/dist/graph/dot.js
 var vizInstancePromise;
 async function createVizInstance() {
-  const viz = await import("./viz-67LBFFRY.mjs");
+  const viz = await import("./viz-VONB7FX5.mjs");
   return viz.instance();
 }
 function vizInstance() {

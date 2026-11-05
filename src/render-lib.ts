@@ -89,6 +89,15 @@ export function readInput(path: string, maxBytes = 512 * 1024): string {
   return readFileSync(path).toString("utf-8");
 }
 
+/** Reads a file as bytes. Rejects a file over maxBytes before it reads the content. */
+export function readInputBytes(path: string, maxBytes: number): Uint8Array {
+  const size = statSync(path).size;
+  if (size > maxBytes) {
+    throw new Error(`input too large: ${size} bytes (max ${maxBytes})`);
+  }
+  return new Uint8Array(readFileSync(path));
+}
+
 /** Returns the input path with its extension replaced by ext, in the same folder. The default ext is .svg. */
 export function deriveOutputPath(input: string, ext = ".svg"): string {
   return join(dirname(input), basename(input, extname(input)) + ext);

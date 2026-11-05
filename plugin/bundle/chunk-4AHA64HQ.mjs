@@ -12,7 +12,7 @@ import { readFile as fsReadFile } from "node:fs/promises";
 import path from "node:path";
 
 // node_modules/@danielsimonjr/sciengjs/dist/version.js
-var ENGINE_VERSION = "0.6.0";
+var ENGINE_VERSION = "0.7.1";
 
 // node_modules/@danielsimonjr/sciengjs/dist/config.js
 var DEFAULT_ASSETS_URL = new URL("../assets/", import.meta.url).href;

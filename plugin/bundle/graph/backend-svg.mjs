@@ -2,11 +2,11 @@ import { createRequire as __createRequire } from 'node:module';import { fileURLT
 import {
   dotSourceText,
   dotToSvg
-} from "../chunk-4KI3PA2R.mjs";
+} from "../chunk-6VQDK4UZ.mjs";
 import {
   RenderError
 } from "../chunk-JFFRTQ6A.mjs";
-import "../chunk-Y7HUHYVH.mjs";
+import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/graph/backend-svg.js
 async function render(request) {

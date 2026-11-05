@@ -23,7 +23,7 @@ export async function renderPlotSvg(source: string): Promise<string> {
 export async function renderAny(
   type: InputType,
   format: OutputFormat,
-  source: string,
+  source: string | Uint8Array,
   output: string,
   options?: RenderOptions,
 ): Promise<AnyRenderResult> {

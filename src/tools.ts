@@ -1,7 +1,7 @@
 import type { Tool } from "@modelcontextprotocol/server";
 import { z } from "zod";
-import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
-import { readInput, deriveOutputPath, writeOutput } from "./render-lib.ts";
+import { RENDER_ERROR_CODES, INPUT_TYPES, OUTPUT_FORMATS, BINARY_INPUT_TYPES, loadConfig, capabilities as engineCapabilities } from "@danielsimonjr/sciengjs";
+import { readInput, readInputBytes, deriveOutputPath, writeOutput } from "./render-lib.ts";
 import { renderMermaidSource, MERMAID_FORMATS } from "./render-mermaid.ts";
 import { renderAny, renderPlotSvg } from "./render-any.ts";
 import { renderDotSource } from "./render-dot.ts";
@@ -100,7 +100,7 @@ export const TOOLS: Tool[] = [
   },
   {
     name: "render",
-    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
+    description: "Render any input type that the local sciengjs engine supports to a file. type and format name the pair. options holds the keys of that type, and the engine checks them. STEP, IGES and BREP are binary: give input_path, not source. Returns {path, bytes, mime, backend, warnings}. An engine error returns its code.",
     annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object",
@@ -302,10 +302,19 @@ export function makeHandlers(): Record<string, ToolHandler> {
       return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
     },
     render: async (raw) => {
-      const pre = z.object({ format: z.enum(OUTPUT_FORMATS) }).passthrough().parse(raw ?? {});
-      const { code, out, args } = resolveRenderIo(raw, RenderAnyExtra, `.${pre.format}`);
-      const format = args.format as (typeof OUTPUT_FORMATS)[number];
-      return JSON.stringify(await renderAny(args.type as (typeof INPUT_TYPES)[number], format, code, out, args.options as Record<string, unknown> | undefined));
+      const pre = z.object({ format: z.enum(OUTPUT_FORMATS), type: z.enum(INPUT_TYPES) }).passthrough().parse(raw ?? {});
+      const format = pre.format;
+      const options = (raw as { options?: Record<string, unknown> }).options;
+      if ((BINARY_INPUT_TYPES as readonly string[]).includes(pre.type)) {
+        // A CAD file is bytes. It comes from input_path only, and the engine limit is the cap.
+        const a = RenderArgs.extend(RenderAnyExtra).strict().parse(raw ?? {});
+        if (a.source !== undefined || a.input_path === undefined) throw new Error(`${pre.type} is a binary input type: give input_path, not source`);
+        const { maxSourceBytes } = await loadConfig(engineConfig());
+        const out = a.output_path ?? deriveOutputPath(a.input_path, `.${format}`);
+        return JSON.stringify(await renderAny(pre.type, format, readInputBytes(a.input_path, maxSourceBytes), out, options));
+      }
+      const { code, out } = resolveRenderIo(raw, RenderAnyExtra, `.${format}`);
+      return JSON.stringify(await renderAny(pre.type, format, code, out, options));
     },
     render_dot: async (raw) => {
       const format = DotFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
