@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-05
+
+### Added
+
+- The `render` tool renders the CAD types `step`, `iges` and `brep` to `glb`, `html` and `png`. The `html` output is a Three.js viewer page with orbit, section planes and an exploded view. A CAD file is bytes: the tool reads it from `input_path` and refuses inline `source`. The size cap is the engine limit `maxSourceBytes`, not the 512 KB cap of a text source.
+- The `/scieng-mcp:step` command renders a STEP, IGES or BREP file.
+- The bundle ships `occt-import-js.wasm` and its two LGPL-2.1 licence texts beside `index.mjs`, and the six pinned Three.js files in `assets/`. The plugin README names them.
+
+### Changed
+
+- sciengjs ^0.7.1. The tool gets the list of binary input types from the engine export `BINARY_INPUT_TYPES`.
+
+### Fixed
+
+- The plugin README listed the Mermaid row of the asset table two times.
+
+
 ## [0.10.1] - 2026-11-04
 
 ### Fixed
@@ -29,7 +46,7 @@
 
 ### Security
 
-- Each static `plotly` block gets its own suffix on the SVG ids and their `url(#id)` and `href="#id"` references, so two blocks on one page do not collide. The static SVG check also refuses `<foreignObject`, event-handler attributes and `javascript:` URLs. `static: true` on a block that is not `plotly` gives E_INPUT.
+- Each static `plotly` block gets its own suffix on the SVG ids and their `url(#id)` and `href="#id"` references. Thus two blocks on one page do not collide. The static SVG check also refuses `<foreignObject`, event-handler attributes and `javascript:` URLs. `static: true` on a block that is not `plotly` gives E_INPUT.
 
 ### Changed
 
@@ -39,7 +56,7 @@
 
 ### Changed
 
-- `render_latex` renders each block on this machine through the sciengjs `math` type. It makes no network request. The latex.codecogs.com service is removed.
+- `render_latex` renders each block on this machine through the sciengjs `math` type. The tool makes no network request. The latex.codecogs.com service is removed.
 - `render_latex` takes `format` (`svg` default, `png` or `pdf`) and `scale`. A png or pdf takes one block. `scale` applies to png only. svg and pdf ignore `scale` and add a warning.
 - `render_latex` returns a `warnings` array.
 - `extractBlocks` returns the blocks in source order. Before, the display blocks came after all environments.
