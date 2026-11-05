@@ -160,7 +160,7 @@ var ARROW_PATTERN = [...ARROW_SPECS].sort((left, right) => right[0].length - lef
 var IDENT_SOURCE = "[A-Za-z_][A-Za-z0-9_]*";
 var RELATION_PATTERN = new RegExp(`^(${IDENT_SOURCE}) +(?:"([^"]*)" )?(${ARROW_PATTERN}) +(?:"([^"]*)" )?(${IDENT_SOURCE})(?: *: *(.+))?$`);
 var MEMBER_PATTERN = /^([A-Za-z_][A-Za-z0-9_]*) *:(.*)$/;
-var CLASS_PATTERN = /^class ([A-Za-z_][A-Za-z0-9_]*)(?:~([A-Za-z0-9_ ,]+)~)?( *\{)?$/;
+var CLASS_PATTERN = /^class ([A-Za-z_][A-Za-z0-9_]*)(?:~([A-Za-z0-9_ ,]+)~)?(?:( *\{)| *\{([^{}]*)\})?$/;
 var DIRECTION_PATTERN = /^direction (TB|BT|LR|RL)$/;
 function parseClassDiagram(src) {
   let direction = "TB";
@@ -232,6 +232,10 @@ function parseClassDiagram(src) {
         classes.push(created);
       } else if (generic !== void 0) {
         existing.generic = generic;
+      }
+      const inline = declaration[4]?.trim();
+      if (inline !== void 0 && inline !== "") {
+        byName.get(name).members.push(inline);
       }
       if (declaration[3] !== void 0) {
         open = { name, line: line.number };

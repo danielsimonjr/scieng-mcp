@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-05
+
+### Changed
+
+- The bundle uses sciengjs 1.0.1. A Mermaid class diagram accepts a one-line class body, for example `class Engine { +render() }`.
+
 ### Fixed
 
 - The cad command states that each node of a CAD document names its kind in the key `type`. Without the rule, a document with another key rejected with E_INPUT.
