@@ -14,6 +14,7 @@ Diagram, math and engineering-document tools for Claude Code.
 | `/scieng-mcp:circuit` | a circuit schematic as SVG |
 | `/scieng-mcp:playground` | one HTML page with several blocks |
 | `/scieng-mcp:markdown` | GitHub Flavored Markdown from an HTML file or HTML text |
+| `/scieng-mcp:cad` | a CAD part from a description or a CSG document, as an STL file, a glb file, a viewer page or a PNG image |
 | `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file, as a viewer page, a glb file or a PNG image |
 
 Give each command a description or the path of a source file. Example:
@@ -60,5 +61,6 @@ The bundle ships the engine assets in `plugin/bundle/assets/`. Each asset keeps 
 | `mermaid.min.js`: the pinned Mermaid build, with the packages that it bundles | MIT, and the licences in the bundle text | `licenses/MIT-mermaid.txt`, `licenses/mermaid-bundle.txt` |
 | `three.module.js`, `three.core.js`, `three.OrbitControls.js`, `three.GLTFLoader.js`, `three.BufferGeometryUtils.js`, `three.SkeletonUtils.js`: the six pinned files of Three.js 0.187.0 (mesh viewer page) | MIT | `licenses/MIT-three.txt` |
 | `occt-import-js.wasm` (beside `index.mjs`): the WASM file of `occt-import-js` 0.0.23, which holds OCCT (mesh stage) | GNU LGPL 2.1 | `occt-import-js.LICENSE.txt`, `occt.LICENSE.txt` (beside `index.mjs`) |
+| `manifold.wasm` (beside `index.mjs`): the WASM file of `manifold-3d` 3.2.1 (the solid operations of CAD documents) | Apache License 2.0 | `manifold-3d.LICENSE.txt` (beside `index.mjs`) |
 
 The licence texts of the first six rows are in `plugin/bundle/assets/`. The licence texts of the occt row are beside `index.mjs`.

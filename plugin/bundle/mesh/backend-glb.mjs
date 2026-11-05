@@ -3,13 +3,15 @@ import {
   GLB_COPIES,
   estimateGlbBytes,
   readMeshOptions,
+  readMeshes,
   render
-} from "../chunk-A63ETYKZ.mjs";
+} from "../chunk-Z75JKMCU.mjs";
 import "../chunk-JFFRTQ6A.mjs";
 import "../chunk-OP543J2H.mjs";
 export {
   GLB_COPIES,
   estimateGlbBytes,
   readMeshOptions,
+  readMeshes,
   render
 };

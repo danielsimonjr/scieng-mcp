@@ -68,6 +68,13 @@ for (const [from, to] of [["occt-import-js.wasm", "occt-import-js.wasm"], ["lice
   cpSync(join(occtDist, from), join(OUT, to));
 }
 
+// The CAD solid operations read manifold.wasm from the folder of the bundled module too. The Apache-2.0 licence of
+// manifold-3d goes beside it.
+const manifoldDist = dirname(createRequire(join(engineRoot, "package.json")).resolve("manifold-3d"));
+for (const [from, to] of [["manifold.wasm", "manifold.wasm"], ["LICENSE", "manifold-3d.LICENSE.txt"]]) {
+  cpSync(join(manifoldDist, from), join(OUT, to));
+}
+
 // Git stores each bundle file with mode 0644. This loop sets that mode on every file that the build writes.
 for (const rel of readdirSync(OUT, { recursive: true })) {
   if (statSync(join(OUT, rel)).isFile()) chmodSync(join(OUT, rel), 0o644);
