@@ -1,10 +1,10 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   checkAssetsUrl
-} from "./chunk-T5W7ILUB.mjs";
+} from "./chunk-SUGXCK3Q.mjs";
 import {
   RenderError
-} from "./chunk-JFFRTQ6A.mjs";
+} from "./chunk-WYJQ7P44.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/config.js
 import { homedir as osHomedir } from "node:os";
@@ -12,7 +12,7 @@ import { readFile as fsReadFile } from "node:fs/promises";
 import path from "node:path";
 
 // node_modules/@danielsimonjr/sciengjs/dist/version.js
-var ENGINE_VERSION = "0.8.0";
+var ENGINE_VERSION = "0.9.0";
 
 // node_modules/@danielsimonjr/sciengjs/dist/config.js
 var DEFAULT_ASSETS_URL = new URL("../assets/", import.meta.url).href;

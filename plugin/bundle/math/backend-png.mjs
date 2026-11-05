@@ -2,16 +2,16 @@ import { createRequire as __createRequire } from 'node:module';import { fileURLT
 import {
   readScale,
   svgDocumentToPng
-} from "../chunk-HWMJVRWM.mjs";
-import "../chunk-KFEKUXKW.mjs";
-import "../chunk-6VQDK4UZ.mjs";
-import "../chunk-T5W7ILUB.mjs";
+} from "../chunk-L2F2SPKX.mjs";
+import "../chunk-HO75XVEK.mjs";
+import "../chunk-4MDRDRCG.mjs";
+import "../chunk-SUGXCK3Q.mjs";
 import {
   mathToSvg
-} from "../chunk-CMTOCTXS.mjs";
+} from "../chunk-QEZUA5ZX.mjs";
 import {
   RenderError
-} from "../chunk-JFFRTQ6A.mjs";
+} from "../chunk-WYJQ7P44.mjs";
 import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/math/backend-png.js

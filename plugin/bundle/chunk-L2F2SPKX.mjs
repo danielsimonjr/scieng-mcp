@@ -1,19 +1,19 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   DEFAULT_ASSETS_URL
-} from "./chunk-KFEKUXKW.mjs";
+} from "./chunk-HO75XVEK.mjs";
 import {
-  dotSourceText,
-  dotToSvg
-} from "./chunk-6VQDK4UZ.mjs";
+  dotToSvg,
+  sourceText
+} from "./chunk-4MDRDRCG.mjs";
 import {
   RESVG_WASM_FILE,
   bundledFontPathIn,
   readAsset
-} from "./chunk-T5W7ILUB.mjs";
+} from "./chunk-SUGXCK3Q.mjs";
 import {
   RenderError
-} from "./chunk-JFFRTQ6A.mjs";
+} from "./chunk-WYJQ7P44.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/graph/backend-png.js
 import { readFileSync } from "node:fs";
@@ -865,7 +865,7 @@ async function renderPng(request, bundledFontPath) {
   }
   const scale = readScale(options);
   const font = fontOf(request.settings, bundledFontPath);
-  const dot = await dotToSvg(dotSourceText(request.source));
+  const dot = await dotToSvg(sourceText(request.source));
   const bytes = await svgToPng(dot.svg, {
     scale,
     maxMemoryMb: request.settings.maxMemoryMb,

@@ -2,12 +2,12 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-KFEKUXKW.mjs";
-import "./chunk-T5W7ILUB.mjs";
+} from "./chunk-HO75XVEK.mjs";
+import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
   RenderError
-} from "./chunk-JFFRTQ6A.mjs";
+} from "./chunk-WYJQ7P44.mjs";
 import {
   __export
 } from "./chunk-OP543J2H.mjs";
@@ -35196,7 +35196,10 @@ var DEFAULT_REGISTRY = {
   "cad:glb": { backend: "mesh/manifold+glb", moduleUrl: backendUrl("mesh/backend-glb") },
   "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
-  "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") }
+  "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "sysml:svg": { backend: "sysml/graph", moduleUrl: backendUrl("sysml/backend-svg") },
+  "sysml:png": { backend: "sysml/graph+raster/resvg", moduleUrl: backendUrl("sysml/backend-png") },
+  "sysml:pdf": { backend: "sysml/graph+browser/chromium", moduleUrl: backendUrl("sysml/backend-pdf") }
 };
 function registryKey(type, format) {
   return `${type}:${format}`;
@@ -36387,7 +36390,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.12.0" : "0.0.0-dev";
+var VERSION = true ? "0.13.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

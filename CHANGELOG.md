@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-05
+
+### Added
+
+- The `render` tool renders the type `sysml`, a SysML v2 text subset, to `svg`, `png` and `pdf`, as a block definition, internal block or requirements view (sciengjs 0.9.0).
+- The `/scieng-mcp:sysml` command writes a SysML source from a description, saves it, and renders the view.
+- The bundle gate renders a sysml source to svg and an ibd view to png.
+
 ## [0.12.0] - 2026-11-04
 
 ### Added

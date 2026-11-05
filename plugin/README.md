@@ -14,6 +14,7 @@ Diagram, math and engineering-document tools for Claude Code.
 | `/scieng-mcp:circuit` | a circuit schematic as SVG |
 | `/scieng-mcp:playground` | one HTML page with several blocks |
 | `/scieng-mcp:markdown` | GitHub Flavored Markdown from an HTML file or HTML text |
+| `/scieng-mcp:sysml` | a SysML v2 model from a description or a `.sysml` file, as a block definition, internal block or requirements view in SVG, PNG or PDF |
 | `/scieng-mcp:cad` | a CAD part from a description or a CSG document, as an STL file, a glb file, a viewer page or a PNG image |
 | `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file, as a viewer page, a glb file or a PNG image |
 

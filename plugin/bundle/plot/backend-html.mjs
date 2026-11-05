@@ -9,8 +9,8 @@ import {
 import {
   readPlotFigure,
   readPlotOptions
-} from "../chunk-Z4UEFC4G.mjs";
-import "../chunk-JFFRTQ6A.mjs";
+} from "../chunk-TQ56VOOR.mjs";
+import "../chunk-WYJQ7P44.mjs";
 import "../chunk-OP543J2H.mjs";
 
 // node_modules/@danielsimonjr/sciengjs/dist/plot/backend-html.js
