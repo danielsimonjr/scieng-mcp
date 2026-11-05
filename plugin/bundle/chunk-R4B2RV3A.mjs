@@ -552,21 +552,23 @@ async function waitForExit(child, deadline) {
   clearTimeout(timer);
   return result;
 }
-function killTree(child) {
+function killTree(child, deps = { windows: IS_WINDOWS, kill: process.kill.bind(process) }) {
   const pid = child.pid;
   if (pid === void 0)
     return;
-  if (IS_WINDOWS) {
+  if (deps.windows) {
     if (hasExited(child))
       return;
     spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { stdio: "ignore", windowsHide: true });
     return;
   }
   try {
-    process.kill(-pid, "SIGKILL");
+    deps.kill(-pid, "SIGKILL");
   } catch (err) {
-    if (err.code !== "ESRCH")
-      throw err;
+    const code = err.code;
+    if (code === "ESRCH" || code === "EPERM" && hasExited(child))
+      return;
+    throw err;
   }
 }
 async function stopBrowser(cdp, child, deadline) {

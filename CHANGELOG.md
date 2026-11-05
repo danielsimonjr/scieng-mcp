@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-05
+
+### Changed
+
+- The server uses sciengjs 1.0.0. Every tool call runs on this machine, and no remote render service remains. The first tikz render downloads the TeX bundles from the v1.0.0 release of the engine.
+- A warm tikz render is faster: the engine loads the core TeX bundle once per server process.
+
 ## [0.15.0] - 2026-11-05
 
 ### Changed
