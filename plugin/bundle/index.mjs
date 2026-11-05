@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
+  detectBundles,
+  texCoreFiles
+} from "./chunk-VHCRZQSZ.mjs";
+import {
   loadConfig
-} from "./chunk-PHGVH3FW.mjs";
+} from "./chunk-GCGCODTU.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35168,6 +35172,16 @@ function backendUrl(name) {
   const extension = extname(fileURLToPath(import.meta.url));
   return new URL(`./${name}${extension}`, import.meta.url).href;
 }
+async function texPreload(settings, source) {
+  if (typeof source !== "string")
+    return void 0;
+  try {
+    detectBundles(source);
+  } catch {
+    return void 0;
+  }
+  return texCoreFiles(settings);
+}
 var DEFAULT_REGISTRY = {
   "dot:svg": { backend: "graph/viz", moduleUrl: backendUrl("graph/backend-svg") },
   "dot:png": { backend: "graph/viz+raster/resvg", moduleUrl: backendUrl("graph/backend-png") },
@@ -35197,9 +35211,9 @@ var DEFAULT_REGISTRY = {
   "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
-  "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg") },
-  "tikz:png": { backend: "tex/etex+raster/resvg", moduleUrl: backendUrl("tex/backend-png") },
-  "tikz:pdf": { backend: "tex/etex+browser/chromium", moduleUrl: backendUrl("tex/backend-pdf") },
+  "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg"), preload: texPreload },
+  "tikz:png": { backend: "tex/etex+raster/resvg", moduleUrl: backendUrl("tex/backend-png"), preload: texPreload },
+  "tikz:pdf": { backend: "tex/etex+browser/chromium", moduleUrl: backendUrl("tex/backend-pdf"), preload: texPreload },
   "sysml:svg": { backend: "sysml/graph", moduleUrl: backendUrl("sysml/backend-svg") },
   "sysml:png": { backend: "sysml/graph+raster/resvg", moduleUrl: backendUrl("sysml/backend-png") },
   "sysml:pdf": { backend: "sysml/graph+browser/chromium", moduleUrl: backendUrl("sysml/backend-pdf") }
@@ -35374,6 +35388,23 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
   if (pair.stage === "browser" && cfg.browser === void 0) {
     throw new RenderError("E_STAGE_MISSING", "the browser stage needs SCIENG_BROWSER or the browser configuration key");
   }
+  const settings = {
+    maxMemoryMb: cfg.maxMemoryMb,
+    rasterFont: cfg.rasterFont,
+    assetsUrl: cfg.assetsUrl,
+    browser: cfg.browser,
+    timeoutMs: cfg.timeoutMs,
+    allowNetwork: cfg.allowNetwork,
+    imageTimeoutMs: cfg.imageTimeoutMs,
+    maxCadNodes: cfg.maxCadNodes,
+    maxCadFacets: cfg.maxCadFacets,
+    maxImageBytes: cfg.maxImageBytes,
+    cacheDir: cfg.cacheDir,
+    texBundleUrl: cfg.texBundleUrl
+  };
+  const preloaded = entry.preload === void 0 ? void 0 : await entry.preload(settings, req.source).catch(() => void 0);
+  if (preloaded !== void 0)
+    settings.texCore = preloaded;
   const out = await runInWorker({
     moduleUrl: entry.moduleUrl,
     backend: entry.backend,
@@ -35382,20 +35413,7 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
       format: req.format,
       source: req.source,
       options: req.options ?? {},
-      settings: {
-        maxMemoryMb: cfg.maxMemoryMb,
-        rasterFont: cfg.rasterFont,
-        assetsUrl: cfg.assetsUrl,
-        browser: cfg.browser,
-        timeoutMs: cfg.timeoutMs,
-        allowNetwork: cfg.allowNetwork,
-        imageTimeoutMs: cfg.imageTimeoutMs,
-        maxCadNodes: cfg.maxCadNodes,
-        maxCadFacets: cfg.maxCadFacets,
-        maxImageBytes: cfg.maxImageBytes,
-        cacheDir: cfg.cacheDir,
-        texBundleUrl: cfg.texBundleUrl
-      }
+      settings
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
   return {
@@ -36395,7 +36413,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.15.0" : "0.0.0-dev";
+var VERSION = true ? "1.0.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }
