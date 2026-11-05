@@ -3,10 +3,11 @@ import {
   readLenient,
   renderMermaidSvg,
   routesToBrowser
-} from "../chunk-SXKDSTHX.mjs";
+} from "../chunk-UESJXJPV.mjs";
+import "../chunk-NP4BMKGN.mjs";
 import {
   sourceText
-} from "../chunk-4MDRDRCG.mjs";
+} from "../chunk-C4DREIKQ.mjs";
 import {
   drawMermaidInBrowser
 } from "../chunk-MDEIADB2.mjs";

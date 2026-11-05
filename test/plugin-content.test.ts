@@ -11,7 +11,7 @@ const ROOT = join(import.meta.dirname, "..");
 const PLUGIN = join(ROOT, "plugin");
 const COMMANDS = join(PLUGIN, "commands");
 const SKILL_DIR = join(PLUGIN, "skills", "scieng");
-const EXPECTED = ["cad", "circuit", "dot", "latex", "markdown", "mermaid", "playground", "plot", "step", "sysml", "wavedrom"];
+const EXPECTED = ["cad", "circuit", "dot", "latex", "markdown", "mermaid", "playground", "plot", "step", "sysml", "tikz", "wavedrom"];
 const TOOL_NAMES = new Set(TOOLS.map((t) => t.name));
 
 /** Splits a Markdown file into its YAML frontmatter keys and its body. */

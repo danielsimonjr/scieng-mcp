@@ -2,7 +2,7 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   loadConfig
-} from "./chunk-HO75XVEK.mjs";
+} from "./chunk-PHGVH3FW.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35197,6 +35197,9 @@ var DEFAULT_REGISTRY = {
   "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg") },
+  "tikz:png": { backend: "tex/etex+raster/resvg", moduleUrl: backendUrl("tex/backend-png") },
+  "tikz:pdf": { backend: "tex/etex+browser/chromium", moduleUrl: backendUrl("tex/backend-pdf") },
   "sysml:svg": { backend: "sysml/graph", moduleUrl: backendUrl("sysml/backend-svg") },
   "sysml:png": { backend: "sysml/graph+raster/resvg", moduleUrl: backendUrl("sysml/backend-png") },
   "sysml:pdf": { backend: "sysml/graph+browser/chromium", moduleUrl: backendUrl("sysml/backend-pdf") }
@@ -35389,7 +35392,9 @@ async function renderWithRegistry(req, options, registry2, configDeps) {
         imageTimeoutMs: cfg.imageTimeoutMs,
         maxCadNodes: cfg.maxCadNodes,
         maxCadFacets: cfg.maxCadFacets,
-        maxImageBytes: cfg.maxImageBytes
+        maxImageBytes: cfg.maxImageBytes,
+        cacheDir: cfg.cacheDir,
+        texBundleUrl: cfg.texBundleUrl
       }
     }
   }, { timeoutMs: cfg.timeoutMs, maxMemoryMb: cfg.maxMemoryMb });
@@ -36390,7 +36395,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "0.13.0" : "0.0.0-dev";
+var VERSION = true ? "0.14.0" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

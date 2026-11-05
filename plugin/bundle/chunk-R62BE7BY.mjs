@@ -1,11 +1,13 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   DEFAULT_ASSETS_URL
-} from "./chunk-HO75XVEK.mjs";
+} from "./chunk-PHGVH3FW.mjs";
 import {
-  dotToSvg,
+  dotToSvg
+} from "./chunk-NP4BMKGN.mjs";
+import {
   sourceText
-} from "./chunk-4MDRDRCG.mjs";
+} from "./chunk-C4DREIKQ.mjs";
 import {
   RESVG_WASM_FILE,
   bundledFontPathIn,
