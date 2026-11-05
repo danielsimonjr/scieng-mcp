@@ -68,6 +68,12 @@ test("the latex command renders locally and names no remote service", () => {
   assert.doesNotMatch(body, /codecogs|remote|third-party/i);
 });
 
+test("the cad command names the key type that gives the kind of each node", () => {
+  const { body } = parse(join(COMMANDS, "cad.md"));
+  assert.match(body, /names its kind in the key `type`/);
+  assert.match(body, /\{"type": "cube"/);
+});
+
 test("the dot command renders locally and names no remote service", () => {
   const { body } = parse(join(COMMANDS, "dot.md"));
   assert.doesNotMatch(body, /quickchart/i);

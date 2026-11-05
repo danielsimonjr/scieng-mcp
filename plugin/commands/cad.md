@@ -9,6 +9,7 @@ Build a CAD model from: $ARGUMENTS
 2. Read the arguments. `--format` sets the output: `html` (the default), `stl`, `glb` or `png`. `--out <folder>` sets the output folder. The rest is a description of the part, or the path of a `.json` CAD document. When the arguments hold no description and no path, ask for one and stop.
 3. With a description, write the CAD document. Never invent a dimension. When a dimension is missing, ask for it and stop.
    - The document is `{"version": 1, "model": <node>, "segments": <optional, 3 to 1024>}`.
+   - Each node names its kind in the key `type`, for example `{"type": "cube", "size": [10, 10, 10]}`.
    - The primitives are `cube`, `cylinder`, `sphere` and `polyhedron`.
    - `cube` takes `size` and `center`. `sphere` takes `radius` and `segments`.
    - `cylinder` takes `height`, `center`, `segments`, and `radius` or both `radius1` and `radius2`.
