@@ -2,15 +2,17 @@ import { createRequire as __createRequire } from 'node:module';import { fileURLT
 import {
   GLB_COPIES,
   estimateGlbBytes,
+  readCadRequest,
   readMeshOptions,
   readMeshes,
   render
-} from "../chunk-VOLJCVFR.mjs";
+} from "../chunk-GQNAE42N.mjs";
 import "../chunk-WYJQ7P44.mjs";
 import "../chunk-OP543J2H.mjs";
 export {
   GLB_COPIES,
   estimateGlbBytes,
+  readCadRequest,
   readMeshOptions,
   readMeshes,
   render

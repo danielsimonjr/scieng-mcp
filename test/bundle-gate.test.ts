@@ -159,6 +159,9 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     const package3mf = readFileSync(cad3mf.path);
     assert.equal(package3mf.subarray(0, 2).toString("latin1"), "PK");
     assert.ok(package3mf.includes('unit="millimeter"'), "the 3mf holds no model part");
+    const cadDxf = await callTool(s, 114, "render", { type: "cad", format: "dxf", source: cadSource, options: { z: 0 }, output_path: join(dir, "part.dxf") });
+    const drawing = readFileSync(cadDxf.path, "latin1");
+    assert.ok(drawing.includes("AC1009") && drawing.includes("POLYLINE") && drawing.trimEnd().endsWith("EOF"), "the dxf holds no drawing");
 
     // A SysML source goes through the engine parser, a view and the graph stage.
     const sysmlSource = "part def Car { part wheels : Wheel [4]; } part def Wheel;";

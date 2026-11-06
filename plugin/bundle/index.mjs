@@ -6,7 +6,7 @@ import {
 } from "./chunk-VHCRZQSZ.mjs";
 import {
   loadConfig
-} from "./chunk-JMQU2M3R.mjs";
+} from "./chunk-2PW5RXKP.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35158,6 +35158,7 @@ var PAIRS = [
   { type: "cad", format: "glb", stage: "mesh" },
   { type: "cad", format: "stl", stage: "mesh" },
   { type: "cad", format: "3mf", stage: "mesh" },
+  { type: "cad", format: "dxf", stage: "mesh" },
   { type: "html", format: "png", stage: "browser" },
   { type: "html", format: "pdf", stage: "browser" },
   { type: "html", format: "md", stage: "html" }
@@ -35211,6 +35212,7 @@ var DEFAULT_REGISTRY = {
   "cad:glb": { backend: "mesh/manifold+glb", moduleUrl: backendUrl("mesh/backend-glb") },
   "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
   "cad:3mf": { backend: "mesh/manifold+3mf", moduleUrl: backendUrl("mesh/backend-3mf") },
+  "cad:dxf": { backend: "mesh/manifold+dxf", moduleUrl: backendUrl("mesh/backend-dxf") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
   "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg"), preload: texPreload },
@@ -35346,7 +35348,7 @@ var INPUT_TYPES = [
   "cad",
   "html"
 ];
-var OUTPUT_FORMATS = ["svg", "png", "pdf", "html", "md", "glb", "stl", "3mf"];
+var OUTPUT_FORMATS = ["svg", "png", "pdf", "html", "md", "glb", "stl", "3mf", "dxf"];
 var BINARY_INPUT_TYPES = ["step", "iges", "brep"];
 
 // node_modules/@danielsimonjr/sciengjs/dist/core.js
@@ -35358,7 +35360,8 @@ var MIME = {
   md: "text/markdown; charset=utf-8",
   glb: "model/gltf-binary",
   stl: "model/stl",
-  "3mf": "model/3mf"
+  "3mf": "model/3mf",
+  dxf: "image/vnd.dxf"
 };
 var encoder = new TextEncoder();
 async function renderWithRegistry(req, options, registry2, configDeps) {
@@ -36406,7 +36409,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "1.0.5" : "0.0.0-dev";
+var VERSION = true ? "1.0.6" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }
