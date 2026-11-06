@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-11-06
+
+### Added
+
+- `render` with `type: "cad"` accepts `format: "md"`, from sciengjs 1.0.6. The file is a report of the design for manufacture. The report gives the size, the volume and the surface area of the part. The report gives the area that needs support (option `overhang`) and the walls thinner than `minWall`. The `/scieng-mcp:cad` command, the skill and the README list the format.
+
 ## [1.0.6] - 2026-11-06
 
 ### Added
