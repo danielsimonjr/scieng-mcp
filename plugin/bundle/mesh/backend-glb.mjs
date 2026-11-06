@@ -6,7 +6,7 @@ import {
   readMeshOptions,
   readMeshes,
   render
-} from "../chunk-LTNURLCF.mjs";
+} from "../chunk-6JKP2OVK.mjs";
 import "../chunk-WYJQ7P44.mjs";
 import "../chunk-OP543J2H.mjs";
 export {
