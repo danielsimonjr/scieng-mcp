@@ -1,8 +1,10 @@
 import { createRequire as __createRequire } from 'node:module';import { fileURLToPath as __fileURLToPath } from 'node:url';import { dirname as __dirnameOf } from 'node:path';const require = __createRequire(import.meta.url);const __filename = __fileURLToPath(import.meta.url);const __dirname = __dirnameOf(__filename);
 import {
   drawCad,
-  readCadRequest
-} from "../chunk-6JKP2OVK.mjs";
+  drawMeshes,
+  readCadRequest,
+  readMeshes
+} from "../chunk-JV7ODNEK.mjs";
 import {
   RenderError
 } from "../chunk-WYJQ7P44.mjs";
@@ -32,10 +34,10 @@ function writeDxf(contours) {
 }
 
 // node_modules/@danielsimonjr/sciengjs/dist/mesh/backend-dxf.js
-function readZ(options) {
+function readZ(type, options) {
   for (const key of Object.keys(options)) {
     if (key !== "z")
-      throw new RenderError("E_INPUT", `cad to dxf takes no option ${key}`);
+      throw new RenderError("E_INPUT", `${type} to dxf takes no option ${key}`);
   }
   const z = options.z;
   if (z !== void 0 && (typeof z !== "number" || !Number.isFinite(z))) {
@@ -43,9 +45,10 @@ function readZ(options) {
   }
   return z;
 }
-async function render(request) {
-  const z = readZ(request.options);
-  const { contours, colored } = await drawCad(readCadRequest(request), request.settings.maxCadFacets, z);
+async function render(request, deps = {}) {
+  const z = readZ(request.type, request.options);
+  const { maxCadFacets } = request.settings;
+  const { contours, colored } = request.type === "cad" ? await drawCad(readCadRequest(request), maxCadFacets, z) : await drawMeshes(await readMeshes({ ...request, options: {} }, deps), maxCadFacets, z);
   if (contours.length === 0) {
     throw new RenderError("E_INPUT", z === void 0 ? "the outline holds no contour" : `the drawing at z = ${z} holds no contour`);
   }

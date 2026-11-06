@@ -6,7 +6,7 @@ import {
 } from "./chunk-VHCRZQSZ.mjs";
 import {
   loadConfig
-} from "./chunk-MRCF6C3O.mjs";
+} from "./chunk-4CHML7X2.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35147,12 +35147,15 @@ var PAIRS = [
   { type: "step", format: "html", stage: "mesh" },
   { type: "step", format: "png", stage: "browser" },
   { type: "step", format: "glb", stage: "mesh" },
+  { type: "step", format: "dxf", stage: "mesh" },
   { type: "iges", format: "html", stage: "mesh" },
   { type: "iges", format: "png", stage: "browser" },
   { type: "iges", format: "glb", stage: "mesh" },
+  { type: "iges", format: "dxf", stage: "mesh" },
   { type: "brep", format: "html", stage: "mesh" },
   { type: "brep", format: "png", stage: "browser" },
   { type: "brep", format: "glb", stage: "mesh" },
+  { type: "brep", format: "dxf", stage: "mesh" },
   { type: "cad", format: "html", stage: "mesh" },
   { type: "cad", format: "png", stage: "browser" },
   { type: "cad", format: "glb", stage: "mesh" },
@@ -35160,6 +35163,7 @@ var PAIRS = [
   { type: "cad", format: "3mf", stage: "mesh" },
   { type: "cad", format: "dxf", stage: "mesh" },
   { type: "cad", format: "md", stage: "mesh" },
+  { type: "cad", format: "pdf", stage: "browser" },
   { type: "html", format: "png", stage: "browser" },
   { type: "html", format: "pdf", stage: "browser" },
   { type: "html", format: "md", stage: "html" }
@@ -35207,6 +35211,9 @@ var DEFAULT_REGISTRY = {
   "step:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "iges:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "brep:html": { backend: "mesh/occt+viewer", moduleUrl: backendUrl("mesh/backend-html") },
+  "step:dxf": { backend: "mesh/occt+manifold+dxf", moduleUrl: backendUrl("mesh/backend-dxf") },
+  "iges:dxf": { backend: "mesh/occt+manifold+dxf", moduleUrl: backendUrl("mesh/backend-dxf") },
+  "brep:dxf": { backend: "mesh/occt+manifold+dxf", moduleUrl: backendUrl("mesh/backend-dxf") },
   "step:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
   "iges:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
   "brep:png": { backend: "mesh/occt+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
@@ -35217,6 +35224,7 @@ var DEFAULT_REGISTRY = {
   "cad:md": { backend: "mesh/manifold+dfm", moduleUrl: backendUrl("mesh/backend-dfm") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
+  "cad:pdf": { backend: "mesh/manifold+drawing+browser/chromium", moduleUrl: backendUrl("mesh/backend-pdf") },
   "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg"), preload: texPreload },
   "tikz:png": { backend: "tex/etex+raster/resvg", moduleUrl: backendUrl("tex/backend-png"), preload: texPreload },
   "tikz:pdf": { backend: "tex/etex+browser/chromium", moduleUrl: backendUrl("tex/backend-pdf"), preload: texPreload },
@@ -36411,7 +36419,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "1.0.8" : "0.0.0-dev";
+var VERSION = true ? "1.0.9" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

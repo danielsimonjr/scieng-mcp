@@ -2,7 +2,7 @@ import { createRequire as __createRequire } from 'node:module';import { fileURLT
 import {
   mermaidPageHtml,
   svgPageHtml
-} from "./chunk-USVSPPCS.mjs";
+} from "./chunk-OCWU55SS.mjs";
 import {
   MERMAID_CDN_URL,
   MERMAID_FILE,

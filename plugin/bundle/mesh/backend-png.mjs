@@ -4,7 +4,7 @@ import {
 } from "../chunk-EYA6V7TC.mjs";
 import {
   render
-} from "../chunk-6JKP2OVK.mjs";
+} from "../chunk-JV7ODNEK.mjs";
 import {
   THREE_MODULES
 } from "../chunk-UDEV2G2S.mjs";

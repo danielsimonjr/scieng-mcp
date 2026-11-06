@@ -16,8 +16,8 @@ Diagram, math and engineering-document tools for Claude Code.
 | `/scieng-mcp:playground` | one HTML page with several blocks |
 | `/scieng-mcp:markdown` | GitHub Flavored Markdown from an HTML file or HTML text |
 | `/scieng-mcp:sysml` | a SysML v2 model from a description or a `.sysml` file, as a block definition, internal block or requirements view in SVG, PNG or PDF |
-| `/scieng-mcp:cad` | a CAD part from a description or a CSG document, as an STL file, a 3MF file, a DXF drawing, a report of the design for manufacture, a glb file, a viewer page or a PNG image |
-| `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file, as a viewer page, a glb file or a PNG image |
+| `/scieng-mcp:cad` | a CAD part from a description or a CSG document, as an STL file, a 3MF file, a DXF drawing, a PDF drawing in third-angle projection, a report of the design for manufacture, a glb file, a viewer page or a PNG image |
+| `/scieng-mcp:step` | a CAD model from a STEP, IGES or BREP file, as a viewer page, a glb file, a PNG image or a DXF drawing |
 
 Give each command a description or the path of a source file. Example:
 
