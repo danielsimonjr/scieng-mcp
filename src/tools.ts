@@ -291,16 +291,27 @@ function latexScale(format: string, scale: number | undefined, dpi: number | und
 }
 
 /**
+ * The handler of a tool that renders diagram source to one file: `render_mermaid` and `render_dot`.
+ * The format defaults to `svg`. The result is `{path, bytes, warnings}`.
+ */
+function sourceRenderHandler<F extends string>(
+  formats: z.ZodType<F>,
+  render: (code: string, out: string, format: F) => Promise<{ bytes: number; warnings: string[] }>,
+): ToolHandler {
+  return async (raw) => {
+    const format = formats.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
+    const { code, out } = resolveRenderIo(raw, { format: formats.optional() }, `.${format}`);
+    const res = await render(code, out, format);
+    return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
+  };
+}
+
+/**
  * Creates the handler of each tool, keyed by the tool name.
  */
 export function makeHandlers(): Record<string, ToolHandler> {
   return {
-    render_mermaid: async (raw) => {
-      const format = MermaidFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
-      const { code, out } = resolveRenderIo(raw, { format: MermaidFormat.optional() }, `.${format}`);
-      const res = await renderMermaidSource(code, out, format);
-      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
-    },
+    render_mermaid: sourceRenderHandler(MermaidFormat, renderMermaidSource),
     render: async (raw) => {
       const pre = z.object({ format: z.enum(OUTPUT_FORMATS), type: z.enum(INPUT_TYPES) }).passthrough().parse(raw ?? {});
       const format = pre.format;
@@ -316,12 +327,7 @@ export function makeHandlers(): Record<string, ToolHandler> {
       const { code, out } = resolveRenderIo(raw, RenderAnyExtra, `.${format}`);
       return JSON.stringify(await renderAny(pre.type, format, code, out, options));
     },
-    render_dot: async (raw) => {
-      const format = DotFormat.parse((raw as { format?: unknown } | undefined)?.format ?? "svg");
-      const { code, out } = resolveRenderIo(raw, { format: DotFormat.optional() }, `.${format}`);
-      const res = await renderDotSource(code, out, format);
-      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
-    },
+    render_dot: sourceRenderHandler(DotFormat, renderDotSource),
     capabilities: async (raw) => {
       NoArgs.parse(raw ?? {});
       return JSON.stringify({ capabilities: await engineCapabilities(engineConfig()) });

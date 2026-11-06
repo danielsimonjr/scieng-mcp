@@ -138,7 +138,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 353
+      "loc": 359
     },
     {
       "file": "test/bundle-gate.test.ts",
