@@ -1,6 +1,6 @@
 /*
 =============================================================================
-OOXML DOCUMENT EDIT LIBRARY  (self-contained, zero-dependency)
+OOXML DOCUMENT EDIT LIBRARY  (no npm dependency; Node built-ins and render-lib)
 =============================================================================
 
 PURPOSE:
