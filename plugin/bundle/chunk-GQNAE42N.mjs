@@ -574,7 +574,21 @@ var Build = class {
     return solid;
   }
 };
-async function buildCad(document, maxFacets) {
+function buildCad(document, maxFacets) {
+  return withSolid(document, maxFacets, (solid, build) => {
+    const shaded = build.keep(solid.calculateNormals(NORMAL_CHANNEL, SHARP_ANGLE));
+    const out = shaded.getMesh(NORMAL_CHANNEL);
+    return { mesh: toCadMesh(out, build.colors, document.model.name ?? "model"), volume: solid.volume() };
+  });
+}
+function drawCad(document, maxFacets, z) {
+  return withSolid(document, maxFacets, (solid, build) => {
+    const section = build.keep(z === void 0 ? solid.project() : solid.slice(z));
+    const colored = [...build.colors.values()].some((c) => c !== null);
+    return { contours: section.toPolygons(), colored };
+  });
+}
+async function withSolid(document, maxFacets, read) {
   const m = await loadManifold();
   const build = new Build(m, document.segments ?? DEFAULT_SEGMENTS, maxFacets);
   try {
@@ -591,9 +605,7 @@ async function buildCad(document, maxFacets) {
       throw new RenderError("E_INPUT", `the solid operations failed: ${String(status)}`);
     }
     build.checkFacets(solid);
-    const shaded = build.keep(solid.calculateNormals(NORMAL_CHANNEL, SHARP_ANGLE));
-    const out = shaded.getMesh(NORMAL_CHANNEL);
-    return { mesh: toCadMesh(out, build.colors, document.model.name ?? "model"), volume: solid.volume() };
+    return read(solid, build);
   } finally {
     build.free();
   }
@@ -707,17 +719,19 @@ function readMeshOptions(format, options) {
   return { linearUnit: unit };
 }
 var DEFAULT_DEPS = { readCad, buildCad };
+function readCadRequest(request) {
+  if (typeof request.source !== "string")
+    throw new RenderError("E_INPUT", "cad takes JSON text, not bytes");
+  const { maxCadNodes, maxCadFacets } = request.settings;
+  return parseCadDocument(request.source, { maxNodes: maxCadNodes, maxFacets: maxCadFacets }).document;
+}
 async function readMeshes(request, deps = {}) {
   const d = { ...DEFAULT_DEPS, ...deps };
   let meshes;
   if (request.type === "cad") {
-    if (typeof request.source !== "string")
-      throw new RenderError("E_INPUT", "cad takes JSON text, not bytes");
     for (const key of Object.keys(request.options))
       throw new RenderError("E_INPUT", `cad takes no option ${key}`);
-    const { maxCadNodes, maxCadFacets } = request.settings;
-    const checked = parseCadDocument(request.source, { maxNodes: maxCadNodes, maxFacets: maxCadFacets });
-    meshes = [(await d.buildCad(checked.document, maxCadFacets)).mesh];
+    meshes = [(await d.buildCad(readCadRequest(request), request.settings.maxCadFacets)).mesh];
   } else {
     const format = request.type;
     if (!FORMATS.includes(format)) {
@@ -744,9 +758,11 @@ async function render(request, deps = {}) {
 export {
   DEFAULT_COLOUR,
   triangleGroups,
+  drawCad,
   GLB_COPIES,
   estimateGlbBytes,
   readMeshOptions,
+  readCadRequest,
   readMeshes,
   render
 };

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-11-06
+
+### Added
+
+- `render` with `type: "cad"` accepts `format: "dxf"`, from sciengjs 1.0.5. A DXF file is a 2D drawing in the X-Y plane: the outline of the part, or with `options: { z }` the section at that height. The `/scieng-mcp:cad` command, the skill and the README list the format.
+
 ## [1.0.5] - 2026-11-05
 
 ### Added
