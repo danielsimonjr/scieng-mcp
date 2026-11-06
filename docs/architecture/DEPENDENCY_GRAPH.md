@@ -4,7 +4,7 @@
 
 # scieng-mcp - Dependency Graph
 
-**Version**: 0.11.0
+**Version**: 1.0.2
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -114,8 +114,12 @@ The codebase is organized into the following modules:
 **Node.js Built-in Dependencies:**
 | Module | Import |
 |--------|--------|
-| `fs` | `readFileSync, writeFileSync, renameSync, rmSync` |
-| `path` | `basename, dirname, join` |
+| `fs` | `readFileSync` |
+
+**Internal Dependencies:**
+| File | Imports | Type |
+|------|---------|------|
+| `./render-lib.ts` | `writeOutput` | Import |
 
 **Exports:**
 - Interfaces: `EditResult`
@@ -310,16 +314,16 @@ The codebase is organized into the following modules:
 | File | Imports From | Exports To |
 |------|--------------|------------|
 | `src/tools` | 9 files | 1 file |
+| `src/render-lib` | 0 files | 7 files |
 | `src/engine-config` | 0 files | 6 files |
-| `src/render-lib` | 0 files | 6 files |
 | `src/render-dot` | 2 files | 2 files |
 | `src/render-latex` | 2 files | 2 files |
 | `src/render-mermaid` | 2 files | 2 files |
 | `smoke/render.smoke` | 3 files | 0 files |
 | `src/render-any` | 2 files | 1 file |
 | `src/render-markdown` | 2 files | 1 file |
+| `src/ooxml-edit` | 1 file | 1 file |
 | `src/index` | 1 file | 0 files |
-| `src/ooxml-edit` | 0 files | 1 file |
 | `src/render-html` | 0 files | 1 file |
 | `plugin/skills/scieng/engineering-patterns` | 0 files | 0 files |
 | `plugin/skills/scieng/stubs/docx.d` | 0 files | 0 files |
@@ -367,6 +371,7 @@ graph TD
     N2 --> N11
     N2 --> N8
     N13 --> N12
+    N4 --> N9
     N5 --> N9
     N5 --> N3
     N6 --> N9
@@ -397,7 +402,7 @@ graph TD
 |----------|-------|
 | Total Source Files | 33 |
 | Subsystems | 4 |
-| Total Lines of Code | 5023 |
+| Total Lines of Code | 5121 |
 | Total Exports | 96 |
 | Total Re-exports | 0 |
 | Total Classes | 12 |
@@ -413,4 +418,4 @@ graph TD
 
 ---
 
-*Version*: 0.11.0
+*Version*: 1.0.2

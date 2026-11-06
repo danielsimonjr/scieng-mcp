@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "scieng-mcp",
-    "version": "0.11.0",
+    "version": "1.0.2",
     "schemaVersion": "2.0.0",
     "language": "typescript"
   },
@@ -218,22 +218,18 @@
           {
             "module": "fs",
             "imports": [
-              "readFileSync",
-              "writeFileSync",
-              "renameSync",
-              "rmSync"
-            ]
-          },
-          {
-            "module": "path",
-            "imports": [
-              "basename",
-              "dirname",
-              "join"
+              "readFileSync"
             ]
           }
         ],
-        "internalDependencies": [],
+        "internalDependencies": [
+          {
+            "file": "./render-lib.ts",
+            "imports": [
+              "writeOutput"
+            ]
+          }
+        ],
         "workspaceDependencies": [],
         "exports": [
           "assertNoDoctype",

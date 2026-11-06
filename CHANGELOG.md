@@ -2,8 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- CI job "Architecture docs". The job runs `repo-tools check` against `docs/architecture` and `repo-tools docs check src`, with repo-tools pinned to 2.5.0. A stale count in a Verification table now fails CI. `repo-tools map` writes the corrected value.
+
 ### Fixed
 
+- `OVERVIEW.md` stated 5023 lines of code. `repo-tools map` wrote the measured value, 5121.
 - The `ooxml_replace` tool writes through `writeOutput`, with a unique temporary name. Before this fix, it used the fixed name `.<file>.<pid>.tmp`, so it overwrote a file with that name, and two edits of one file at the same time shared one temporary file.
 
 ## [1.0.2] - 2026-11-05
