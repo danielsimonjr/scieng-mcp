@@ -138,7 +138,8 @@ var CdpConnection = class {
 function runtimeSocket(address) {
   return new WebSocket(address);
 }
-function connectCdp(address, deadline, makeSocket = runtimeSocket) {
+function connectCdp(address, deadline, makeSocket = runtimeSocket, context) {
+  const started = Date.now();
   const socket = makeSocket(address);
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -152,7 +153,9 @@ function connectCdp(address, deadline, makeSocket = runtimeSocket) {
     const timer = setTimeout(() => {
       settle(() => {
         socket.close();
-        reject(new RenderError("E_TIMEOUT", `the DevTools socket ${address} did not open in time`));
+        const waited = ((Date.now() - started) / 1e3).toFixed(1);
+        const more = context === void 0 ? "" : `; ${context()}`;
+        reject(new RenderError("E_TIMEOUT", `the DevTools socket ${address} did not open in time: it waited ${waited} s${more}`));
       });
     }, Math.max(0, deadline - Date.now()));
     socket.addEventListener("open", () => settle(() => resolve(new CdpConnection(socket))));
@@ -424,10 +427,12 @@ var Interceptor = class {
   }
 };
 async function capturePage(cdp, req, deadline) {
-  const step = { name: "Target.setAutoAttach", at: Date.now() };
+  const step = { name: "Target.setAutoAttach", at: Date.now(), faults: [] };
   return withDeadline(capture(cdp, req, step), deadline, () => {
     const seconds = ((Date.now() - step.at) / 1e3).toFixed(1);
-    return `the page did not load in time: the capture was at the step "${step.name}" for ${seconds} s`;
+    const fault = step.faults[0];
+    const cause = fault === void 0 ? "" : `; the browser rejected a page request: ${fault.message}`;
+    return `the page did not load in time: the capture was at the step "${step.name}" for ${seconds} s${cause}`;
   });
 }
 async function capture(cdp, req, step) {
@@ -436,6 +441,7 @@ async function capture(cdp, req, step) {
     step.at = Date.now();
   };
   const guard = new Interceptor(cdp, req.html, req.pinned ?? /* @__PURE__ */ new Map());
+  step.faults = guard.faults;
   cdp.on("Target.attachedToTarget", void 0, (params) => {
     const { sessionId, targetInfo } = params;
     if (targetInfo.type === "page") {
@@ -633,8 +639,14 @@ async function renderHtmlPage(req) {
       throw new RenderError("E_STAGE_MISSING", `cannot start the browser at ${req.browser}: ${err.message}`);
     }
     state = watchChild(child, req.browser);
+    const launched = Date.now();
     const address = await waitForBrowser(profile, state, deadline);
-    cdp = await connectCdp(address, deadline);
+    const portSeconds = ((Date.now() - launched) / 1e3).toFixed(1);
+    const launch = state;
+    cdp = await connectCdp(address, deadline, void 0, () => {
+      const browser = launch.exited ? `exited with ${launch.code ?? launch.signal}` : "is still running";
+      return `the browser published its port ${portSeconds} s after the launch, and the browser ${browser}`;
+    });
     cdp.setDeadline(deadline);
     return await capturePage(cdp, req, deadline);
   } finally {

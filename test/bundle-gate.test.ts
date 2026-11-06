@@ -155,6 +155,10 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     assert.equal(stlBytes.length, 84 + 50 * facets);
     const cadGlb = await callTool(s, 13, "render", { type: "cad", format: "glb", source: cadSource, output_path: join(dir, "cad.glb") });
     assert.equal(readFileSync(cadGlb.path).subarray(0, 4).toString("latin1"), "glTF");
+    const cad3mf = await callTool(s, 113, "render", { type: "cad", format: "3mf", source: cadSource, output_path: join(dir, "part.3mf") });
+    const package3mf = readFileSync(cad3mf.path);
+    assert.equal(package3mf.subarray(0, 2).toString("latin1"), "PK");
+    assert.ok(package3mf.includes('unit="millimeter"'), "the 3mf holds no model part");
 
     // A SysML source goes through the engine parser, a view and the graph stage.
     const sysmlSource = "part def Car { part wheels : Wheel [4]; } part def Wheel;";

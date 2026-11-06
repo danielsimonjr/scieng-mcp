@@ -1,12 +1,12 @@
 ---
-description: Build a CAD model from a CSG document (cubes, cylinders, spheres, extrusions, booleans, transforms) and render it locally to an STL file, a glb model, an HTML viewer page or a PNG image.
-argument-hint: "[--format stl|glb|html|png] [--out <folder>] <a description of the part, or the path of a .json CAD document>"
+description: Build a CAD model from a CSG document (cubes, cylinders, spheres, extrusions, booleans, transforms) and render it locally to an STL file, a 3MF file, a glb model, an HTML viewer page or a PNG image.
+argument-hint: "[--format stl|3mf|glb|html|png] [--out <folder>] <a description of the part, or the path of a .json CAD document>"
 ---
 
 Build a CAD model from: $ARGUMENTS
 
 1. Load the `scieng` skill. Use the output rules of the skill.
-2. Read the arguments. `--format` sets the output: `html` (the default), `stl`, `glb` or `png`. `--out <folder>` sets the output folder. The rest is a description of the part, or the path of a `.json` CAD document. When the arguments hold no description and no path, ask for one and stop.
+2. Read the arguments. `--format` sets the output: `html` (the default), `stl`, `3mf`, `glb` or `png`. A `3mf` file keeps the colours and the names of the part; an STL file does not. `--out <folder>` sets the output folder. The rest is a description of the part, or the path of a `.json` CAD document. When the arguments hold no description and no path, ask for one and stop.
 3. With a description, write the CAD document. Never invent a dimension. When a dimension is missing, ask for it and stop.
    - The document is `{"version": 1, "model": <node>, "segments": <optional, 3 to 1024>}`.
    - Each node names its kind in the key `type`, for example `{"type": "cube", "size": [10, 10, 10]}`.
@@ -21,5 +21,5 @@ Build a CAD model from: $ARGUMENTS
 4. Save the document as `<name>.json` in the output folder.
 5. Call `render` with `type` set to `cad` and the `format`. Set `input_path` to the `.json` file. Set `output_path` to `<name>.<format>` in the output folder. For `png`, set `options.width` and `options.height` when the user gives a size.
 6. Read the tool result. A result with `"status":"error"` is a failure. Report its code. `E_INPUT` gives the JSON path of the bad value. Correct the document and render again. Stop after three tries. `E_LIMIT` means that the model has too many nodes or facets: reduce `segments`. `E_STAGE_MISSING` for `png` means that the configuration names no browser: name the `SCIENG_BROWSER` environment variable.
-7. Check that the file exists and that its size is more than 0. A `glb` file starts with `glTF`. An STL file holds 84 bytes plus 50 bytes for each facet. STL holds no colour, so the result warns for a coloured model.
+7. Check that the file exists and that its size is more than 0. A `glb` file starts with `glTF`. An STL file holds 84 bytes plus 50 bytes for each facet. A `3mf` file starts with `PK`. STL holds no colour, so the result warns for a coloured model.
 8. Open an HTML page in the browser. Give the full path of the document and the output, and the warnings of the result.

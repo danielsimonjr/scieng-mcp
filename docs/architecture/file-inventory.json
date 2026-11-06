@@ -145,7 +145,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 284
+      "loc": 288
     },
     {
       "file": "test/docs-latex.test.ts",

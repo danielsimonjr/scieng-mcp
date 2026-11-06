@@ -742,6 +742,8 @@ async function render(request, deps = {}) {
 }
 
 export {
+  DEFAULT_COLOUR,
+  triangleGroups,
   GLB_COPIES,
   estimateGlbBytes,
   readMeshOptions,

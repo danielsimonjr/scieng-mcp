@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-05
+
+### Added
+
+- `render` with `type: "cad"` accepts `format: "3mf"`, from sciengjs 1.0.4. A 3MF file keeps the colours and the names of the part. The `/scieng-mcp:cad` command, the skill and the README list the format.
+
 ## [1.0.4] - 2026-11-05
 
 ### Changed
