@@ -36346,14 +36346,17 @@ function latexScale(format, scale, dpi) {
   warnings.push(`dpi is deprecated; use scale (dpi ${dpi} gives scale ${dpi / 100})`);
   return { scale: dpi / 100, warnings };
 }
+function sourceRenderHandler(formats, render2) {
+  return async (raw) => {
+    const format = formats.parse(raw?.format ?? "svg");
+    const { code, out } = resolveRenderIo(raw, { format: formats.optional() }, `.${format}`);
+    const res = await render2(code, out, format);
+    return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
+  };
+}
 function makeHandlers() {
   return {
-    render_mermaid: async (raw) => {
-      const format = MermaidFormat.parse(raw?.format ?? "svg");
-      const { code, out } = resolveRenderIo(raw, { format: MermaidFormat.optional() }, `.${format}`);
-      const res = await renderMermaidSource(code, out, format);
-      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
-    },
+    render_mermaid: sourceRenderHandler(MermaidFormat, renderMermaidSource),
     render: async (raw) => {
       const pre = external_exports.object({ format: external_exports.enum(OUTPUT_FORMATS), type: external_exports.enum(INPUT_TYPES) }).passthrough().parse(raw ?? {});
       const format = pre.format;
@@ -36368,12 +36371,7 @@ function makeHandlers() {
       const { code, out } = resolveRenderIo(raw, RenderAnyExtra, `.${format}`);
       return JSON.stringify(await renderAny(pre.type, format, code, out, options));
     },
-    render_dot: async (raw) => {
-      const format = DotFormat.parse(raw?.format ?? "svg");
-      const { code, out } = resolveRenderIo(raw, { format: DotFormat.optional() }, `.${format}`);
-      const res = await renderDotSource(code, out, format);
-      return JSON.stringify({ path: out, bytes: res.bytes, warnings: res.warnings });
-    },
+    render_dot: sourceRenderHandler(DotFormat, renderDotSource),
     capabilities: async (raw) => {
       NoArgs.parse(raw ?? {});
       return JSON.stringify({ capabilities: await capabilities(engineConfig()) });

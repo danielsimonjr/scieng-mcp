@@ -60,7 +60,7 @@ This report lists each source file that the map census finds, with a disposition
 | `src/render-lib.ts` | scieng-mcp | src | reachable | 156 |
 | `src/render-markdown.ts` | scieng-mcp | src | reachable | 249 |
 | `src/render-mermaid.ts` | scieng-mcp | src | reachable | 23 |
-| `src/tools.ts` | scieng-mcp | src | reachable | 353 |
+| `src/tools.ts` | scieng-mcp | src | reachable | 359 |
 | `test/bundle-gate.test.ts` | (root) | tests | test | 284 |
 | `test/docs-latex.test.ts` | (root) | tests | test | 21 |
 | `test/engine-config.test.ts` | (root) | tests | test | 15 |
