@@ -2,8 +2,11 @@
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-05
+
 ### Changed
 
+- The engine is sciengjs 1.0.3: a browser capture that times out names the page request that the browser rejected.
 - The header of `src/ooxml-edit.ts` no longer says "zero-dependency". The file imports `render-lib.ts`.
 - `render_mermaid` and `render_dot` share one handler, `sourceRenderHandler` in `src/tools.ts`. The two handlers were exact copies. The behavior is unchanged.
 
