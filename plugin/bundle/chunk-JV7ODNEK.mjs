@@ -583,9 +583,63 @@ function buildCad(document, maxFacets) {
 }
 function drawCad(document, maxFacets, z) {
   return withSolid(document, maxFacets, (solid, build) => {
-    const section = build.keep(z === void 0 ? solid.project() : solid.slice(z));
     const colored = [...build.colors.values()].some((c) => c !== null);
-    return { contours: section.toPolygons(), colored };
+    return { contours: contoursAt(solid, build, z), colored };
+  });
+}
+function contoursAt(solid, build, z) {
+  return build.keep(z === void 0 ? solid.project() : solid.slice(z)).toPolygons();
+}
+async function drawMeshes(meshes, maxFacets, z) {
+  const triangles = meshes.reduce((n, mesh) => n + mesh.indices.length / 3, 0);
+  if (triangles > maxFacets) {
+    throw new RenderError("E_LIMIT", `the model has ${triangles} facets; the limit is ${maxFacets}`);
+  }
+  const colored = meshes.some((mesh) => mesh.faces.some((face) => face.color !== null));
+  return withSolidOf(DEFAULT_SEGMENTS, maxFacets, (build) => importedSolid(build, meshes), (solid, build) => ({ contours: contoursAt(solid, build, z), colored }));
+}
+function importedSolid(build, meshes) {
+  const { Manifold, Mesh } = build.m;
+  const parts = meshes.map((mesh, index) => {
+    const name = mesh.name === "" ? String(index) : JSON.stringify(mesh.name);
+    const input = new Mesh({ numProp: 3, vertProperties: mesh.positions, triVerts: mesh.indices });
+    input.merge();
+    let solid;
+    try {
+      solid = build.keep(Manifold.ofMesh(input));
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new RenderError("E_INPUT", `mesh ${name} is not a closed solid: its vertices could not be welded into a closed solid (${reason})`);
+    }
+    if (solid.volume() < 0)
+      throw new RenderError("E_INPUT", `mesh ${name} is not a closed solid: its faces turn inward`);
+    return solid;
+  });
+  if (parts.length === 1)
+    return parts[0];
+  return build.keep(Manifold.union(parts));
+}
+function contoursWithArea(contours) {
+  return contours.filter((c) => Math.abs(shoelace(c)) >= 1e-6);
+}
+function shoelace(points) {
+  let sum = 0;
+  for (let i = 0; i < points.length; i++) {
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[(i + 1) % points.length];
+    sum += x1 * y2 - x2 * y1;
+  }
+  return sum / 2;
+}
+function drawCadViews(document, maxFacets) {
+  return withSolid(document, maxFacets, (solid, build) => {
+    const { min, max } = solid.boundingBox();
+    const top = contoursWithArea(build.keep(solid.project()).toPolygons());
+    const front = contoursWithArea(build.keep(build.keep(solid.rotate([-90, 0, 0])).project()).toPolygons());
+    const turned = build.keep(solid.rotate([0, 0, -90]));
+    const right = contoursWithArea(build.keep(build.keep(turned.rotate([-90, 0, 0])).project()).toPolygons());
+    const colored = [...build.colors.values()].some((c) => c !== null);
+    return { top, front, right, min: [...min], max: [...max], colored };
   });
 }
 var SECTION_AXES = [
@@ -752,13 +806,16 @@ function persists(build, turned, at, pieces, min, find) {
   }
   return covered.some((c) => !c);
 }
-async function withSolid(document, maxFacets, read) {
+function withSolid(document, maxFacets, read) {
+  return withSolidOf(document.segments ?? DEFAULT_SEGMENTS, maxFacets, (build) => build.solid(document.model, null), read);
+}
+async function withSolidOf(segments, maxFacets, make, read) {
   const m = await loadManifold();
-  const build = new Build(m, document.segments ?? DEFAULT_SEGMENTS, maxFacets);
+  const build = new Build(m, segments, maxFacets);
   try {
     let solid;
     try {
-      solid = build.solid(document.model, null);
+      solid = make(build);
     } catch (error) {
       if (error instanceof RenderError)
         throw error;
@@ -923,6 +980,8 @@ export {
   DEFAULT_COLOUR,
   triangleGroups,
   drawCad,
+  drawMeshes,
+  drawCadViews,
   WALL_SECTIONS,
   measureCad,
   GLB_COPIES,
