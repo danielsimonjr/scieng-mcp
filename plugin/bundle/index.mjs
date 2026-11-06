@@ -6,7 +6,7 @@ import {
 } from "./chunk-VHCRZQSZ.mjs";
 import {
   loadConfig
-} from "./chunk-2PW5RXKP.mjs";
+} from "./chunk-GQ22XQKF.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -35159,6 +35159,7 @@ var PAIRS = [
   { type: "cad", format: "stl", stage: "mesh" },
   { type: "cad", format: "3mf", stage: "mesh" },
   { type: "cad", format: "dxf", stage: "mesh" },
+  { type: "cad", format: "md", stage: "mesh" },
   { type: "html", format: "png", stage: "browser" },
   { type: "html", format: "pdf", stage: "browser" },
   { type: "html", format: "md", stage: "html" }
@@ -35213,6 +35214,7 @@ var DEFAULT_REGISTRY = {
   "cad:stl": { backend: "mesh/manifold+stl", moduleUrl: backendUrl("mesh/backend-stl") },
   "cad:3mf": { backend: "mesh/manifold+3mf", moduleUrl: backendUrl("mesh/backend-3mf") },
   "cad:dxf": { backend: "mesh/manifold+dxf", moduleUrl: backendUrl("mesh/backend-dxf") },
+  "cad:md": { backend: "mesh/manifold+dfm", moduleUrl: backendUrl("mesh/backend-dfm") },
   "cad:html": { backend: "mesh/manifold+viewer", moduleUrl: backendUrl("mesh/backend-html") },
   "cad:png": { backend: "mesh/manifold+viewer+browser/chromium", moduleUrl: backendUrl("mesh/backend-png") },
   "tikz:svg": { backend: "tex/etex", moduleUrl: backendUrl("tex/backend-svg"), preload: texPreload },
@@ -36409,7 +36411,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "1.0.6" : "0.0.0-dev";
+var VERSION = true ? "1.0.7" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

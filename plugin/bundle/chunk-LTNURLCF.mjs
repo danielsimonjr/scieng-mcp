@@ -588,6 +588,62 @@ function drawCad(document, maxFacets, z) {
     return { contours: section.toPolygons(), colored };
   });
 }
+var SECTION_AXES = [
+  { axis: "X", index: 0, angles: [0, -90, 0] },
+  { axis: "Y", index: 1, angles: [90, 0, 0] },
+  { axis: "Z", index: 2, angles: [0, 0, 0] }
+];
+var OFFSET_SEGMENTS = 32;
+var WALL_SECTIONS = 32;
+function measureCad(document, maxFacets, minWall) {
+  return withSolid(document, maxFacets, (solid, build) => {
+    if (solid.numTri() === 0)
+      throw new RenderError("E_INPUT", "the model holds no solid");
+    const { min, max } = solid.boundingBox();
+    const mesh = solid.getMesh();
+    const positions = new Float32Array(mesh.vertProperties.length / mesh.numProp * 3);
+    for (let v = 0; v < positions.length / 3; v++) {
+      for (let c = 0; c < 3; c++)
+        positions[v * 3 + c] = mesh.vertProperties[v * mesh.numProp + c];
+    }
+    const thin = [];
+    for (const { axis, index, angles } of SECTION_AXES) {
+      const turned = index === 2 ? solid : build.keep(solid.rotate([...angles]));
+      const lo = min[index];
+      const step = (max[index] - lo) / WALL_SECTIONS;
+      for (let i = 0; i < WALL_SECTIONS; i++) {
+        const at = lo + (i + 0.5) * step;
+        const area = thinArea(build, build.keep(turned.slice(at)), minWall);
+        if (area > 0)
+          thin.push({ axis, at, area });
+      }
+    }
+    return {
+      min: [...min],
+      max: [...max],
+      volume: solid.volume(),
+      area: solid.surfaceArea(),
+      positions,
+      triangles: Uint32Array.from(mesh.triVerts),
+      thin
+    };
+  });
+}
+function thinArea(build, section, minWall) {
+  const segments = OFFSET_SEGMENTS;
+  const half = minWall / 2 * (1 - 1e-6);
+  const corner = (1 - Math.PI / 4) * minWall * minWall;
+  const opened = build.keep(build.keep(section.offset(-half, "Round", 2, segments)).offset(half, "Round", 2, segments));
+  const removed = build.keep(build.keep(section.subtract(opened)).simplify(minWall / 1e3));
+  let area = 0;
+  for (const piece of removed.decompose()) {
+    build.keep(piece);
+    const pieceArea = piece.area();
+    if (pieceArea > corner || build.keep(piece.offset(-minWall / 8, "Round", 2, segments)).area() > 0)
+      area += pieceArea;
+  }
+  return area;
+}
 async function withSolid(document, maxFacets, read) {
   const m = await loadManifold();
   const build = new Build(m, document.segments ?? DEFAULT_SEGMENTS, maxFacets);
@@ -759,6 +815,8 @@ export {
   DEFAULT_COLOUR,
   triangleGroups,
   drawCad,
+  WALL_SECTIONS,
+  measureCad,
   GLB_COPIES,
   estimateGlbBytes,
   readMeshOptions,

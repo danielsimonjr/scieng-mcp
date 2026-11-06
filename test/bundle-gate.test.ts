@@ -162,6 +162,9 @@ test("render_dot and capabilities run from the built bundle, offline, with no no
     const cadDxf = await callTool(s, 114, "render", { type: "cad", format: "dxf", source: cadSource, options: { z: 0 }, output_path: join(dir, "part.dxf") });
     const drawing = readFileSync(cadDxf.path, "latin1");
     assert.ok(drawing.includes("AC1009") && drawing.includes("POLYLINE") && drawing.trimEnd().endsWith("EOF"), "the dxf holds no drawing");
+    const cadMd = await callTool(s, 115, "render", { type: "cad", format: "md", source: cadSource, options: { minWall: 0.8 }, output_path: join(dir, "part-dfm.md") });
+    const report = readFileSync(cadMd.path, "utf8");
+    assert.ok(report.startsWith("# Design for manufacture") && report.includes("| Overhang |") && report.includes("| Minimum wall |"), "the md holds no report of the design for manufacture");
 
     // A SysML source goes through the engine parser, a view and the graph stage.
     const sysmlSource = "part def Car { part wheels : Wheel [4]; } part def Wheel;";
