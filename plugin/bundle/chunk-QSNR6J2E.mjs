@@ -323,7 +323,7 @@ async function waitForBrowser(profile, state, deadline) {
 async function withDeadline(work, deadline, message) {
   let timer;
   const expired = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new RenderError("E_TIMEOUT", message)), Math.max(0, deadline - Date.now()));
+    timer = setTimeout(() => reject(new RenderError("E_TIMEOUT", typeof message === "string" ? message : message())), Math.max(0, deadline - Date.now()));
   });
   try {
     return await Promise.race([work, expired]);
@@ -339,6 +339,7 @@ var Interceptor = class {
   faults = [];
   guarded = /* @__PURE__ */ new Set();
   sessions = /* @__PURE__ */ new Map();
+  failedTargets = /* @__PURE__ */ new Map();
   sessionWaiters = /* @__PURE__ */ new Map();
   constructor(cdp, html, pinned) {
     this.cdp = cdp;
@@ -369,16 +370,24 @@ var Interceptor = class {
     const { sessionId, targetInfo } = params;
     this.guard(sessionId, targetInfo.type).then(() => {
       this.sessions.set(targetInfo.targetId, sessionId);
-      this.sessionWaiters.get(targetInfo.targetId)?.(sessionId);
+      this.sessionWaiters.get(targetInfo.targetId)?.resolve(sessionId);
       return this.cdp.send("Runtime.runIfWaitingForDebugger", {}, sessionId);
-    }).catch(this.record);
+    }).catch((err) => {
+      const cause = err instanceof Error ? err : new Error(String(err));
+      this.failedTargets.set(targetInfo.targetId, cause);
+      this.sessionWaiters.get(targetInfo.targetId)?.reject(cause);
+      this.record(err);
+    });
   }
   /** The session of a target, once the target is attached and guarded. */
   sessionOf(targetId) {
     const known = this.sessions.get(targetId);
     if (known !== void 0)
       return Promise.resolve(known);
-    return new Promise((resolve) => this.sessionWaiters.set(targetId, resolve));
+    const failed = this.failedTargets.get(targetId);
+    if (failed !== void 0)
+      return Promise.reject(failed);
+    return new Promise((resolve, reject) => this.sessionWaiters.set(targetId, { resolve, reject }));
   }
   paused(sessionId, params) {
     const cdp = this.cdp;
@@ -415,9 +424,17 @@ var Interceptor = class {
   }
 };
 async function capturePage(cdp, req, deadline) {
-  return withDeadline(capture(cdp, req), deadline, "the page did not load in time");
+  const step = { name: "Target.setAutoAttach", at: Date.now() };
+  return withDeadline(capture(cdp, req, step), deadline, () => {
+    const seconds = ((Date.now() - step.at) / 1e3).toFixed(1);
+    return `the page did not load in time: the capture was at the step "${step.name}" for ${seconds} s`;
+  });
 }
-async function capture(cdp, req) {
+async function capture(cdp, req, step) {
+  const enter = (name) => {
+    step.name = name;
+    step.at = Date.now();
+  };
   const guard = new Interceptor(cdp, req.html, req.pinned ?? /* @__PURE__ */ new Map());
   cdp.on("Target.attachedToTarget", void 0, (params) => {
     const { sessionId, targetInfo } = params;
@@ -428,7 +445,9 @@ async function capture(cdp, req) {
     }
   });
   await cdp.send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: true, flatten: true });
+  enter("Target.createTarget");
   const target = await cdp.send("Target.createTarget", { url: "about:blank" });
+  enter("the guard of the page session");
   const s = await guard.sessionOf(target.targetId);
   const loads = /* @__PURE__ */ new Set();
   let onLoad;
@@ -439,16 +458,21 @@ async function capture(cdp, req) {
       onLoad?.();
     }
   });
+  enter("Page.enable");
   await cdp.send("Page.enable", {}, s);
+  enter("Page.setLifecycleEventsEnabled");
   await cdp.send("Page.setLifecycleEventsEnabled", { enabled: true }, s);
   if (req.format === "png" && req.awaitDone !== true) {
+    enter("Emulation.setDeviceMetricsOverride");
     await cdp.send("Emulation.setDeviceMetricsOverride", { width: req.width, height: req.height, deviceScaleFactor: req.scale, mobile: false }, s);
   }
+  enter("Page.navigate");
   const nav = await cdp.send("Page.navigate", { url: PAGE_URL }, s);
   if (nav.errorText !== void 0 && nav.errorText !== "") {
     throw new RenderError("E_INTERNAL", `the browser did not load the page: ${nav.errorText}`);
   }
   const loaderId = nav.loaderId ?? "";
+  enter("waiting for the load event");
   if (!loads.has(loaderId)) {
     await new Promise((resolve) => {
       onLoad = () => {
@@ -457,6 +481,7 @@ async function capture(cdp, req) {
       };
     });
   }
+  enter("the output of the page");
   let bytes;
   if (req.awaitReady === true) {
     const done = await awaitDoneReport(cdp, s);

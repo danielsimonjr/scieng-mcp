@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-05
+
+### Changed
+
+- The bundle uses sciengjs 1.0.2. A browser render that cannot guard its page fails at once with the cause, and a browser render that runs out of time names its step.
+
 ## [1.0.1] - 2026-11-05
 
 ### Changed
