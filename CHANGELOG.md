@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `docs/architecture/OVERVIEW.md` gives the line count of 5137 in its three places. The 1.0.7 test change made the gated value stale, and two prose values were stale from earlier releases.
+
 ## [1.0.7] - 2026-11-06
 
 ### Added
