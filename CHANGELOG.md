@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- The `ooxml_replace` tool writes through `writeOutput`, with a unique temporary name. Before this fix, it used the fixed name `.<file>.<pid>.tmp`, so it overwrote a file with that name, and two edits of one file at the same time shared one temporary file.
+
 ## [1.0.2] - 2026-11-05
 
 ### Changed

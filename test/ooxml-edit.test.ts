@@ -55,6 +55,19 @@ test("assertNoDoctype throws on DOCTYPE/ENTITY", () => {
   assert.doesNotThrow(() => assertNoDoctype("<w:document/>"));
 });
 
+test("applyEdits leaves a file that holds its old fixed temporary name untouched, and leaves no temp file", () => {
+  const dir = mkdtempSync(join(tmpdir(), "oox-tmp-"));
+  const p = join(dir, "document.xml");
+  writeFileSync(p, `<w:document><w:r><w:t>old</w:t></w:r></w:document>`);
+  const bystander = join(dir, `.document.xml.${process.pid}.tmp`);
+  writeFileSync(bystander, "not mine");
+  const r = applyEdits(p, [{ find: "old", replace: "new" }]);
+  assert.equal(r.written, true);
+  assert.match(readFileSync(p, "utf-8"), />new</);
+  assert.equal(readFileSync(bystander, "utf-8"), "not mine");
+  assert.deepEqual(readdirSync(dir).sort(), [`.document.xml.${process.pid}.tmp`, "document.xml"].sort());
+});
+
 test("applyEdits edits document.xml in place and reports counts", () => {
   const dir = mkdtempSync(join(tmpdir(), "oox-"));
   const p = join(dir, "document.xml");
