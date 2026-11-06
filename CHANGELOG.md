@@ -4,6 +4,7 @@
 
 ### Changed
 
+- The header of `src/ooxml-edit.ts` no longer says "zero-dependency". The file imports `render-lib.ts`.
 - `render_mermaid` and `render_dot` share one handler, `sourceRenderHandler` in `src/tools.ts`. The two handlers were exact copies. The behavior is unchanged.
 
 ## [1.0.3] - 2026-11-05
