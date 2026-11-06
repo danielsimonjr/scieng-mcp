@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-05
+
 ### Added
 
 - CI job "Architecture docs". The job runs `repo-tools check` against `docs/architecture` and `repo-tools docs check src`, with repo-tools pinned to 2.5.0. A stale count in a Verification table now fails CI. `repo-tools map` writes the corrected value.
