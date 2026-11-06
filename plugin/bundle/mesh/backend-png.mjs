@@ -10,7 +10,7 @@ import {
 } from "../chunk-UDEV2G2S.mjs";
 import {
   renderHtmlPage
-} from "../chunk-R4B2RV3A.mjs";
+} from "../chunk-QSNR6J2E.mjs";
 import {
   blockedWarnings,
   browserPathOf,
