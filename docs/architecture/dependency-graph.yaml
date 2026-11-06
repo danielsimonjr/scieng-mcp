@@ -114,8 +114,11 @@ modules:
       externalDependencies: []
       nodeDependencies:
         - node:fs
-        - node:path
-      internalDependencies: []
+      internalDependencies:
+        - file: src/render-lib.ts
+          imports:
+            - writeOutput
+          typeOnly: false
       exports:
         - assertNoDoctype
         - replaceInRuns
@@ -566,7 +569,7 @@ statistics:
   totalTypeScriptFiles: 33
   totalSourceFiles: 33
   totalModules: 3
-  totalLinesOfCode: 5023
+  totalLinesOfCode: 5121
   totalExports: 96
   entryRoots: 1
   reachableFiles: 11

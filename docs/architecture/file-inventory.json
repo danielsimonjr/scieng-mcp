@@ -47,7 +47,7 @@
       "package": "(root)",
       "area": "tools",
       "disposition": "tool",
-      "loc": 75
+      "loc": 82
     },
     {
       "file": "scripts/smoke-handshake.mjs",
@@ -82,7 +82,7 @@
       "package": "scieng-mcp",
       "area": "src",
       "disposition": "reachable",
-      "loc": 213
+      "loc": 206
     },
     {
       "file": "src/render-any.ts",
@@ -145,7 +145,7 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 205
+      "loc": 284
     },
     {
       "file": "test/docs-latex.test.ts",
@@ -180,14 +180,14 @@
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 199
+      "loc": 212
     },
     {
       "file": "test/plugin-content.test.ts",
       "package": "(root)",
       "area": "tests",
       "disposition": "test",
-      "loc": 163
+      "loc": 169
     },
     {
       "file": "test/render-any.test.ts",
