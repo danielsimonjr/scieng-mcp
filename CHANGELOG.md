@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.0.9] - 2026-11-06
+
 ### Added
 
 - `type: "cad"` renders to `format: "pdf"`, from sciengjs 1.0.8: a one-page third-angle drawing with three views, the overall dimensions and a title block (option `title`). The `/scieng-mcp:cad` command takes `--format pdf` and `--title`.
