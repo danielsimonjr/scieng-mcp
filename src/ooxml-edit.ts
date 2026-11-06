@@ -24,8 +24,8 @@ LIMITATIONS:
     documented XML patterns / comment.py instead.
 =============================================================================
 */
-import { readFileSync, writeFileSync, renameSync, rmSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
+import { writeOutput } from "./render-lib.ts";
 
 /** OOXML document.xml never legitimately carries a DOCTYPE/ENTITY declaration. This function refuses such a declaration.
  *  (defense-in-depth; this port does not use an entity-expanding parser). */
@@ -198,16 +198,9 @@ export function applyEdits(
     if (r.replaced) { xml = r.xml; made++; }
   }
   if (made > 0) {
-    // Write a temporary file in the same folder, then rename it over the target. A crash leaves the old file or the new one, never a half-written file.
-    const tmp = join(dirname(documentXmlPath), `.${basename(documentXmlPath)}.${process.pid}.tmp`);
-    try {
-      writeFileSync(tmp, xml, "utf-8");
-      renameSync(tmp, documentXmlPath);
-    } catch (err) {
-      // Remove the temporary file, so a failed call leaves no partial copy beside the target.
-      rmSync(tmp, { force: true });
-      throw err;
-    }
+    // writeOutput writes a uniquely named temporary file in the same folder, then renames it over the target.
+    // A crash leaves the old file or the new one, never a half-written file, and a failed write leaves no temporary file.
+    writeOutput(documentXmlPath, xml);
   }
   return { results, replaced_count: made, written: made > 0 };
 }

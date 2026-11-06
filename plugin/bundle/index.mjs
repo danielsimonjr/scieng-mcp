@@ -35796,8 +35796,7 @@ async function resolveStaticBlocks(blocks, renderPlot) {
 }
 
 // src/ooxml-edit.ts
-import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, renameSync as renameSync2, rmSync as rmSync2 } from "node:fs";
-import { basename as basename2, dirname as dirname2, join as join2 } from "node:path";
+import { readFileSync as readFileSync2 } from "node:fs";
 function assertNoDoctype(xml) {
   const low = xml.toLowerCase();
   if (low.includes("<!doctype") || low.includes("<!entity")) {
@@ -35919,22 +35918,15 @@ function applyEdits(documentXmlPath, replacements, preserveSpace = true) {
     }
   }
   if (made > 0) {
-    const tmp = join2(dirname2(documentXmlPath), `.${basename2(documentXmlPath)}.${process.pid}.tmp`);
-    try {
-      writeFileSync2(tmp, xml, "utf-8");
-      renameSync2(tmp, documentXmlPath);
-    } catch (err) {
-      rmSync2(tmp, { force: true });
-      throw err;
-    }
+    writeOutput(documentXmlPath, xml);
   }
   return { results, replaced_count: made, written: made > 0 };
 }
 
 // src/render-markdown.ts
-import { existsSync, linkSync, mkdirSync as mkdirSync2, unlinkSync, writeFileSync as writeFileSync3 } from "node:fs";
+import { existsSync, linkSync, mkdirSync as mkdirSync2, unlinkSync, writeFileSync as writeFileSync2 } from "node:fs";
 import { randomUUID as randomUUID2 } from "node:crypto";
-import { basename as basename3, dirname as dirname3, extname as extname4, isAbsolute, join as join3 } from "node:path";
+import { basename as basename2, dirname as dirname2, extname as extname4, isAbsolute, join as join2 } from "node:path";
 var DEVICE_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
 function assetFilePath(dir, name) {
   if (name === "") throw new Error("asset name must not be empty");
@@ -35944,7 +35936,7 @@ function assetFilePath(dir, name) {
   if (DEVICE_NAME.test(name)) throw new Error(`asset name must not be a device name: ${name}`);
   if (/[. ]$/.test(name)) throw new Error("asset name must not end in a dot or a space");
   if (isAbsolute(name)) throw new Error("asset name must not be an absolute path");
-  return join3(dir, name);
+  return join2(dir, name);
 }
 function numbered(name, n) {
   if (n === 1) return name;
@@ -36028,7 +36020,7 @@ function rewriteImageLinks(md, map2) {
   flush();
   return out.join("\n");
 }
-var realFs = { writeFile: (p, d, o) => writeFileSync3(p, d, o) };
+var realFs = { writeFile: (p, d, o) => writeFileSync2(p, d, o) };
 var isExists = (e) => e.code === "EEXIST";
 async function htmlToMarkdownFile(a, engine = render, fs = realFs) {
   const hasHtml = typeof a.html === "string";
@@ -36050,18 +36042,18 @@ async function htmlToMarkdownFile(a, engine = render, fs = realFs) {
     },
     engineConfig()
   );
-  const dir = dirname3(a.output_path);
+  const dir = dirname2(a.output_path);
   const assets = res.assets ?? [];
   for (const asset of assets) assetFilePath(dir, asset.name);
   const text = new TextDecoder().decode(res.bytes);
   mkdirSync2(dir, { recursive: true });
   const created = [];
-  const tmp = join3(dir, `.${basename3(a.output_path)}.${randomUUID2()}.tmp`);
+  const tmp = join2(dir, `.${basename2(a.output_path)}.${randomUUID2()}.tmp`);
   const renames = /* @__PURE__ */ new Map();
   const taken = /* @__PURE__ */ new Set();
   const plan = assets.map((asset) => {
     let n = 1;
-    while (taken.has(numbered(asset.name, n)) || existsSync(join3(dir, numbered(asset.name, n)))) n++;
+    while (taken.has(numbered(asset.name, n)) || existsSync(join2(dir, numbered(asset.name, n)))) n++;
     taken.add(numbered(asset.name, n));
     return n;
   });
@@ -36079,7 +36071,7 @@ async function htmlToMarkdownFile(a, engine = render, fs = realFs) {
       let n = plan[i];
       for (; ; ) {
         const name = numbered(asset.name, n);
-        const target = join3(dir, name);
+        const target = join2(dir, name);
         try {
           fs.writeFile(target, asset.bytes, { flag: "wx" });
         } catch (e) {
