@@ -3,7 +3,7 @@ import {
   DEFAULT_COLOUR,
   readMeshes,
   triangleGroups
-} from "../chunk-LTNURLCF.mjs";
+} from "../chunk-6JKP2OVK.mjs";
 import {
   RenderError
 } from "../chunk-WYJQ7P44.mjs";

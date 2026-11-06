@@ -6,7 +6,7 @@ import {
 } from "./chunk-VHCRZQSZ.mjs";
 import {
   loadConfig
-} from "./chunk-GQ22XQKF.mjs";
+} from "./chunk-MRCF6C3O.mjs";
 import "./chunk-SUGXCK3Q.mjs";
 import {
   RENDER_ERROR_CODES,
@@ -36411,7 +36411,7 @@ function makeHandlers() {
 }
 
 // src/index.ts
-var VERSION = true ? "1.0.7" : "0.0.0-dev";
+var VERSION = true ? "1.0.8" : "0.0.0-dev";
 var server = new Server(
   { name: "scieng-mcp", version: VERSION },
   { capabilities: { tools: {} } }

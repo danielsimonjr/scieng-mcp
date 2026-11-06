@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- The `md` report of `type: "cad"` gives a third check, the minimum gap, from sciengjs 1.0.7 (option `minGap`, default 0.5 mm). The `/scieng-mcp:cad` command takes `--min-gap <mm>`.
+
+### Fixed
+
+- The wall check and the gap check of the `md` report no longer fail a part that is turned off the axes (sciengjs 1.0.7).
+
 ### Fixed
 
 - `docs/architecture/OVERVIEW.md` gives the line count of 5137 in its three places. The 1.0.7 test change made the gated value stale, and two prose values were stale from earlier releases.

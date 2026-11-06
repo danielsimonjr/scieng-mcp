@@ -595,7 +595,7 @@ var SECTION_AXES = [
 ];
 var OFFSET_SEGMENTS = 32;
 var WALL_SECTIONS = 32;
-function measureCad(document, maxFacets, minWall) {
+function measureCad(document, maxFacets, minWall, minGap) {
   return withSolid(document, maxFacets, (solid, build) => {
     if (solid.numTri() === 0)
       throw new RenderError("E_INPUT", "the model holds no solid");
@@ -607,15 +607,20 @@ function measureCad(document, maxFacets, minWall) {
         positions[v * 3 + c] = mesh.vertProperties[v * mesh.numProp + c];
     }
     const thin = [];
+    const narrow = [];
     for (const { axis, index, angles } of SECTION_AXES) {
       const turned = index === 2 ? solid : build.keep(solid.rotate([...angles]));
       const lo = min[index];
       const step = (max[index] - lo) / WALL_SECTIONS;
       for (let i = 0; i < WALL_SECTIONS; i++) {
         const at = lo + (i + 0.5) * step;
-        const area = thinArea(build, build.keep(turned.slice(at)), minWall);
-        if (area > 0)
-          thin.push({ axis, at, area });
+        const section = build.keep(turned.slice(at));
+        const thinAt = thinPieces(build, section, minWall).pieces;
+        if (thinAt.length > 0 && persists(build, turned, at, thinAt, minWall, thinPieces))
+          thin.push({ axis, at, area: areaOf(thinAt) });
+        const gapAt = gapPieces(build, section, minGap).pieces;
+        if (gapAt.length > 0 && persists(build, turned, at, gapAt, minGap, gapPieces))
+          narrow.push({ axis, at, area: areaOf(gapAt) });
       }
     }
     return {
@@ -625,24 +630,127 @@ function measureCad(document, maxFacets, minWall) {
       area: solid.surfaceArea(),
       positions,
       triangles: Uint32Array.from(mesh.triVerts),
-      thin
+      thin,
+      narrow
     };
   });
 }
-function thinArea(build, section, minWall) {
+function thinPieces(build, section, minWall) {
   const segments = OFFSET_SEGMENTS;
   const half = minWall / 2 * (1 - 1e-6);
-  const corner = (1 - Math.PI / 4) * minWall * minWall;
   const opened = build.keep(build.keep(section.offset(-half, "Round", 2, segments)).offset(half, "Round", 2, segments));
-  const removed = build.keep(build.keep(section.subtract(opened)).simplify(minWall / 1e3));
-  let area = 0;
-  for (const piece of removed.decompose()) {
+  const wideIn = (shape) => build.keep(shape.intersect(opened)).area();
+  return { pieces: countedPieces(build, section, build.keep(section.subtract(opened)), minWall, wideIn), wideIn };
+}
+function gapPieces(build, section, minGap) {
+  const segments = OFFSET_SEGMENTS;
+  const half = minGap / 2 * (1 - 1e-6);
+  const closed = build.keep(build.keep(section.offset(half, "Round", 2, segments)).offset(-half, "Round", 2, segments));
+  const wideIn = (shape) => build.keep(shape.subtract(closed)).area();
+  return { pieces: countedPieces(build, section, build.keep(closed.subtract(section)), minGap, wideIn), wideIn };
+}
+function countedPieces(build, section, removed, min, wideIn) {
+  const segments = OFFSET_SEGMENTS;
+  const vertices = sectionVertices(build, section, min);
+  const cleaned = simplified(build, removed, min);
+  const pieces = [];
+  for (const piece of cleaned.decompose()) {
     build.keep(piece);
-    const pieceArea = piece.area();
-    if (pieceArea > corner || build.keep(piece.offset(-minWall / 8, "Round", 2, segments)).area() > 0)
-      area += pieceArea;
+    let longest = 0;
+    let wall = false;
+    for (const part of openedParts(build, piece, min)) {
+      const held = heldVertices(build, part, vertices, min);
+      if (held.length === 1)
+        continue;
+      const side = longestSide(part);
+      if (held.length >= 2 && held.every((v) => v.convex) && side <= 2 * min && bordersWide(build, part, min, wideIn))
+        continue;
+      wall = true;
+      longest = Math.max(longest, side);
+    }
+    if (!wall)
+      continue;
+    if (longest > 0.75 * min || build.keep(piece.offset(-min / 8, "Round", 2, segments)).area() > 0)
+      pieces.push(piece);
   }
-  return area;
+  return pieces;
+}
+function bordersWide(build, part, min, wideIn) {
+  return wideIn(build.keep(part.offset(min / 100, "Round", 2, OFFSET_SEGMENTS))) > 0;
+}
+function simplified(build, shape, min) {
+  return build.keep(shape.simplify(min / 1e3));
+}
+function sectionVertices(build, section, min) {
+  const out = [];
+  for (const polygon of simplified(build, section, min).toPolygons()) {
+    const n = polygon.length;
+    for (let i = 0; i < n; i++) {
+      const a = polygon[(i + n - 1) % n];
+      const b = polygon[i];
+      const c = polygon[(i + 1) % n];
+      const cross = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+      out.push({ x: b[0], y: b[1], convex: cross > 0 });
+    }
+  }
+  return out;
+}
+function heldVertices(build, part, vertices, min) {
+  const box = boundsOf(part);
+  const reach = min / 8;
+  return vertices.filter((v) => {
+    if (v.x < box.minX - reach || v.x > box.maxX + reach || v.y < box.minY - reach || v.y > box.maxY + reach)
+      return false;
+    const square = build.keep(build.m.CrossSection.square([min / 4, min / 4], true));
+    const tip = build.keep(square.translate([v.x, v.y]));
+    return build.keep(tip.intersect(part)).area() > 0;
+  });
+}
+function openedParts(build, piece, min) {
+  const e = min / 200;
+  const opened = build.keep(build.keep(piece.offset(-e, "Round", 2, OFFSET_SEGMENTS)).offset(e, "Round", 2, OFFSET_SEGMENTS));
+  return opened.decompose().map((part) => build.keep(part));
+}
+function boundsOf(part) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const polygon of part.toPolygons()) {
+    for (const [x, y] of polygon) {
+      minX = Math.min(minX, x);
+      maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  return { minX, minY, maxX, maxY };
+}
+function longestSide(part) {
+  const { minX, minY, maxX, maxY } = boundsOf(part);
+  let longest = 0;
+  longest = Math.max(longest, maxX - minX, maxY - minY);
+  return longest;
+}
+function areaOf(pieces) {
+  return pieces.reduce((sum, piece) => sum + piece.area(), 0);
+}
+function persists(build, turned, at, pieces, min, find) {
+  const near = pieces.map((piece) => build.keep(piece.offset(min / 2, "Round", 2, OFFSET_SEGMENTS)));
+  const covered = pieces.map(() => false);
+  for (const other of [at - min / 2, at + min / 2]) {
+    const section = build.keep(turned.slice(other));
+    if (section.area() === 0)
+      continue;
+    const found = find(build, section, min);
+    for (let i = 0; i < pieces.length; i++) {
+      if (found.pieces.some((f) => build.keep(f.intersect(near[i])).area() > 0))
+        return true;
+      if (found.wideIn(pieces[i]) > pieces[i].area() / 2)
+        covered[i] = true;
+    }
+  }
+  return covered.some((c) => !c);
 }
 async function withSolid(document, maxFacets, read) {
   const m = await loadManifold();
